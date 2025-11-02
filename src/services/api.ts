@@ -1,5 +1,8 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
+import { ApiResponse, Order, OrderRequest } from '@/types/api';
+import { MenuItemRequest, MenuItemResponse } from '@/types/menu';
+
 export const api = {
   async register(endpoint: string, data: any) {
     const response = await fetch(`${API_BASE_URL}/auth/register/${endpoint}`, {
@@ -26,11 +29,22 @@ export const api = {
     return response.json();
   },
 
-  async getMyMenuItems(token: string) {
-    const response = await fetch(`${API_BASE_URL}/chef/my-menu-items`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
+  async getMyMenuItems(token: string): Promise<ApiResponse<MenuItemResponse[]>> {
+    try {
+      console.log('Fetching menu items with token:', token);
+      const response = await fetch(`${API_BASE_URL}/chef/my-menu-items`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      console.log('API Response:', {
+        status: response.status,
+        data: data
+      });
+      return data;
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+      throw error;
+    }
   },
 
   async createMenuItem(token: string, data: any) {
@@ -53,7 +67,7 @@ export const api = {
     return response.json();
   },
 
-  async placeOrder(token: string, data: any) {
+  async placeOrder(token: string, data: OrderRequest): Promise<ApiResponse<Order>> {
     const response = await fetch(`${API_BASE_URL}/orders`, {
       method: 'POST',
       headers: {

@@ -1,17 +1,7 @@
-interface Order {
-  id: string;
-  orderNumber: string;
-  totalAmount: number;
-  status: string;
-  orderItems?: Array<{
-    menuItem?: { name: string };
-    quantity: number;
-    subtotal: number;
-  }>;
-}
+import { OrderResponse, OrderItemResponse } from '@/types/api.types';
 
 interface OrderListProps {
-  orders: Order[];
+  orders: OrderResponse[];
 }
 
 export const OrderList = ({ orders }: OrderListProps) => {
@@ -56,8 +46,8 @@ export const OrderList = ({ orders }: OrderListProps) => {
             </div>
             <div className="border-t border-border pt-4">
               {order.orderItems && order.orderItems.map((item, idx) => (
-                <div key={idx} className="flex justify-between text-sm text-muted-foreground mb-1">
-                  <span>{item.menuItem?.name || 'Item'} x {item.quantity}</span>
+                <div key={item.id} className="flex justify-between text-sm text-muted-foreground mb-1">
+                  <span>{item.menuItemName} x {item.quantity}</span>
                   <span>₹{item.subtotal.toFixed(2)}</span>
                 </div>
               ))}

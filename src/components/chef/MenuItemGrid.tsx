@@ -1,10 +1,10 @@
 import { ChefHat, UtensilsCrossed } from 'lucide-react';
-import { ChefMenuItem } from './ChefDashboard';
+import { MenuItemResponse } from '@/types/menu';
 
 interface MenuItemGridProps {
-  menuItems: ChefMenuItem[];
+  menuItems: MenuItemResponse[];
   loading: boolean;
-  onToggleAvailability: (id: string) => void;
+  onToggleAvailability: (id: number) => void;
 }
 
 export const MenuItemGrid = ({ menuItems, loading, onToggleAvailability }: MenuItemGridProps) => {

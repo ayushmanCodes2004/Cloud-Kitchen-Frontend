@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { UtensilsCrossed } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
+import { useNavigate } from 'react-router-dom';
 import { Alert } from '@/components/Alert';
 
 interface LoginProps {
@@ -10,6 +11,7 @@ interface LoginProps {
 
 export const Login = ({ onSwitchToRegister }: LoginProps) => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -25,6 +27,9 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
       if (result.success) {
         login(result.data, result.data.token);
         setAlert({ type: 'success', message: 'Login successful!' });
+        // Navigate to the appropriate dashboard based on user role
+        const dashboardPath = `/dashboard/${result.data.role.toLowerCase()}`;
+        navigate(dashboardPath, { replace: true });
       } else {
         setAlert({ type: 'error', message: result.message || 'Login failed' });
       }

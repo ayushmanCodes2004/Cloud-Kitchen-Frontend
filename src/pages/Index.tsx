@@ -1,34 +1,21 @@
 import { useState } from 'react';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Login } from '@/components/auth/Login';
 import { Register } from '@/components/auth/Register';
-import { StudentDashboard } from '@/components/student/StudentDashboard';
-import { ChefDashboard } from '@/components/chef/ChefDashboard';
 
-const AppContent = () => {
+const Index = () => {
   const [showLogin, setShowLogin] = useState(true);
   const { user } = useAuth();
 
   if (user) {
-    if (user.role === 'STUDENT') {
-      return <StudentDashboard />;
-    } else if (user.role === 'CHEF') {
-      return <ChefDashboard />;
-    }
+    return <Navigate to={`/dashboard/${user.role.toLowerCase()}`} replace />;
   }
 
   return showLogin ? (
     <Login onSwitchToRegister={() => setShowLogin(false)} />
   ) : (
     <Register onSwitchToLogin={() => setShowLogin(true)} />
-  );
-};
-
-const Index = () => {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 };
 

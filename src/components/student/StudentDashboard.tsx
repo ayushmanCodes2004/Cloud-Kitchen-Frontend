@@ -2,20 +2,14 @@ import { useState, useEffect } from 'react';
 import { UtensilsCrossed, ShoppingCart, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
+import { orderApi } from '@/services/orderApi';
+import { MenuItem, OrderResponse, OrderRequest } from '@/types/api.types';
 import { Alert } from '@/components/Alert';
 import { MenuGrid } from './MenuGrid';
 import { Cart } from './Cart';
 import { OrderList } from './OrderList';
 
-export interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  vegetarian: boolean;
-  chefName: string;
-}
+
 
 export interface CartItem extends MenuItem {
   quantity: number;
@@ -25,7 +19,7 @@ export const StudentDashboard = () => {
   const { user, token, logout } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showCart, setShowCart] = useState(false);
@@ -51,7 +45,7 @@ export const StudentDashboard = () => {
 
   const loadOrders = async () => {
     try {
-      const result = await api.getMyOrders(token!);
+      const result = await orderApi.getMyOrders(token!);
       if (result.success) {
         setOrders(result.data || []);
       }
@@ -76,7 +70,7 @@ export const StudentDashboard = () => {
 
     const orderData = {
       items: cart.map(item => ({
-        menuItemId: item.id,
+        menuItemId: Number(item.id),
         quantity: item.quantity
       })),
       deliveryAddress: "Student Hostel",
@@ -84,7 +78,7 @@ export const StudentDashboard = () => {
     };
 
     try {
-      const result = await api.placeOrder(token!, orderData);
+      const result = await orderApi.createOrder(token!, orderData);
       if (result.success) {
         setAlert({ type: 'success', message: 'Order placed successfully!' });
         setCart([]);

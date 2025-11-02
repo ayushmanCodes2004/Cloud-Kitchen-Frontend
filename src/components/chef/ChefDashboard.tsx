@@ -6,20 +6,11 @@ import { Alert } from '@/components/Alert';
 import { MenuItemGrid } from './MenuItemGrid';
 import { CreateMenuItemModal } from './CreateMenuItemModal';
 
-export interface ChefMenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  vegetarian: boolean;
-  available: boolean;
-  preparationTime: number;
-}
+import { MenuItemResponse } from '@/types/menu';
 
 export const ChefDashboard = () => {
   const { user, token, logout } = useAuth();
-  const [menuItems, setMenuItems] = useState<ChefMenuItem[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -31,25 +22,32 @@ export const ChefDashboard = () => {
   const loadMenuItems = async () => {
     try {
       const result = await api.getMyMenuItems(token!);
+      console.log('API Response:', result); // Debug log
       if (result.success) {
         setMenuItems(result.data || []);
+      } else {
+        setAlert({ type: 'error', message: result.message || 'Failed to load menu items' });
       }
     } catch (error) {
+      console.error('Error loading menu items:', error); // Debug log
       setAlert({ type: 'error', message: 'Failed to load menu items' });
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleAvailability = async (id: string) => {
+  const toggleAvailability = async (id: number) => {
     try {
-      const result = await api.toggleAvailability(token!, id);
+      const result = await api.toggleAvailability(token!, id.toString());
       if (result.success) {
         loadMenuItems();
         setAlert({ type: 'success', message: 'Availability updated!' });
         setTimeout(() => setAlert(null), 2000);
+      } else {
+        setAlert({ type: 'error', message: result.message || 'Failed to update availability' });
       }
     } catch (error) {
+      console.error('Error toggling availability:', error);
       setAlert({ type: 'error', message: 'Failed to update availability' });
     }
   };
