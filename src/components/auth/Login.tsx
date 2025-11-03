@@ -41,39 +41,39 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <div className="bg-card rounded-2xl shadow-strong p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md border border-gray-200">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-secondary rounded-full mb-4">
-            <UtensilsCrossed className="w-8 h-8 text-primary" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-50 rounded-full mb-4">
+            <UtensilsCrossed className="w-8 h-8 text-orange-500" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Cloud Kitchen</h1>
-          <p className="text-muted-foreground mt-2">Login to your account</p>
+          <h1 className="text-3xl font-bold text-gray-900">CloudKitchen</h1>
+          <p className="text-gray-600 mt-2">Sign in to your account</p>
         </div>
 
         {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input
               type="email"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 border border-input bg-background rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
               placeholder="your@email.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <input
               type="password"
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 border border-input bg-background rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
               placeholder="••••••••"
             />
           </div>
@@ -81,17 +81,17 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 shadow-soft"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-muted-foreground">
+          <p className="text-gray-600">
             Don't have an account?{' '}
-            <button onClick={onSwitchToRegister} className="text-primary font-semibold hover:opacity-80 transition">
-              Register
+            <button onClick={onSwitchToRegister} className="text-orange-500 font-semibold hover:text-orange-600 transition-colors">
+              Sign Up
             </button>
           </p>
         </div>

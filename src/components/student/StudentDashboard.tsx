@@ -1,47 +1,32 @@
 import { useState, useEffect } from 'react';
 import { UtensilsCrossed, ShoppingCart, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { api } from '@/services/api';
 import { orderApi } from '@/services/orderApi';
-import { MenuItem, OrderResponse, OrderRequest } from '@/types/api.types';
-import { Alert } from '@/components/Alert';
-import { MenuGrid } from './MenuGrid';
+import { MenuItemResponse } from '@/services/chefApi';
+import { OrderResponse } from '@/types/api.types';
+import { useToast } from '@/components/ui/use-toast';
+import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Cart } from './Cart';
 import { OrderList } from './OrderList';
+import { Button } from '@/components/ui/button';
 
 
 
-export interface CartItem extends MenuItem {
+export interface CartItem extends MenuItemResponse {
   quantity: number;
 }
 
 export const StudentDashboard = () => {
   const { user, token, logout } = useAuth();
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const { toast } = useToast();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showCart, setShowCart] = useState(false);
   const [activeTab, setActiveTab] = useState<'menu' | 'orders'>('menu');
 
   useEffect(() => {
-    loadMenuItems();
     loadOrders();
   }, [token]);
-
-  const loadMenuItems = async () => {
-    try {
-      const result = await api.getMenuItems(token!);
-      if (result.success) {
-        setMenuItems(result.data || []);
-      }
-    } catch (error) {
-      setAlert({ type: 'error', message: 'Failed to load menu items' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadOrders = async () => {
     try {
@@ -54,15 +39,17 @@ export const StudentDashboard = () => {
     }
   };
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = (item: MenuItemResponse) => {
     const existing = cart.find(i => i.id === item.id);
     if (existing) {
       setCart(cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
     } else {
       setCart([...cart, { ...item, quantity: 1 }]);
     }
-    setAlert({ type: 'success', message: `${item.name} added to cart!` });
-    setTimeout(() => setAlert(null), 2000);
+    toast({
+      title: "Added to cart",
+      description: `${item.name} added to cart!`
+    });
   };
 
   const placeOrder = async () => {
@@ -80,15 +67,32 @@ export const StudentDashboard = () => {
     try {
       const result = await orderApi.createOrder(token!, orderData);
       if (result.success) {
-        setAlert({ type: 'success', message: 'Order placed successfully!' });
+        // Backend now returns array of orders (one per chef)
+        const orders = Array.isArray(result.data) ? result.data : [result.data];
+        const orderCount = orders.length;
+        
+        toast({
+          title: "Success",
+          description: orderCount > 1 
+            ? `${orderCount} orders placed successfully (one per chef)!`
+            : 'Order placed successfully!'
+        });
         setCart([]);
         setShowCart(false);
         loadOrders();
       } else {
-        setAlert({ type: 'error', message: result.message || 'Failed to place order' });
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.message || 'Failed to place order'
+        });
       }
     } catch (error) {
-      setAlert({ type: 'error', message: 'Failed to place order' });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: 'Failed to place order'
+      });
     }
   };
 
@@ -154,10 +158,12 @@ export const StudentDashboard = () => {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
-
         {activeTab === 'menu' ? (
-          <MenuGrid menuItems={menuItems} loading={loading} onAddToCart={addToCart} />
+          <MenuBrowser 
+            onOrderClick={addToCart} 
+            showOrderButton={true}
+            userRole="student"
+          />
         ) : (
           <OrderList orders={orders} />
         )}

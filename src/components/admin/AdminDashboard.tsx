@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { adminApi, UserResponse } from '@/services/adminApi';
 import { DashboardStats } from './DashboardStats';
 import { UserList } from './UserList';
+import { OrderManagement } from './OrderManagement';
+import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -20,9 +22,13 @@ export const AdminDashboard = () => {
         adminApi.getAllChefs()
       ]);
       
+      console.log('Loaded chefs data:', allChefs);
+      console.log('Verified chefs:', allChefs.filter(c => c.verified));
+      
       setUsers(allUsers);
       setChefs(allChefs);
     } catch (error) {
+      console.error('Failed to load dashboard data:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -107,20 +113,17 @@ export const AdminDashboard = () => {
 
   const handleVerifyChef = async (id: number) => {
     try {
+      console.log('Verifying chef with ID:', id);
       const updatedChef = await adminApi.verifyChef(id);
+      console.log('Backend response for verified chef:', updatedChef);
       
       // Update chefs state with verified chef
       setChefs(prevChefs => {
         const updatedChefs = prevChefs.map(chef => 
           chef.id === id ? { ...chef, verified: true } : chef
         );
-        // Update stats based on the new chefs state
-        const newStats = {
-          totalUsers: users.length,
-          totalChefs: updatedChefs.length,
-          activeUsers: users.filter(u => u.active).length,
-          verifiedChefs: updatedChefs.filter(c => c.verified).length
-        };
+        console.log('Updated chefs after verification:', updatedChefs);
+        console.log('Verified chefs count:', updatedChefs.filter(c => c.verified).length);
         return updatedChefs;
       });
 
@@ -129,6 +132,7 @@ export const AdminDashboard = () => {
         description: "Chef verified successfully"
       });
     } catch (error) {
+      console.error('Error verifying chef:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -169,11 +173,21 @@ export const AdminDashboard = () => {
 
       <DashboardStats {...stats} />
 
-      <Tabs defaultValue="users" className="mt-8">
+      <Tabs defaultValue="orders" className="mt-8">
         <TabsList>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="menu">Menu Items</TabsTrigger>
           <TabsTrigger value="users">All Users</TabsTrigger>
           <TabsTrigger value="chefs">Chefs</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="orders" className="mt-4">
+          <OrderManagement />
+        </TabsContent>
+        
+        <TabsContent value="menu" className="mt-4">
+          <MenuBrowser userRole="admin" />
+        </TabsContent>
         
         <TabsContent value="users" className="mt-4">
           <UserList
