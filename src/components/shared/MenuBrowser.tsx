@@ -172,9 +172,13 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
                     <Package className="w-12 h-12 text-gray-400" />
                   </div>
                 )}
-                {item.vegetarian && (
+                {item.vegetarian ? (
                   <Badge className="absolute top-2 left-2 bg-green-500">
                     🌱 Veg
+                  </Badge>
+                ) : (
+                  <Badge className="absolute top-2 left-2 bg-red-500">
+                    🥩 Non-Veg
                   </Badge>
                 )}
                 {!item.available && (

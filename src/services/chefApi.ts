@@ -113,5 +113,47 @@ export const chefApi = {
     const data = await response.json();
     if (!data.success) throw new Error(data.message);
     return data.data;
+  },
+
+  // Get chef's own ratings
+  getMyRatings: async (): Promise<any> => {
+    const token = sessionStorage.getItem('token');
+    console.log('🔍 getMyRatings - Token present:', !!token);
+    console.log('🔍 API URL:', `${API_BASE_URL}/chef/my-ratings`);
+    
+    const response = await fetch(`${API_BASE_URL}/chef/my-ratings`, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('🔍 Response status:', response.status);
+    console.log('🔍 Response ok:', response.ok);
+    
+    const responseText = await response.text();
+    console.log('🔍 Raw response:', responseText);
+    
+    if (!response.ok) {
+      console.error('❌ HTTP Error:', response.status, response.statusText);
+      throw new Error(`HTTP ${response.status}: ${responseText || response.statusText}`);
+    }
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error('❌ Failed to parse JSON:', e);
+      throw new Error('Invalid JSON response from server');
+    }
+    
+    console.log('✅ Parsed data:', data);
+    
+    if (!data.success) {
+      console.error('❌ API returned success=false:', data.message);
+      throw new Error(data.message || 'Failed to fetch ratings');
+    }
+    
+    return data.data;
   }
 };

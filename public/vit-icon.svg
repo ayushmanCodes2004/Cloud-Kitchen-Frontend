@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 410 404">
+  <defs>
+    <linearGradient id="vite-gradient-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#41D1FF"/>
+      <stop offset="100%" style="stop-color:#BD34FE"/>
+    </linearGradient>
+    <linearGradient id="vite-gradient-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFEA83"/>
+      <stop offset="8.333%" style="stop-color:#FFDD35"/>
+      <stop offset="100%" style="stop-color:#FFA800"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Lightning bolt - left part (blue/purple gradient) -->
+  <path d="M229.763 0.0769043L94.2988 179.026L173.026 215.051L173.026 403.949L308.49 224.999L229.763 188.974L229.763 0.0769043Z" 
+        fill="url(#vite-gradient-1)" 
+        fill-opacity="1"/>
+  
+  <!-- Lightning bolt - right part (yellow/orange gradient) -->
+  <path d="M173.026 215.051L94.2988 179.026L0.0769043 334.872L173.026 403.949L173.026 215.051Z" 
+        fill="url(#vite-gradient-2)" 
+        fill-opacity="1"/>
+  
+  <!-- Lightning bolt - top accent -->
+  <path d="M229.763 0.0769043L308.49 224.999L409.923 69.1538L229.763 0.0769043Z" 
+        fill="url(#vite-gradient-1)" 
+        fill-opacity="0.44"/>
+</svg>

@@ -36,8 +36,10 @@ export const MenuItemGrid = ({ menuItems, loading, onToggleAvailability }: MenuI
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
               <div className="flex gap-2">
-                {item.vegetarian && (
+                {item.vegetarian ? (
                   <span className="bg-success/20 text-success text-xs px-2 py-1 rounded font-medium">Veg</span>
+                ) : (
+                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-medium">Non-Veg</span>
                 )}
                 <span className={`text-xs px-2 py-1 rounded font-medium ${
                   item.available ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'

@@ -41,14 +41,14 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-400 to-red-500 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md border border-gray-200">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-50 rounded-full mb-4">
             <UtensilsCrossed className="w-8 h-8 text-orange-500" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">CloudKitchen</h1>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-gray-900">PlatePal</h1>
+          <p className="text-gray-600 mt-2">Your kitchen, just a tap away</p>
         </div>
 
         {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}

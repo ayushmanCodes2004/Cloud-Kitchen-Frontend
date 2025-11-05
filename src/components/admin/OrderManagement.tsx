@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Package, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 
 export const OrderManagement = () => {
   const { token } = useAuth();
@@ -187,7 +188,14 @@ export const OrderManagement = () => {
                       <p><span className="font-medium">Student:</span> {order.studentName}</p>
                       <p><span className="font-medium">Items:</span> {order.orderItems.length} item(s)</p>
                       {order.orderItems.map((item, idx) => (
-                        <p key={idx} className="text-xs pl-4">• {item.menuItemName} x{item.quantity}</p>
+                        <div key={idx} className="text-xs pl-4 flex items-center gap-1">
+                          {item.vegetarian ? (
+                            <VegIcon size="sm" />
+                          ) : (
+                            <NonVegIcon size="sm" />
+                          )}
+                          <span>• {item.menuItemName} x{item.quantity}</span>
+                        </div>
                       ))}
                     </div>
                   </div>

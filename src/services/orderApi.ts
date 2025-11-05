@@ -14,15 +14,34 @@ export enum OrderStatus {
 export const orderApi = {
   // Place a new order
   async createOrder(token: string, request: any): Promise<ApiResponse<OrderResponse>> {
-    const response = await fetch(`${API_BASE_URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(request)
-    });
-    return response.json();
+    try {
+      console.log('Making create order request:', { request, url: `${API_BASE_URL}/orders` });
+      const response = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Create order API error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          request: request,
+          errorBody: errorText
+        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Create order API error:', error);
+      throw error;
+    }
   },
 
   // Get orders for the current student

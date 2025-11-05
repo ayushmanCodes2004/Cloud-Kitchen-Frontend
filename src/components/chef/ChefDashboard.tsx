@@ -14,6 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChefOrderManagement } from './ChefOrderManagement';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
+import { ChefRatingsDisplay } from './ChefRatingsDisplay';
 
 export const ChefDashboard = () => {
   const { user, logout } = useAuth();
@@ -245,29 +246,27 @@ export const ChefDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <ChefHat className="w-8 h-8 text-orange-500" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Chef Dashboard</h1>
-              <p className="text-sm text-gray-600">Welcome, Chef {user?.name}!</p>
-            </div>
-          </div>
-          <Button onClick={logout} variant="outline" className="flex items-center gap-2">
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
+    <div className="container mx-auto px-4 py-8">
+      <header className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Chef Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Welcome back, {user?.name}</p>
         </div>
+        <button
+          onClick={() => {
+            logout();
+          }}
+          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
+        >
+          Logout
+        </button>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <Tabs defaultValue="menu" className="space-y-6">
+      <Tabs defaultValue="menu" className="mt-8">
           <TabsList>
             <TabsTrigger value="menu">My Menu</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="ratings">My Ratings</TabsTrigger>
             <TabsTrigger value="browse">Browse All</TabsTrigger>
           </TabsList>
 
@@ -342,8 +341,10 @@ export const ChefDashboard = () => {
                           <Package className="w-12 h-12 text-gray-400" />
                         </div>
                       )}
-                      {item.vegetarian && (
+                      {item.vegetarian ? (
                         <Badge className="absolute top-2 right-2 bg-green-500">Veg</Badge>
+                      ) : (
+                        <Badge className="absolute top-2 right-2 bg-red-500">Non-Veg</Badge>
                       )}
                     </div>
                     <CardContent className="p-4">
@@ -395,12 +396,16 @@ export const ChefDashboard = () => {
             <ChefOrderManagement />
           </TabsContent>
 
+          {/* Ratings Tab */}
+          <TabsContent value="ratings">
+            <ChefRatingsDisplay />
+          </TabsContent>
+
           {/* Browse All Menu Items Tab */}
           <TabsContent value="browse">
             <MenuBrowser userRole="chef" />
           </TabsContent>
         </Tabs>
-      </main>
 
       {/* Create Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>

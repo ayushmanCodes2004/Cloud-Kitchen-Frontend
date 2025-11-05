@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UtensilsCrossed, ShoppingCart, LogOut } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { orderApi } from '@/services/orderApi';
 import { MenuItemResponse } from '@/services/chefApi';
@@ -8,7 +8,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Cart } from './Cart';
 import { OrderList } from './OrderList';
-import { Button } from '@/components/ui/button';
+import { RatingsDisplay } from '@/components/ui/RatingsDisplay';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 
@@ -22,7 +24,6 @@ export const StudentDashboard = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [showCart, setShowCart] = useState(false);
-  const [activeTab, setActiveTab] = useState<'menu' | 'orders'>('menu');
 
   useEffect(() => {
     loadOrders();
@@ -97,77 +98,66 @@ export const StudentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card shadow-soft border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <UtensilsCrossed className="w-8 h-8 text-primary mr-3" />
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Cloud Kitchen</h1>
-              <p className="text-sm text-muted-foreground">Welcome, {user?.name}!</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowCart(true)}
-              className="relative p-2 hover:bg-muted rounded-lg transition"
-            >
-              <ShoppingCart className="w-6 h-6 text-foreground" />
-              {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                  {cart.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-foreground transition"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <header className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Student Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Welcome back, {user?.name}</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowCart(true)}
+            className="relative p-2 hover:bg-muted rounded-lg transition"
+          >
+            <ShoppingCart className="w-6 h-6 text-foreground" />
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+                {cart.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => {
+              logout();
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
+          >
+            Logout
+          </button>
         </div>
       </header>
 
-      <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-8">
-            <button
-              onClick={() => setActiveTab('menu')}
-              className={`py-4 px-2 font-semibold border-b-2 transition ${
-                activeTab === 'menu'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Menu
-            </button>
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`py-4 px-2 font-semibold border-b-2 transition ${
-                activeTab === 'orders'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              My Orders
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'menu' ? (
+      <Tabs defaultValue="menu" className="mt-8">
+        <TabsList>
+          <TabsTrigger value="menu">Menu</TabsTrigger>
+          <TabsTrigger value="orders">My Orders</TabsTrigger>
+          <TabsTrigger value="ratings">Ratings</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="menu" className="mt-4">
           <MenuBrowser 
             onOrderClick={addToCart} 
             showOrderButton={true}
             userRole="student"
           />
-        ) : (
+        </TabsContent>
+        
+        <TabsContent value="orders" className="mt-4">
           <OrderList orders={orders} />
-        )}
-      </main>
+        </TabsContent>
+        
+        <TabsContent value="ratings" className="mt-4">
+          <ErrorBoundary>
+            {token ? (
+              <RatingsDisplay type="all" token={token} />
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-destructive">Please log in to view ratings</p>
+              </div>
+            )}
+          </ErrorBoundary>
+        </TabsContent>
+      </Tabs>
 
       {showCart && (
         <Cart

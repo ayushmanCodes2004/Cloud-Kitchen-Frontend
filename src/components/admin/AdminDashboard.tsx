@@ -5,6 +5,7 @@ import { DashboardStats } from './DashboardStats';
 import { UserList } from './UserList';
 import { OrderManagement } from './OrderManagement';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
+import { RatingsDisplay } from '@/components/ui/RatingsDisplay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -177,6 +178,7 @@ export const AdminDashboard = () => {
         <TabsList>
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="menu">Menu Items</TabsTrigger>
+          <TabsTrigger value="ratings">Ratings</TabsTrigger>
           <TabsTrigger value="users">All Users</TabsTrigger>
           <TabsTrigger value="chefs">Chefs</TabsTrigger>
         </TabsList>
@@ -187,6 +189,10 @@ export const AdminDashboard = () => {
         
         <TabsContent value="menu" className="mt-4">
           <MenuBrowser userRole="admin" />
+        </TabsContent>
+        
+        <TabsContent value="ratings" className="mt-4">
+          <RatingsDisplay type="all" token={token!} />
         </TabsContent>
         
         <TabsContent value="users" className="mt-4">

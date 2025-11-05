@@ -73,8 +73,8 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto border border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-400 to-red-500 py-8 px-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto border border-white/20 backdrop-blur-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-50 rounded-full mb-4">
             {chefOnly ? (
@@ -86,10 +86,15 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
             )}
           </div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {chefOnly ? 'Become a Chef' : studentOnly ? 'Order Delicious Food' : 'Create Account'}
+            {chefOnly ? 'Chef Registration' : studentOnly ? 'Student Registration' : 'Welcome to PlatePal'}
           </h1>
           <p className="text-gray-600 mt-2">
-            {chefOnly ? 'Join our team of culinary experts' : studentOnly ? 'Sign up to start ordering' : 'Join CloudKitchen today'}
+            {chefOnly 
+              ? 'Join our culinary network and showcase your cooking skills'
+              : studentOnly 
+                ? 'Join PlatePal and enjoy delicious meals delivered to your hostel'
+                : 'Your kitchen, just a tap away'
+            }
           </p>
         </div>
 
@@ -119,6 +124,23 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
               <ChefHat className="inline w-5 h-5 mr-2" />
               Chef
             </button>
+          </div>
+        )}
+
+        {/* Dynamic message for chef selection */}
+        {!chefOnly && !studentOnly && userType === 'chef' && (
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <ChefHat className="w-6 h-6 text-orange-600 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-orange-800 mb-2">Ready to Start Your Culinary Journey?</h3>
+                <p className="text-orange-700 text-sm leading-relaxed">
+                  Join PlatePal's community of passionate chefs! Share your signature dishes, build your culinary reputation, 
+                  and earn from your cooking skills. We provide the platform, you bring the flavor. 
+                  <span className="font-medium"> Start cooking, start earning!</span>
+                </p>
+              </div>
+            </div>
           </div>
         )}
 

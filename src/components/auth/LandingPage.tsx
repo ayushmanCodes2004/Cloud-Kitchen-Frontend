@@ -10,27 +10,27 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-orange-500 via-orange-600 to-red-500 flex flex-col items-center justify-center px-4 overflow-hidden">
+      <section className="relative h-screen flex flex-col items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-orange-400 via-red-400 to-red-500">
         {/* Background Image with Blur and Overlay */}
         <div className="absolute inset-0">
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=1920&q=80')",
-              filter: 'blur(2.5px)',
+              backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
+              filter: 'blur(2px)',
               transform: 'scale(1.1)'
             }}
           ></div>
           {/* Orange/Red Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/80 via-orange-600/80 to-red-500/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-400/95 via-red-400/95 to-red-500/95"></div>
         </div>
         
         <div className="relative z-10 text-center max-w-4xl mx-auto flex-1 flex flex-col items-center justify-center">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Welcome to CloudKitchen
+            Welcome to PlatePal
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-10">
-            Delicious meals delivered from cloud to your table
+            Your kitchen, just a tap away
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -251,7 +251,7 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       <footer className="py-8 px-4 bg-white border-t border-gray-200">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-gray-600 text-sm">
-            © 2024 Cloud Kitchen Management System. All rights reserved.
+            © 2025 PlatePal. All rights reserved.
           </p>
         </div>
       </footer>

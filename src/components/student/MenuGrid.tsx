@@ -1,10 +1,10 @@
 import { UtensilsCrossed } from 'lucide-react';
-import { MenuItem } from './StudentDashboard';
+import { MenuItemResponse } from '@/services/chefApi';
 
 interface MenuGridProps {
-  menuItems: MenuItem[];
+  menuItems: MenuItemResponse[];
   loading: boolean;
-  onAddToCart: (item: MenuItem) => void;
+  onAddToCart: (item: MenuItemResponse) => void;
 }
 
 export const MenuGrid = ({ menuItems, loading, onAddToCart }: MenuGridProps) => {
@@ -36,8 +36,10 @@ export const MenuGrid = ({ menuItems, loading, onAddToCart }: MenuGridProps) => 
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-semibold text-foreground">{item.name}</h3>
-                {item.vegetarian && (
+                {item.vegetarian ? (
                   <span className="bg-success/20 text-success text-xs px-2 py-1 rounded font-medium">Veg</span>
+                ) : (
+                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-medium">Non-Veg</span>
                 )}
               </div>
               <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{item.description}</p>
