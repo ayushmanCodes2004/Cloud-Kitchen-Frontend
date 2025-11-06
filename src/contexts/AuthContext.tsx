@@ -6,6 +6,7 @@ interface User {
   name: string;
   role: 'STUDENT' | 'CHEF' | 'ADMIN';
   phoneNumber?: string;
+  verified?: boolean;
 }
 
 interface AuthContextType {

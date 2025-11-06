@@ -8,8 +8,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Cart } from './Cart';
 import { OrderList } from './OrderList';
-import { RatingsDisplay } from '@/components/ui/RatingsDisplay';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -131,7 +129,6 @@ export const StudentDashboard = () => {
         <TabsList>
           <TabsTrigger value="menu">Menu</TabsTrigger>
           <TabsTrigger value="orders">My Orders</TabsTrigger>
-          <TabsTrigger value="ratings">Ratings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="menu" className="mt-4">
@@ -143,19 +140,7 @@ export const StudentDashboard = () => {
         </TabsContent>
         
         <TabsContent value="orders" className="mt-4">
-          <OrderList orders={orders} />
-        </TabsContent>
-        
-        <TabsContent value="ratings" className="mt-4">
-          <ErrorBoundary>
-            {token ? (
-              <RatingsDisplay type="all" token={token} />
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-destructive">Please log in to view ratings</p>
-              </div>
-            )}
-          </ErrorBoundary>
+          <OrderList orders={orders} onOrderCancelled={loadOrders} />
         </TabsContent>
       </Tabs>
 

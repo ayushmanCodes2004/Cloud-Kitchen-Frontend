@@ -1,4 +1,4 @@
-import { ChefHat, UtensilsCrossed } from 'lucide-react';
+import { ChefHat, UtensilsCrossed, Star } from 'lucide-react';
 import { MenuItemResponse } from '@/types/menu';
 
 interface MenuItemGridProps {
@@ -49,10 +49,21 @@ export const MenuItemGrid = ({ menuItems, loading, onToggleAvailability }: MenuI
               </div>
             </div>
             <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{item.description}</p>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-xl font-bold text-primary">₹{item.price}</span>
               <span className="text-sm text-muted-foreground">{item.preparationTime} mins</span>
             </div>
+            {/* Ratings Display */}
+            {(item.menuItemAverageRating && item.menuItemAverageRating > 0) && (
+              <div className="flex items-center justify-between mb-3 text-xs border-t border-gray-100 pt-2">
+                <span className="text-muted-foreground font-medium">Food Rating:</span>
+                <div className="flex items-center gap-1 text-orange-600">
+                  <Star className="w-3 h-3 fill-current" />
+                  <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                  <span className="text-gray-500">({item.menuItemTotalRatings} reviews)</span>
+                </div>
+              </div>
+            )}
             <button
               onClick={() => onToggleAvailability(item.id)}
               className="w-full bg-muted hover:bg-muted/80 text-foreground py-2 rounded-lg transition font-medium"

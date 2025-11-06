@@ -66,9 +66,9 @@ export const UserList = ({ users, onActivate, onDeactivate, onVerify, type }: Us
                         Activate
                       </Button>
                     )}
-                    {type === 'chefs' && !user.verified && onVerify && (
+                    {type === 'chefs' && onVerify && (
                       <Button
-                        variant="outline"
+                        variant={user.verified ? "default" : "outline"}
                         size="sm"
                         disabled={verifyingId === user.id}
                         onClick={async () => {
@@ -80,7 +80,11 @@ export const UserList = ({ users, onActivate, onDeactivate, onVerify, type }: Us
                           }
                         }}
                       >
-                        {verifyingId === user.id ? 'Verifying...' : 'Verify'}
+                        {verifyingId === user.id 
+                          ? 'Processing...' 
+                          : user.verified 
+                            ? 'Unverify' 
+                            : 'Verify'}
                       </Button>
                     )}
                   </div>

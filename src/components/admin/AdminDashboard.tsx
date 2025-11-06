@@ -114,30 +114,30 @@ export const AdminDashboard = () => {
 
   const handleVerifyChef = async (id: number) => {
     try {
-      console.log('Verifying chef with ID:', id);
-      const updatedChef = await adminApi.verifyChef(id);
-      console.log('Backend response for verified chef:', updatedChef);
+      console.log('Toggling verification for chef with ID:', id);
+      const updatedChef = await adminApi.toggleChefVerification(id);
+      console.log('Backend response for chef:', updatedChef);
       
-      // Update chefs state with verified chef
+      // Update chefs state with toggled verification
       setChefs(prevChefs => {
         const updatedChefs = prevChefs.map(chef => 
-          chef.id === id ? { ...chef, verified: true } : chef
+          chef.id === id ? { ...chef, verified: updatedChef.verified } : chef
         );
-        console.log('Updated chefs after verification:', updatedChefs);
+        console.log('Updated chefs after toggle:', updatedChefs);
         console.log('Verified chefs count:', updatedChefs.filter(c => c.verified).length);
         return updatedChefs;
       });
 
       toast({
         title: "Success",
-        description: "Chef verified successfully"
+        description: updatedChef.verified ? "Chef verified successfully" : "Chef unverified successfully"
       });
     } catch (error) {
-      console.error('Error verifying chef:', error);
+      console.error('Error toggling chef verification:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to verify chef. Please try again."
+        description: "Failed to toggle chef verification. Please try again."
       });
     }
   };

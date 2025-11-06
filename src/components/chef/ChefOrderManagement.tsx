@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Clock, CheckCircle, Package, Loader2, RefreshCw, AlertCircle, TrendingUp, DollarSign } from 'lucide-react';
+import { Clock, CheckCircle, Package, Loader2, RefreshCw, AlertCircle, TrendingUp, IndianRupee, XCircle } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 
 export const ChefOrderManagement = () => {
@@ -19,6 +19,7 @@ export const ChefOrderManagement = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'ALL'>('ALL');
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   const loadOrders = async (isRefresh = false) => {
@@ -156,6 +157,43 @@ export const ChefOrderManagement = () => {
     }
   };
 
+  const handleCancelOrder = async (orderId: number) => {
+    if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+      return;
+    }
+
+    setCancellingOrderId(orderId);
+    try {
+      const response = await orderApi.cancelChefOrder(token!, orderId);
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Order cancelled successfully!"
+        });
+        // Refresh orders list
+        loadOrders(true);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: response.message || 'Failed to cancel order'
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || 'Failed to cancel order'
+      });
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
+
+  const canCancelOrder = (status: string): boolean => {
+    return status === 'PENDING' || status === 'CONFIRMED';
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { color: string; icon: any }> = {
       PENDING: { color: 'bg-yellow-100 text-yellow-800', icon: Clock },
@@ -279,7 +317,7 @@ export const ChefOrderManagement = () => {
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
+              <IndianRupee className="w-4 h-4" />
               Revenue
             </CardTitle>
           </CardHeader>
@@ -400,29 +438,43 @@ export const ChefOrderManagement = () => {
                       {getStatusBadge(order.status)}
                     </div>
                     
-                    <div>
-                      <p className="text-sm text-gray-600 mb-2">Update Status</p>
-                      {isMultiChefOrder && (
-                        <p className="text-xs text-yellow-700 mb-2 bg-yellow-50 p-2 rounded">
-                          ⚠️ Status updates affect the entire order
-                        </p>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Update Status</p>
+                        {isMultiChefOrder && (
+                          <p className="text-xs text-yellow-700 mb-2 bg-yellow-50 p-2 rounded">
+                            ⚠️ Status updates affect the entire order
+                          </p>
+                        )}
+                        <Select
+                          value={order.status}
+                          onValueChange={(value) => handleStatusUpdate(order.id, value as OrderStatus)}
+                          disabled={updatingOrderId === order.id || order.status === 'DELIVERED' || order.status === 'CANCELLED'}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
+                            <SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
+                            <SelectItem value={OrderStatus.PREPARING}>Preparing</SelectItem>
+                            <SelectItem value={OrderStatus.READY}>Ready</SelectItem>
+                            <SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {canCancelOrder(order.status) && (
+                        <Button
+                          onClick={() => handleCancelOrder(order.id)}
+                          disabled={cancellingOrderId === order.id}
+                          variant="destructive"
+                          className="w-full flex items-center justify-center gap-2"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
+                        </Button>
                       )}
-                      <Select
-                        value={order.status}
-                        onValueChange={(value) => handleStatusUpdate(order.id, value as OrderStatus)}
-                        disabled={updatingOrderId === order.id || order.status === 'DELIVERED' || order.status === 'CANCELLED'}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
-                          <SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
-                          <SelectItem value={OrderStatus.PREPARING}>Preparing</SelectItem>
-                          <SelectItem value={OrderStatus.READY}>Ready</SelectItem>
-                          <SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
                 </div>

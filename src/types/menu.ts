@@ -20,4 +20,9 @@ export interface MenuItemResponse {
   preparationTime: number;
   chefName: string;
   chefId: number;
+  chefVerified?: boolean;
+  chefAverageRating?: number;
+  chefTotalRatings?: number;
+  menuItemAverageRating?: number;
+  menuItemTotalRatings?: number;
 }

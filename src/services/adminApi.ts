@@ -95,5 +95,35 @@ export const adminApi = {
     const data = await response.json();
     if (!data.success) throw new Error(data.message || 'Failed to verify chef');
     return data.data;
+  },
+
+  // Unverify chef
+  unverifyChef: async (id: number): Promise<UserResponse> => {
+    const token = sessionStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/chefs/${id}/unverify`, {
+      method: 'PATCH',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || 'Failed to unverify chef');
+    return data.data;
+  },
+
+  // Toggle chef verification
+  toggleChefVerification: async (id: number): Promise<UserResponse> => {
+    const token = sessionStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/chefs/${id}/toggle-verify`, {
+      method: 'PATCH',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || 'Failed to toggle chef verification');
+    return data.data;
   }
 };

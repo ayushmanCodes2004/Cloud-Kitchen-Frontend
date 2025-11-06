@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChefHat, LogOut, Plus, Package, DollarSign, TrendingUp, Edit, Trash2 } from 'lucide-react';
+import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { chefApi, MenuItemRequest, MenuItemResponse } from '@/services/chefApi';
 import { useToast } from '@/components/ui/use-toast';
@@ -301,7 +301,7 @@ export const ChefDashboard = () => {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
+                    <IndianRupee className="w-4 h-4" />
                     Avg Price
                   </CardTitle>
                 </CardHeader>
@@ -355,10 +355,21 @@ export const ChefDashboard = () => {
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="text-2xl font-bold text-orange-600">₹{item.price}</span>
                         <span className="text-sm text-gray-500">{item.preparationTime} min</span>
                       </div>
+                      {/* Ratings Display */}
+                      {(item.menuItemAverageRating && item.menuItemAverageRating > 0) && (
+                        <div className="flex items-center justify-between mb-3 text-xs border-t border-gray-100 pt-2">
+                          <span className="text-gray-500 font-medium">Food Rating:</span>
+                          <div className="flex items-center gap-1 text-orange-600">
+                            <Star className="w-3 h-3 fill-current" />
+                            <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                            <span className="text-gray-500">({item.menuItemTotalRatings} reviews)</span>
+                          </div>
+                        </div>
+                      )}
                       <div className="flex gap-2">
                         <Button
                           variant="outline"

@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { menuApi } from '@/services/menuApi';
 import { MenuItemResponse } from '@/services/chefApi';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { ratingApi } from '@/services/ratingApi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Package, Clock, User, Loader2, ShoppingCart } from 'lucide-react';
+import { Search, Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck } from 'lucide-react';
+import { ReviewsModal } from '@/components/ui/ReviewsModal';
 
 interface MenuBrowserProps {
   onOrderClick?: (item: MenuItemResponse) => void;
@@ -17,12 +20,20 @@ interface MenuBrowserProps {
 
 export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }: MenuBrowserProps) => {
   const { toast } = useToast();
+  const { token } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
   const [filteredItems, setFilteredItems] = useState<MenuItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [availableOnly, setAvailableOnly] = useState(true);
+  const [ratedChefs, setRatedChefs] = useState<Set<number>>(new Set());
+  const [ratedMenuItems, setRatedMenuItems] = useState<Set<number>>(new Set());
+  const [reviewsModal, setReviewsModal] = useState<{
+    isOpen: boolean;
+    menuItemId: number;
+    menuItemName: string;
+  }>({ isOpen: false, menuItemId: 0, menuItemName: '' });
 
   useEffect(() => {
     loadMenuItems();
@@ -31,6 +42,40 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
   useEffect(() => {
     filterMenuItems();
   }, [menuItems, searchQuery, categoryFilter]);
+
+  // Load rated items for students
+  useEffect(() => {
+    const loadRatedItems = async () => {
+      if (userRole === 'student' && token) {
+        try {
+          const [ratedChefIds, ratedMenuItemKeys] = await Promise.all([
+            ratingApi.getMyRatedOrders(token),
+            ratingApi.getMyRatedMenuItems(token)
+          ]);
+          
+          // Extract chef IDs from rated orders
+          const chefIds = new Set<number>();
+          // Note: We need chef IDs, but getMyRatedOrders returns order IDs
+          // We'll track by checking if chef was rated in any order
+          setRatedChefs(chefIds);
+          
+          // Extract menu item IDs from rated menu items (format: "orderId-menuItemId")
+          const menuItemIds = new Set<number>();
+          ratedMenuItemKeys.forEach(key => {
+            const parts = key.split('-');
+            if (parts.length === 2) {
+              menuItemIds.add(parseInt(parts[1]));
+            }
+          });
+          setRatedMenuItems(menuItemIds);
+        } catch (error) {
+          console.error('Failed to load rated items:', error);
+        }
+      }
+    };
+
+    loadRatedItems();
+  }, [userRole, token]);
 
   const loadMenuItems = async () => {
     try {
@@ -207,6 +252,53 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
                     <Clock className="w-4 h-4" />
                     <span>{item.preparationTime} min</span>
                   </div>
+                  
+                  {/* Ratings Section */}
+                  <div className="space-y-1 pt-2 border-t border-gray-100">
+                    {/* Chef Rating */}
+                    {item.chefAverageRating !== undefined && item.chefAverageRating > 0 && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500 font-medium">Chef Rating:</span>
+                        <div className="flex items-center gap-1 text-yellow-600">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span className="font-semibold">{item.chefAverageRating.toFixed(1)}</span>
+                          <span className="text-gray-500">({item.chefTotalRatings})</span>
+                          {item.chefVerified && (
+                            <span title="Verified Chef">
+                              <BadgeCheck className="w-4 h-4 text-green-600 ml-0.5" />
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Food Rating */}
+                    {item.menuItemAverageRating !== undefined && item.menuItemAverageRating > 0 && (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500 font-medium">Food Rating:</span>
+                          <div className="flex items-center gap-1 text-orange-600">
+                            <Star className="w-3 h-3 fill-current" />
+                            <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                            <span className="text-gray-500">({item.menuItemTotalRatings})</span>
+                          </div>
+                        </div>
+                        {userRole === 'student' && (
+                          <button
+                            onClick={() => setReviewsModal({
+                              isOpen: true,
+                              menuItemId: item.id,
+                              menuItemName: item.name
+                            })}
+                            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            <MessageSquare className="w-3 h-3" />
+                            View Reviews
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -227,6 +319,14 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
           ))}
         </div>
       )}
+
+      {/* Reviews Modal */}
+      <ReviewsModal
+        isOpen={reviewsModal.isOpen}
+        onClose={() => setReviewsModal({ isOpen: false, menuItemId: 0, menuItemName: '' })}
+        menuItemId={reviewsModal.menuItemId}
+        menuItemName={reviewsModal.menuItemName}
+      />
     </div>
   );
 };

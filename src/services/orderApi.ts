@@ -55,9 +55,21 @@ export const orderApi = {
     return response.json();
   },
 
-  // Cancel an order
+  // Cancel an order (Student)
   async cancelOrder(token: string, orderId: number): Promise<ApiResponse<void>> {
     const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.json();
+  },
+
+  // Cancel an order (Chef)
+  async cancelChefOrder(token: string, orderId: number): Promise<ApiResponse<void>> {
+    const response = await fetch(`${API_BASE_URL}/orders/chef/${orderId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

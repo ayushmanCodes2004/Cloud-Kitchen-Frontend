@@ -1,17 +1,19 @@
 import { OrderResponse, OrderItemResponse } from '@/types/api.types';
-import { ChefHat, Star } from 'lucide-react';
+import { ChefHat, Star, XCircle } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 import { RatingModal } from '@/components/ui/RatingModal';
 import { ratingApi } from '@/services/ratingApi';
+import { orderApi } from '@/services/orderApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
 
 interface OrderListProps {
   orders: OrderResponse[];
+  onOrderCancelled?: () => void;
 }
 
-export const OrderList = ({ orders }: OrderListProps) => {
+export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
   const { token } = useAuth();
   const { toast } = useToast();
   
@@ -34,6 +36,8 @@ export const OrderList = ({ orders }: OrderListProps) => {
   const [ratedChefOrders, setRatedChefOrders] = useState<Set<number>>(new Set());
   const [ratedMenuItems, setRatedMenuItems] = useState<Set<string>>(new Set()); // Format: "orderId-menuItemId"
   const [loadingRatings, setLoadingRatings] = useState(true);
+  const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Load rated orders and menu items from backend on mount
   useEffect(() => {
@@ -57,6 +61,15 @@ export const OrderList = ({ orders }: OrderListProps) => {
       loadRatedData();
     }
   }, [token]);
+
+  // Update current time every second for countdown timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Get unique chefs from all delivered orders for rating
   const getUniqueChefs = (orders: OrderResponse[]) => {
@@ -142,6 +155,59 @@ export const OrderList = ({ orders }: OrderListProps) => {
     }
   };
 
+  const handleCancelOrder = async (orderId: number) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) {
+      return;
+    }
+
+    setCancellingOrderId(orderId);
+    try {
+      const result = await orderApi.cancelOrder(token!, orderId);
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Order cancelled successfully!"
+        });
+        // Refresh orders list
+        if (onOrderCancelled) {
+          onOrderCancelled();
+        }
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.message || 'Failed to cancel order'
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || 'Failed to cancel order'
+      });
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
+
+  const getRemainingCancelTime = (orderCreatedAt: string): number => {
+    const createdTime = new Date(orderCreatedAt).getTime();
+    const twoMinutesInMs = 2 * 60 * 1000;
+    const expiryTime = createdTime + twoMinutesInMs;
+    const remaining = expiryTime - currentTime.getTime();
+    return Math.max(0, Math.floor(remaining / 1000)); // Return seconds
+  };
+
+  const canCancelOrder = (order: OrderResponse): boolean => {
+    return order.status === 'PENDING' && getRemainingCancelTime(order.createdAt) > 0;
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   if (loadingRatings) {
     return (
       <div>
@@ -222,9 +288,22 @@ export const OrderList = ({ orders }: OrderListProps) => {
                           ₹{order.totalAmount.toFixed(2)}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
+                          {order.status}
+                        </span>
+                        {canCancelOrder(order) && (
+                          <button
+                            onClick={() => handleCancelOrder(order.id)}
+                            disabled={cancellingOrderId === order.id}
+                            className="flex items-center gap-1 px-3 py-1 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Cancel order"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            {cancellingOrderId === order.id ? 'Cancelling...' : `Cancel (${formatTime(getRemainingCancelTime(order.createdAt))})`}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="border-t border-border pt-4">
                       {order.orderItems && order.orderItems.map((item) => {
