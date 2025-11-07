@@ -26,6 +26,15 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
         </div>
         
         <div className="relative z-10 text-center max-w-4xl mx-auto flex-1 flex flex-col items-center justify-center">
+          {/* Chef Hat Icon */}
+          <div className="mb-8">
+            <img 
+              src="/best.png" 
+              alt="Chef Hat" 
+              className="w-24 h-24 md:w-32 md:h-32 mx-auto drop-shadow-2xl"
+            />
+          </div>
+          
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Welcome to PlatePal
           </h1>

@@ -300,7 +300,7 @@ export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
                             title="Cancel order"
                           >
                             <XCircle className="w-4 h-4" />
-                            {cancellingOrderId === order.id ? 'Cancelling...' : `Cancel (${formatTime(getRemainingCancelTime(order.createdAt))})`}
+                            {cancellingOrderId === order.id ? 'Cancelling Order...' : `Cancel Order (${formatTime(getRemainingCancelTime(order.createdAt))})`}
                           </button>
                         )}
                       </div>

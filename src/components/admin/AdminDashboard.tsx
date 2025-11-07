@@ -8,9 +8,10 @@ import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { RatingsDisplay } from '@/components/ui/RatingsDisplay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
+import { RefreshCw } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [chefs, setChefs] = useState<UserResponse[]>([]);
@@ -161,15 +162,39 @@ export const AdminDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
           <p className="text-muted-foreground mt-2">Welcome back, {user?.name}</p>
         </div>
-        <button
-          onClick={() => {
-            logout();
-            // Navigate will be handled by AuthContext's state change
-          }}
-          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={async () => {
+              try {
+                await refreshUser();
+                await loadData();
+                toast({
+                  title: "Refreshed",
+                  description: "Dashboard data updated successfully"
+                });
+              } catch (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: "Failed to refresh data"
+                });
+              }
+            }}
+            className="p-2 hover:bg-muted rounded-lg transition"
+            title="Refresh dashboard"
+          >
+            <RefreshCw className="w-5 h-5 text-foreground" />
+          </button>
+          <button
+            onClick={() => {
+              logout();
+              // Navigate will be handled by AuthContext's state change
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <DashboardStats {...stats} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { orderApi } from '@/services/orderApi';
 import { MenuItemResponse } from '@/services/chefApi';
@@ -17,7 +17,7 @@ export interface CartItem extends MenuItemResponse {
 }
 
 export const StudentDashboard = () => {
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
@@ -113,6 +113,28 @@ export const StudentDashboard = () => {
                 {cart.length}
               </span>
             )}
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await refreshUser();
+                await loadOrders();
+                toast({
+                  title: "Refreshed",
+                  description: "Dashboard data updated successfully"
+                });
+              } catch (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: "Failed to refresh data"
+                });
+              }
+            }}
+            className="p-2 hover:bg-muted rounded-lg transition"
+            title="Refresh dashboard"
+          >
+            <RefreshCw className="w-5 h-5 text-foreground" />
           </button>
           <button
             onClick={() => {

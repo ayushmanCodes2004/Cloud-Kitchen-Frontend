@@ -49,7 +49,11 @@ export const UserList = ({ users, onActivate, onDeactivate, onVerify, type }: Us
                 </td>
                 <td className="py-3 text-right">
                   <div className="space-x-2">
-                    {user.active ? (
+                    {user.role === 'ADMIN' ? (
+                      <Badge variant="secondary" className="px-3 py-1">
+                        Protected
+                      </Badge>
+                    ) : user.active ? (
                       <Button
                         variant="destructive"
                         size="sm"

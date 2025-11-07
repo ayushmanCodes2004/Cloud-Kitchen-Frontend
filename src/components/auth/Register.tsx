@@ -20,7 +20,6 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
     password: '',
     name: '',
     phoneNumber: '',
-    studentId: '',
     college: '',
     hostelName: '',
     roomNumber: '',
@@ -41,7 +40,6 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
       password: formData.password,
       name: formData.name,
       phoneNumber: formData.phoneNumber,
-      studentId: formData.studentId,
       college: formData.college,
       hostelName: formData.hostelName,
       roomNumber: formData.roomNumber,
@@ -194,57 +192,60 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
 
           {userType === 'student' ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Student ID *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.studentId}
-                    onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">College *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.college}
+                  onChange={(e) => setFormData({ ...formData, college: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">College *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.college}
-                    onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  />
+              {/* Hostel Information Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Hostel Information</label>
+                  <span className="text-xs text-gray-500">(Optional - Skip if living in nearby residence)</span>
                 </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">Hostel Name</label>
+                    <input
+                      type="text"
+                      value={formData.hostelName}
+                      onChange={(e) => setFormData({ ...formData, hostelName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      placeholder="e.g., North Campus Hostel"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Hostel Name</label>
-                  <input
-                    type="text"
-                    value={formData.hostelName}
-                    onChange={(e) => setFormData({ ...formData, hostelName: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Number</label>
-                  <input
-                    type="text"
-                    value={formData.roomNumber}
-                    onChange={(e) => setFormData({ ...formData, roomNumber: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">Room Number</label>
+                    <input
+                      type="text"
+                      value={formData.roomNumber}
+                      onChange={(e) => setFormData({ ...formData, roomNumber: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      placeholder="e.g., A-101"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Delivery Address
+                  <span className="text-xs text-gray-500 ml-2">(Optional but recommended for accurate delivery)</span>
+                </label>
                 <textarea
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
                   rows={2}
+                  placeholder="Enter your complete delivery address (hostel or nearby residence)"
                 />
               </div>
             </>

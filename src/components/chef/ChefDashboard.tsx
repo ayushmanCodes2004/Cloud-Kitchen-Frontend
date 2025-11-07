@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck } from 'lucide-react';
+import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { chefApi, MenuItemRequest, MenuItemResponse } from '@/services/chefApi';
 import { useToast } from '@/components/ui/use-toast';
@@ -17,7 +17,7 @@ import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { ChefRatingsDisplay } from './ChefRatingsDisplay';
 
 export const ChefDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -249,17 +249,49 @@ export const ChefDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Chef Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground">Chef Dashboard</h1>
+            {user?.verified && (
+              <div className="flex items-center gap-1.5 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
+                <BadgeCheck className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-semibold text-green-700">Verified</span>
+              </div>
+            )}
+          </div>
           <p className="text-muted-foreground mt-2">Welcome back, {user?.name}</p>
         </div>
-        <button
-          onClick={() => {
-            logout();
-          }}
-          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={async () => {
+              try {
+                await refreshUser();
+                await loadMenuItems();
+                toast({
+                  title: "Refreshed",
+                  description: "Dashboard data updated successfully"
+                });
+              } catch (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: "Failed to refresh data"
+                });
+              }
+            }}
+            className="p-2 hover:bg-muted rounded-lg transition"
+            title="Refresh dashboard"
+          >
+            <RefreshCw className="w-5 h-5 text-foreground" />
+          </button>
+          <button
+            onClick={() => {
+              logout();
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <Tabs defaultValue="menu" className="mt-8">
