@@ -33,12 +33,20 @@ export const chefApi = {
   // Get chef's menu items
   getMyMenuItems: async (): Promise<MenuItemResponse[]> => {
     const token = sessionStorage.getItem('token');
+    if (!token) throw new Error('No authentication token found. Please login again.');
+    
     const response = await fetch(`${API_BASE_URL}/chef/my-menu-items`, {
       headers: { 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized: Invalid or expired token');
+      throw new Error(`Failed to fetch menu items: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     if (!data.success) throw new Error(data.message);
     return data.data;
@@ -47,6 +55,8 @@ export const chefApi = {
   // Create menu item
   createMenuItem: async (request: MenuItemRequest): Promise<MenuItemResponse> => {
     const token = sessionStorage.getItem('token');
+    if (!token) throw new Error('No authentication token found. Please login again.');
+    
     const response = await fetch(`${API_BASE_URL}/menu`, {
       method: 'POST',
       headers: { 
@@ -55,6 +65,12 @@ export const chefApi = {
       },
       body: JSON.stringify(request)
     });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized: Invalid or expired token');
+      throw new Error(`Failed to create menu item: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     if (!data.success) throw new Error(data.message);
     return data.data;
@@ -63,6 +79,8 @@ export const chefApi = {
   // Update menu item
   updateMenuItem: async (id: number, request: MenuItemRequest): Promise<MenuItemResponse> => {
     const token = sessionStorage.getItem('token');
+    if (!token) throw new Error('No authentication token found. Please login again.');
+    
     const response = await fetch(`${API_BASE_URL}/menu/${id}`, {
       method: 'PUT',
       headers: { 
@@ -71,6 +89,12 @@ export const chefApi = {
       },
       body: JSON.stringify(request)
     });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized: Invalid or expired token');
+      throw new Error(`Failed to update menu item: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     if (!data.success) throw new Error(data.message);
     return data.data;
@@ -79,6 +103,8 @@ export const chefApi = {
   // Delete menu item
   deleteMenuItem: async (id: number): Promise<void> => {
     const token = sessionStorage.getItem('token');
+    if (!token) throw new Error('No authentication token found. Please login again.');
+    
     const response = await fetch(`${API_BASE_URL}/menu/${id}`, {
       method: 'DELETE',
       headers: { 
@@ -86,6 +112,12 @@ export const chefApi = {
         'Content-Type': 'application/json'
       }
     });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized: Invalid or expired token');
+      throw new Error(`Failed to delete menu item: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     if (!data.success) throw new Error(data.message);
   },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck, RefreshCw } from 'lucide-react';
+import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck, RefreshCw, Award, Users, Sparkles, Clock, ShieldAlert, MessageSquare, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { chefApi, MenuItemRequest, MenuItemResponse } from '@/services/chefApi';
 import { useToast } from '@/components/ui/use-toast';
@@ -15,9 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChefOrderManagement } from './ChefOrderManagement';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { ChefRatingsDisplay } from './ChefRatingsDisplay';
+import { ChefAnalytics } from './ChefAnalytics';
+import { TestimonialForm } from '@/components/shared/TestimonialForm';
 
 export const ChefDashboard = () => {
-  const { user, logout, refreshUser } = useAuth();
+  const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,10 +35,13 @@ export const ChefDashboard = () => {
     vegetarian: false,
     preparationTime: 30
   });
+  const [activeTab, setActiveTab] = useState('menu');
 
   useEffect(() => {
-    loadMenuItems();
-  }, []);
+    if (token) {
+      loadMenuItems();
+    }
+  }, [token]);
 
   const loadMenuItems = async () => {
     try {
@@ -156,13 +161,17 @@ export const ChefDashboard = () => {
   };
 
   const getStats = () => {
-    return {
-      total: menuItems.length,
-      available: menuItems.filter(item => item.available).length,
-      avgPrice: menuItems.length > 0 
-        ? (menuItems.reduce((sum, item) => sum + item.price, 0) / menuItems.length).toFixed(2)
-        : '0.00'
-    };
+    const total = menuItems.length;
+    const available = menuItems.filter(item => item.available).length;
+    const avgPrice = menuItems.length > 0 
+      ? (menuItems.reduce((sum, item) => sum + item.price, 0) / menuItems.length).toFixed(2)
+      : '0.00';
+    const totalRatings = menuItems.reduce((sum, item) => sum + (item.menuItemTotalRatings || 0), 0);
+    const avgRating = menuItems.length > 0 && totalRatings > 0
+      ? (menuItems.reduce((sum, item) => sum + ((item.menuItemAverageRating || 0) * (item.menuItemTotalRatings || 0)), 0) / totalRatings).toFixed(1)
+      : '0.0';
+    
+    return { total, available, avgPrice, totalRatings, avgRating };
   };
 
   const stats = getStats();
@@ -246,209 +255,344 @@ export const ChefDashboard = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <header className="mb-8 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-foreground">Chef Dashboard</h1>
-            {user?.verified && (
-              <div className="flex items-center gap-1.5 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
-                <BadgeCheck className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-semibold text-green-700">Verified</span>
-              </div>
-            )}
-          </div>
-          <p className="text-muted-foreground mt-2">Welcome back, {user?.name}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={async () => {
-              try {
-                await refreshUser();
-                await loadMenuItems();
-                toast({
-                  title: "Refreshed",
-                  description: "Dashboard data updated successfully"
-                });
-              } catch (error) {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: "Failed to refresh data"
-                });
-              }
-            }}
-            className="p-2 hover:bg-muted rounded-lg transition"
-            title="Refresh dashboard"
-          >
-            <RefreshCw className="w-5 h-5 text-foreground" />
-          </button>
-          <button
-            onClick={() => {
-              logout();
-            }}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-
-      <Tabs defaultValue="menu" className="mt-8">
-          <TabsList>
-            <TabsTrigger value="menu">My Menu</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="ratings">My Ratings</TabsTrigger>
-            <TabsTrigger value="browse">Browse All</TabsTrigger>
-          </TabsList>
-
-          {/* Menu Items Tab */}
-          <TabsContent value="menu" className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                    <Package className="w-4 h-4" />
-                    Total Items
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" />
-                    Available
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-green-600">{stats.available}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                    <IndianRupee className="w-4 h-4" />
-                    Avg Price
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-orange-600">₹{stats.avgPrice}</div>
-                </CardContent>
-              </Card>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-white">
+      {/* Modern Navbar */}
+      <nav className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+        <div className="container mx-auto px-6 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo and Brand */}
+            <div className="flex items-center gap-3">
+              <img src="/best.png" alt="PlatePal Logo" className="h-10 w-10 object-contain" />
+              <span className="text-xl font-bold text-gray-900">PlatePal</span>
             </div>
 
-            {/* Menu Items Section */}
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">My Menu Items</h2>
-              <Button onClick={() => setShowCreateModal(true)} className="bg-orange-500 hover:bg-orange-600 flex items-center gap-2">
-                <Plus className="w-5 h-5" />
-                Add Menu Item
+            {/* Center Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+            </div>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveTab('testimonial')}
+                className="transition-all duration-200 rounded-lg px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50"
+                title="Leave a Testimonial"
+              >
+                <MessageSquare className="w-5 h-5" />
+                <span className="text-sm font-medium hidden md:inline">Feedback</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    await refreshUser();
+                    await loadMenuItems();
+                    toast({
+                      title: "Refreshed",
+                      description: "Your dashboard has been updated.",
+                    });
+                  } catch (error) {
+                    console.error('Error refreshing:', error);
+                  }
+                }}
+                className="transition-all duration-200 rounded-lg px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                title="Refresh"
+              >
+                <RefreshCw className="w-5 h-5" />
+                <span className="text-sm font-medium hidden md:inline">Refresh</span>
+              </Button>
+              <div className="h-6 w-px bg-gray-300"></div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="transition-all duration-200 rounded-lg px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="text-sm font-medium hidden md:inline">Logout</span>
               </Button>
             </div>
+          </div>
+        </div>
+      </nav>
 
-            {/* Menu Items Grid */}
-            {loading ? (
-              <div className="text-center py-12">Loading...</div>
-            ) : menuItems.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center text-gray-500">
-                  No menu items yet. Create your first menu item!
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {menuItems.map((item) => (
-                  <Card key={item.id} className="overflow-hidden">
-                    <div className="aspect-video bg-gray-200 relative">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
-                      {item.vegetarian ? (
-                        <Badge className="absolute top-2 right-2 bg-green-500">Veg</Badge>
-                      ) : (
-                        <Badge className="absolute top-2 right-2 bg-red-500">Non-Veg</Badge>
-                      )}
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-lg">{item.name}</h3>
-                        <Badge variant={item.available ? "default" : "secondary"}>
-                          {item.available ? 'Available' : 'Unavailable'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold text-orange-600">₹{item.price}</span>
-                        <span className="text-sm text-gray-500">{item.preparationTime} min</span>
-                      </div>
-                      {/* Ratings Display */}
-                      {(item.menuItemAverageRating && item.menuItemAverageRating > 0) && (
-                        <div className="flex items-center justify-between mb-3 text-xs border-t border-gray-100 pt-2">
-                          <span className="text-gray-500 font-medium">Food Rating:</span>
-                          <div className="flex items-center gap-1 text-orange-600">
-                            <Star className="w-3 h-3 fill-current" />
-                            <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
-                            <span className="text-gray-500">({item.menuItemTotalRatings} reviews)</span>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleAvailability(item.id)}
-                          className="flex-1"
-                        >
-                          Toggle
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditModal(item)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteMenuItem(item.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+      {/* Professional Chef Header with Welcome Message */}
+      <div className="bg-gradient-to-r from-orange-400 via-red-400 to-red-500 text-white shadow-lg">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              <ChefHat className="w-10 h-10" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold tracking-tight">Welcome back, {user?.name}!</h1>
+              <p className="text-orange-100 text-lg mt-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Manage your menu, track orders, and grow your culinary business
+                {user?.verified ? (
+                  <span title="Verified Chef" className="flex items-center bg-green-500 rounded-full px-2 py-0.5 ml-2">
+                    <BadgeCheck className="w-5 h-5 text-white" />
+                  </span>
+                ) : (
+                  <span title="Pending Verification" className="flex items-center bg-amber-500 rounded-full px-2 py-0.5 ml-2">
+                    <ShieldAlert className="w-4 h-4 text-white" />
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Overview Cards */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total Items</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+                </div>
+                <Package className="w-10 h-10 text-orange-500" />
               </div>
-            )}
-          </TabsContent>
+            </CardContent>
+          </Card>
 
-          {/* Orders Tab */}
-          <TabsContent value="orders">
-            <ChefOrderManagement />
-          </TabsContent>
+          <Card className="border shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Available</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.available}</p>
+                </div>
+                <TrendingUp className="w-10 h-10 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Ratings Tab */}
-          <TabsContent value="ratings">
-            <ChefRatingsDisplay />
-          </TabsContent>
+          <Card className="border shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Avg Order Value</p>
+                  <p className="text-3xl font-bold text-gray-900">₹{stats.avgPrice}</p>
+                  <p className="text-xs text-gray-500 mt-1">Per order</p>
+                </div>
+                <IndianRupee className="w-10 h-10 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Browse All Menu Items Tab */}
-          <TabsContent value="browse">
-            <MenuBrowser userRole="chef" />
-          </TabsContent>
-        </Tabs>
+          <Card className="border shadow-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Rating</p>
+                  <p className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                    {stats.avgRating}
+                    <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                  </p>
+                </div>
+                <div className="text-sm text-gray-600">{stats.totalRatings} reviews</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 pb-8">
+
+        <Card className="border shadow-sm">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="border-b px-6 pt-6">
+              <TabsList className="bg-transparent border-0 h-auto">
+                <TabsTrigger 
+                  value="menu" 
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
+                >
+                  My Menu
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="orders" 
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
+                >
+                  Orders
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="ratings" 
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
+                >
+                  Ratings
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analytics" 
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
+                >
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="testimonial" 
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md sr-only"
+                  style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}
+                >
+                  Testimonial
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="browse" 
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
+                >
+                  Browse
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Menu Items Tab */}
+            <TabsContent value="menu" className="p-6 mt-0 space-y-6">
+              {/* Menu Items Section */}
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">My Menu Items</h2>
+                <Button onClick={() => setShowCreateModal(true)} className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add Menu Item
+                </Button>
+              </div>
+
+              {/* Menu Items Grid */}
+              {loading ? (
+                <div className="text-center py-16">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+                  <p className="mt-4 text-gray-600 font-medium">Loading your menu...</p>
+                </div>
+              ) : menuItems.length === 0 ? (
+                <Card className="border-2 border-dashed border-gray-300">
+                  <CardContent className="py-12 text-center">
+                    <ChefHat className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-600 mb-4">No menu items yet</p>
+                    <Button onClick={() => setShowCreateModal(true)} className="bg-orange-500 hover:bg-orange-600 text-white">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Menu Item
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {menuItems.map((item) => (
+                    <Card key={item.id} className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow">
+                      <div className="aspect-video bg-gray-100 relative">
+                        {item.imageUrl ? (
+                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                            <Package className="w-12 h-12 text-gray-300" />
+                          </div>
+                        )}
+                        {item.vegetarian ? (
+                          <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">Veg</Badge>
+                        ) : (
+                          <Badge className="absolute top-2 right-2 bg-red-500 text-white text-xs">Non-Veg</Badge>
+                        )}
+                        <div className="absolute top-2 left-2">
+                          <Badge variant={item.available ? "default" : "secondary"} className="text-xs">
+                            {item.available ? 'Available' : 'Unavailable'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-lg mb-1 text-gray-900">{item.name}</h3>
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
+                        
+                        <div className="flex items-center justify-between mb-3 pb-3 border-b">
+                          <span className="text-2xl font-bold text-gray-900">₹{item.price}</span>
+                          <span className="text-sm text-gray-500">{item.preparationTime} min</span>
+                        </div>
+                        
+                        {/* Ratings Display */}
+                        {(item.menuItemAverageRating && item.menuItemAverageRating > 0) && (
+                          <div className="flex items-center justify-between mb-3 text-sm">
+                            <span className="text-gray-600">Rating:</span>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
+                              <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                              <span className="text-gray-500">({item.menuItemTotalRatings})</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleAvailability(item.id)}
+                            className="flex-1 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 font-semibold"
+                          >
+                            Toggle
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditModal(item)}
+                            className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteMenuItem(item.id)}
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Orders Tab */}
+            <TabsContent value="orders" className="p-6 mt-0">
+              <ChefOrderManagement />
+            </TabsContent>
+
+            {/* Ratings Tab */}
+            <TabsContent value="ratings" className="p-6 mt-0">
+              <ChefRatingsDisplay />
+            </TabsContent>
+
+            {/* Analytics Tab */}
+            <TabsContent value="analytics" className="p-6 mt-0">
+              <ChefAnalytics />
+            </TabsContent>
+
+            {/* Testimonial Tab */}
+            <TabsContent value="testimonial" className="p-6 mt-0">
+              <div className="max-w-2xl mx-auto">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Share Your Experience</h2>
+                  <button 
+                    onClick={() => setActiveTab('menu')}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                    title="Back to menu"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+                <TestimonialForm />
+              </div>
+            </TabsContent>
+
+            {/* Browse All Menu Items Tab */}
+            <TabsContent value="browse" className="p-6 mt-0">
+              <MenuBrowser userRole="chef" />
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
 
       {/* Create Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>

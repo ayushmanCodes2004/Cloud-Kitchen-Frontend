@@ -1,5 +1,5 @@
 import { OrderResponse, OrderItemResponse } from '@/types/api.types';
-import { ChefHat, Star, XCircle } from 'lucide-react';
+import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 import { RatingModal } from '@/components/ui/RatingModal';
 import { ratingApi } from '@/services/ratingApi';
@@ -11,9 +11,11 @@ import { useState, useEffect } from 'react';
 interface OrderListProps {
   orders: OrderResponse[];
   onOrderCancelled?: () => void;
+  onReorder?: (order: OrderResponse) => void;
+  showActiveOnly?: boolean;
 }
 
-export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
+export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProps) => {
   const { token } = useAuth();
   const { toast } = useToast();
   
@@ -211,7 +213,6 @@ export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
   if (loadingRatings) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-6">My Orders</h2>
         <div className="text-center py-12 bg-card rounded-lg shadow-soft">
           <p className="text-muted-foreground">Loading...</p>
         </div>
@@ -222,7 +223,6 @@ export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
   if (orders.length === 0) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-6">My Orders</h2>
         <div className="text-center py-12 bg-card rounded-lg shadow-soft">
           <p className="text-muted-foreground">No orders yet. Start ordering from the menu!</p>
         </div>
@@ -256,7 +256,6 @@ export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-foreground mb-6">My Orders</h2>
       <div className="space-y-6">
         {Object.entries(groupedOrders).map(([groupKey, groupOrders]) => {
           const isMultiChef = groupOrders.length > 1;
@@ -292,6 +291,16 @@ export const OrderList = ({ orders, onOrderCancelled }: OrderListProps) => {
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
+                        {order.status === 'DELIVERED' && onReorder && (
+                          <button
+                            onClick={() => onReorder(order)}
+                            className="flex items-center gap-1 px-3 py-1 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
+                            title="Reorder these items"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            Reorder
+                          </button>
+                        )}
                         {canCancelOrder(order) && (
                           <button
                             onClick={() => handleCancelOrder(order.id)}

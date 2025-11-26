@@ -142,20 +142,6 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
 
   return (
     <div className="space-y-6">
-      {/* Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {getCategoryStats().map(stat => (
-          <Card key={stat.name}>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">{stat.count}</div>
-              <div className="text-xs text-gray-600 mt-1">
-                {stat.name.replace('_', ' ')}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
@@ -191,11 +177,6 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
             {availableOnly ? 'Available Only' : 'Show All'}
           </Button>
         )}
-      </div>
-
-      {/* Results Count */}
-      <div className="text-sm text-gray-600">
-        Showing {filteredItems.length} of {menuItems.length} items
       </div>
 
       {/* Menu Items Grid */}

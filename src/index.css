@@ -94,3 +94,31 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Minimalist scrollbar styling */
+  .scrollbar-hide {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;  /* Firefox - thin scrollbar */
+    scrollbar-color: rgba(249, 115, 22, 0.3) transparent;  /* Firefox - orange thumb, transparent track */
+  }
+  
+  /* Chrome, Safari, Edge */
+  .scrollbar-hide::-webkit-scrollbar {
+    height: 6px;  /* Thin horizontal scrollbar */
+    width: 6px;   /* Thin vertical scrollbar */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar-track {
+    background: transparent;  /* Invisible track */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar-thumb {
+    background: rgba(249, 115, 22, 0.3);  /* Subtle orange */
+    border-radius: 10px;  /* Rounded ends */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+    background: rgba(249, 115, 22, 0.5);  /* Slightly darker on hover */
+  }
+}

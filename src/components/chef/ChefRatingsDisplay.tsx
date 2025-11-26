@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RatingDisplay } from '@/components/ui/StarRating';
 import { chefApi, MenuItemResponse } from '@/services/chefApi';
 import { ratingApi, MenuItemRatingStats } from '@/services/ratingApi';
-import { ChefHat, UtensilsCrossed, MessageSquare, Calendar } from 'lucide-react';
+import { ChefHat, UtensilsCrossed, MessageSquare, Calendar, TrendingUp, Award, Star, BarChart3 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface RatingResponse {
   id: number;
@@ -108,123 +109,174 @@ export const ChefRatingsDisplay: React.FC = () => {
     });
   };
 
+  // Calculate rating statistics
+  const getRatingStatistics = () => {
+    if (!chefRatingStats) return null;
+
+    // Star distribution for chef ratings
+    const starDistribution = [5, 4, 3, 2, 1].map(stars => ({
+      stars,
+      count: chefRatingStats.ratings.filter(r => Math.floor(r.rating) === stars).length,
+      percentage: chefRatingStats.totalRatings > 0
+        ? ((chefRatingStats.ratings.filter(r => Math.floor(r.rating) === stars).length / chefRatingStats.totalRatings) * 100).toFixed(1)
+        : '0'
+    }));
+
+    // Recent trend (last 7 days vs previous 7 days)
+    const now = new Date();
+    const last7Days = chefRatingStats.ratings.filter(r => {
+      const ratingDate = new Date(r.createdAt);
+      const daysDiff = Math.floor((now.getTime() - ratingDate.getTime()) / (1000 * 60 * 60 * 24));
+      return daysDiff <= 7;
+    });
+    const previous7Days = chefRatingStats.ratings.filter(r => {
+      const ratingDate = new Date(r.createdAt);
+      const daysDiff = Math.floor((now.getTime() - ratingDate.getTime()) / (1000 * 60 * 60 * 24));
+      return daysDiff > 7 && daysDiff <= 14;
+    });
+
+    const recentAvg = last7Days.length > 0
+      ? (last7Days.reduce((sum, r) => sum + r.rating, 0) / last7Days.length)
+      : 0;
+    const previousAvg = previous7Days.length > 0
+      ? (previous7Days.reduce((sum, r) => sum + r.rating, 0) / previous7Days.length)
+      : 0;
+    const trend = recentAvg - previousAvg;
+
+    // Comments percentage
+    const ratingsWithComments = chefRatingStats.ratings.filter(r => r.comment && r.comment.trim().length > 0).length;
+    const commentsPercentage = chefRatingStats.totalRatings > 0
+      ? ((ratingsWithComments / chefRatingStats.totalRatings) * 100).toFixed(1)
+      : '0';
+
+    return {
+      starDistribution,
+      recentAvg,
+      previousAvg,
+      trend,
+      last7DaysCount: last7Days.length,
+      commentsPercentage,
+      ratingsWithComments
+    };
+  };
+
+  const stats = getRatingStatistics();
+
   return (
     <div className="space-y-6">
-      {/* Chef Ratings Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ChefHat className="w-5 h-5 text-orange-500" />
-            My Chef Ratings
-          </CardTitle>
+      {/* Simple Statistics Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Average Rating</p>
+                <p className="text-3xl font-bold text-gray-900">{chefRatingStats.averageRating.toFixed(1)}</p>
+              </div>
+              <Star className="w-10 h-10 text-orange-500 fill-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Reviews</p>
+                <p className="text-3xl font-bold text-gray-900">{chefRatingStats.totalRatings}</p>
+              </div>
+              <MessageSquare className="w-10 h-10 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">5-Star Reviews</p>
+                <p className="text-3xl font-bold text-gray-900">{stats?.starDistribution[0].count || 0}</p>
+              </div>
+              <Award className="w-10 h-10 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Chef Reviews */}
+      <Card className="border shadow-sm">
+        <CardHeader className="border-b">
+          <CardTitle className="text-lg font-semibold text-gray-900">Recent Reviews</CardTitle>
         </CardHeader>
-        <CardContent>
-          {/* Overall Rating Summary */}
-          <div className="mb-6 p-4 bg-orange-50 rounded-lg">
-            <RatingDisplay 
-              rating={chefRatingStats.averageRating} 
-              totalRatings={chefRatingStats.totalRatings}
-              size="lg"
-            />
-          </div>
-          
-          {/* Individual Reviews */}
+        <CardContent className="pt-6">
           {chefRatingStats.ratings.length > 0 ? (
             <div className="space-y-4">
-              <h4 className="font-semibold text-sm text-gray-700">Recent Reviews</h4>
-              {chefRatingStats.ratings.map((rating) => (
-                <div key={rating.id} className="border-l-4 border-orange-200 pl-4 py-3 bg-gray-50 rounded-r-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <RatingDisplay rating={rating.rating} size="sm" />
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {formatDate(rating.createdAt)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 font-medium mb-1">{rating.studentName}</p>
-                  {rating.comment && (
-                    <div className="flex items-start gap-1 mt-1">
-                      <MessageSquare className="w-3 h-3 text-gray-400 mt-0.5" />
-                      <p className="text-sm text-gray-700 italic">"{rating.comment}"</p>
+              {chefRatingStats.ratings.slice(0, 5).map((rating) => (
+                <div key={rating.id} className="pb-4 border-b last:border-b-0 last:pb-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <RatingDisplay rating={rating.rating} size="sm" />
+                      <span className="text-sm font-medium text-gray-900">{rating.studentName}</span>
                     </div>
+                    <span className="text-xs text-gray-500">{formatDate(rating.createdAt)}</span>
+                  </div>
+                  {rating.comment && (
+                    <p className="text-sm text-gray-600 mt-2">"{rating.comment}"</p>
                   )}
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No chef reviews yet</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Keep cooking great food and students will start rating you!
-              </p>
+              <p className="text-gray-500">No reviews yet</p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Menu Item Ratings Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UtensilsCrossed className="w-5 h-5 text-green-600" />
-            My Menu Item Ratings
-          </CardTitle>
+      {/* Menu Item Ratings */}
+      <Card className="border shadow-sm">
+        <CardHeader className="border-b">
+          <CardTitle className="text-lg font-semibold text-gray-900">Menu Item Ratings</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {menuItems.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No menu items created yet</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Create menu items first to receive ratings!
-              </p>
+              <p className="text-gray-500">No menu items yet</p>
             </div>
           ) : menuItemRatings.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No menu item ratings yet</p>
-              <p className="text-sm text-gray-500 mt-2">
-                You have {menuItems.length} menu item(s), but students haven't rated them yet!
-              </p>
+              <p className="text-gray-500">No ratings yet</p>
             </div>
           ) : (
             <div className="space-y-6">
               {menuItemRatings.map((item) => (
-                <div key={item.menuItemId} className="border rounded-lg p-4 bg-green-50">
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-lg mb-2">{item.menuItemName}</h4>
+                <div key={item.menuItemId} className="pb-6 border-b last:border-b-0 last:pb-0">
+                  <div className="mb-3">
+                    <h4 className="font-semibold text-base mb-2">{item.menuItemName}</h4>
                     <RatingDisplay 
                       rating={item.averageRating} 
                       totalRatings={item.totalRatings}
-                      size="md"
+                      size="sm"
                     />
                   </div>
                   
-                  {/* Individual Reviews for this Menu Item */}
                   {item.ratings && item.ratings.length > 0 && (
                     <div className="space-y-3 mt-4">
-                      <h5 className="font-semibold text-sm text-gray-700">Recent Reviews</h5>
-                      {item.ratings.slice(0, 5).map((rating) => (
-                        <div key={rating.id} className="border-l-4 border-green-200 pl-3 py-2 bg-white rounded-r">
-                          <div className="flex items-center justify-between mb-1">
-                            <RatingDisplay rating={rating.rating} size="sm" />
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(rating.createdAt)}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 font-medium">{rating.studentName}</p>
-                          {rating.comment && (
-                            <div className="flex items-start gap-1 mt-1">
-                              <MessageSquare className="w-3 h-3 text-gray-400 mt-0.5" />
-                              <p className="text-sm text-gray-700 italic">"{rating.comment}"</p>
+                      {item.ratings.slice(0, 3).map((rating) => (
+                        <div key={rating.id} className="pl-4 border-l-2 border-gray-200">
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <RatingDisplay rating={rating.rating} size="sm" />
+                              <span className="text-sm text-gray-900">{rating.studentName}</span>
                             </div>
+                            <span className="text-xs text-gray-500">{formatDate(rating.createdAt)}</span>
+                          </div>
+                          {rating.comment && (
+                            <p className="text-sm text-gray-600 mt-1">"{rating.comment}"</p>
                           )}
                         </div>
                       ))}
-                      {item.ratings.length > 5 && (
-                        <p className="text-xs text-gray-500 text-center pt-2">
-                          Showing 5 of {item.ratings.length} reviews
-                        </p>
-                      )}
                     </div>
                   )}
                 </div>
