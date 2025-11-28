@@ -20,9 +20,10 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       const testimonials = await testimonialApi.getApprovedTestimonials();
       console.log('Fetched approved testimonials:', testimonials);
       console.log('Number of approved testimonials:', testimonials.length);
-      setRealTestimonials(testimonials);
+      setRealTestimonials(testimonials || []);
     } catch (error) {
       console.error('Failed to load testimonials:', error);
+      setRealTestimonials([]);
     }
   };
 

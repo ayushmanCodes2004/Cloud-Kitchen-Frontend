@@ -39,13 +39,21 @@ export const testimonialApi = {
 
   // Get all approved testimonials (public)
   getApprovedTestimonials: async (): Promise<TestimonialResponse[]> => {
-    const response = await fetch(`${API_BASE_URL}/testimonials/approved`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch testimonials');
+    try {
+      const response = await fetch(`${API_BASE_URL}/testimonials/approved`);
+      
+      if (!response.ok) {
+        console.warn('Failed to fetch testimonials, returning empty array');
+        return [];
+      }
+      
+      const result = await response.json();
+      // Handle both direct array and wrapped response
+      return Array.isArray(result) ? result : (result.data || []);
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+      return [];
     }
-    
-    return response.json();
   },
 
   // Get user's own testimonial

@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Cart } from './Cart';
 import { OrderList } from './OrderList';
+import { AiSuggestions } from './AiSuggestions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -182,6 +183,7 @@ export const StudentDashboard = () => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-1">
+              <AiSuggestions onAddToCart={addToCart} />
               <Button
                 variant="ghost"
                 size="sm"
