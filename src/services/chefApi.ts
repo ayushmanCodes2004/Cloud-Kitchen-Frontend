@@ -114,12 +114,22 @@ export const chefApi = {
     });
     
     if (!response.ok) {
+      let errorMessage = `Failed to delete menu item: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch (e) {
+        // If response is not JSON, use statusText
+      }
+      
       if (response.status === 401) throw new Error('Unauthorized: Invalid or expired token');
-      throw new Error(`Failed to delete menu item: ${response.statusText}`);
+      throw new Error(errorMessage);
     }
     
     const data = await response.json();
-    if (!data.success) throw new Error(data.message);
+    if (!data.success) throw new Error(data.message || 'Failed to delete menu item');
   },
 
   // Toggle menu item availability

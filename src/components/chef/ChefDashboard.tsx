@@ -480,8 +480,8 @@ export const ChefDashboard = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {menuItems.map((item) => (
-                    <Card key={item.id} className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow">
-                      <div className="aspect-video bg-gray-100 relative">
+                    <Card key={item.id} className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+                      <div className="w-full h-48 bg-gray-100 relative flex-shrink-0">
                         {item.imageUrl ? (
                           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
@@ -500,33 +500,41 @@ export const ChefDashboard = () => {
                           </Badge>
                         </div>
                       </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-lg mb-1 text-gray-900">{item.name}</h3>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
-                        
-                        <div className="flex items-center justify-between mb-3 pb-3 border-b">
-                          <span className="text-2xl font-bold text-gray-900">₹{item.price}</span>
-                          <span className="text-sm text-gray-500">{item.preparationTime} min</span>
+                      <CardContent className="p-4 flex flex-col flex-1">
+                        <div>
+                          <h3 className="font-semibold text-lg mb-1 text-gray-900">{item.name}</h3>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
+                          
+                          <div className="flex items-center justify-between mb-3 pb-3 border-b">
+                            <span className="text-2xl font-bold text-gray-900">₹{item.price}</span>
+                            <span className="text-sm text-gray-500">{item.preparationTime} min</span>
+                          </div>
+                          
+                          {/* Ratings Display */}
+                          <div className="text-sm mb-3">
+                            {(item.menuItemAverageRating && item.menuItemAverageRating > 0) ? (
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-600">Rating:</span>
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
+                                  <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                                  <span className="text-gray-500">({item.menuItemTotalRatings})</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-gray-500 italic">
+                                Awaiting customer feedback
+                              </div>
+                            )}
+                          </div>
                         </div>
                         
-                        {/* Ratings Display */}
-                        {(item.menuItemAverageRating && item.menuItemAverageRating > 0) && (
-                          <div className="flex items-center justify-between mb-3 text-sm">
-                            <span className="text-gray-600">Rating:</span>
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
-                              <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
-                              <span className="text-gray-500">({item.menuItemTotalRatings})</span>
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => toggleAvailability(item.id)}
-                            className="flex-1 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 font-semibold"
+                            className="flex-1 h-9 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 font-semibold"
                           >
                             Toggle
                           </Button>
@@ -534,7 +542,7 @@ export const ChefDashboard = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => openEditModal(item)}
-                            className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                            className="h-9 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -542,7 +550,7 @@ export const ChefDashboard = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteMenuItem(item.id)}
-                            className="text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                            className="h-9 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

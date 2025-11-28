@@ -8,6 +8,7 @@ interface User {
   role: 'STUDENT' | 'CHEF' | 'ADMIN';
   phoneNumber?: string;
   verified?: boolean;
+  active?: boolean;
 }
 
 interface AuthContextType {
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Set up token expiration check interval
+  // Set up token expiration check interval and user status check
   useEffect(() => {
     if (!token) return;
 
@@ -95,6 +96,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => clearInterval(checkTokenExpiration);
   }, [token]);
+
+  // Set up user status check interval (check every 30 seconds if user is still active)
+  useEffect(() => {
+    if (!token || !user) return;
+
+    const checkUserStatus = setInterval(async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.status === 401) {
+          console.warn('User unauthorized, logging out');
+          logout();
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Check if user has been deactivated
+          if (data.data.active === false) {
+            console.warn('User account has been deactivated by admin, logging out');
+            logout();
+          }
+        }
+      } catch (error) {
+        console.error('Failed to check user status:', error);
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(checkUserStatus);
+  }, [token, user]);
 
   const login = (userData: User, userToken: string) => {
     setUser(userData);
@@ -140,6 +176,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       if (data.success && data.data) {
         const updatedUser = data.data;
+        
+        // Check if user has been deactivated
+        if (updatedUser.active === false) {
+          console.warn('User account has been deactivated, logging out');
+          logout();
+          return;
+        }
+        
         setUser(updatedUser);
         sessionStorage.setItem('user', JSON.stringify(updatedUser));
       }

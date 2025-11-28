@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Search, Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck, X } from 'lucide-react';
 import { ReviewsModal } from '@/components/ui/ReviewsModal';
 
 interface MenuBrowserProps {
@@ -34,6 +35,7 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
     menuItemId: number;
     menuItemName: string;
   }>({ isOpen: false, menuItemId: 0, menuItemName: '' });
+  const [selectedItem, setSelectedItem] = useState<MenuItemResponse | null>(null);
 
   useEffect(() => {
     loadMenuItems();
@@ -187,10 +189,10 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-video bg-gray-200 relative">
+            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full" onClick={() => setSelectedItem(item)}>
+              <div className="w-full h-56 bg-gray-200 relative flex-shrink-0">
                 {item.imageUrl ? (
                   <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                 ) : (
@@ -214,83 +216,88 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
                 )}
               </div>
               
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-lg line-clamp-1">{item.name}</h3>
-                  <Badge variant="outline" className="ml-2 shrink-0">
-                    {item.category.replace('_', ' ')}
-                  </Badge>
-                </div>
-                
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <User className="w-4 h-4" />
-                    <span>Chef {item.chefName}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    <span>{item.preparationTime} min</span>
+              <CardContent className="p-4 flex flex-col h-full">
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-base line-clamp-1">{item.name}</h3>
+                    <Badge variant="outline" className="ml-2 shrink-0 text-xs">
+                      {item.category.replace('_', ' ')}
+                    </Badge>
                   </div>
                   
-                  {/* Ratings Section */}
-                  <div className="space-y-1 pt-2 border-t border-gray-100">
-                    {/* Chef Rating */}
-                    {item.chefAverageRating !== undefined && item.chefAverageRating > 0 && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500 font-medium">Chef Rating:</span>
-                        <div className="flex items-center gap-1 text-yellow-600">
-                          <Star className="w-3 h-3 fill-current" />
-                          <span className="font-semibold">{item.chefAverageRating.toFixed(1)}</span>
-                          <span className="text-gray-500">({item.chefTotalRatings})</span>
-                          {item.chefVerified && (
-                            <span title="Verified Chef">
-                              <BadgeCheck className="w-4 h-4 text-green-600 ml-0.5" />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
+                  
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <User className="w-3 h-3" />
+                      <span className="line-clamp-1">Chef {item.chefName}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <Clock className="w-3 h-3" />
+                      <span>{item.preparationTime} min</span>
+                    </div>
                     
-                    {/* Food Rating */}
-                    {item.menuItemAverageRating !== undefined && item.menuItemAverageRating > 0 && (
-                      <div className="space-y-1">
+                    {/* Ratings Section */}
+                    <div className="space-y-1 pt-2 border-t border-gray-100">
+                      {/* Chef Rating */}
+                      {item.chefAverageRating !== undefined && item.chefAverageRating > 0 && (
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500 font-medium">Food Rating:</span>
-                          <div className="flex items-center gap-1 text-orange-600">
+                          <span className="text-gray-500 font-medium">Chef Rating:</span>
+                          <div className="flex items-center gap-1 text-yellow-600">
                             <Star className="w-3 h-3 fill-current" />
-                            <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
-                            <span className="text-gray-500">({item.menuItemTotalRatings})</span>
+                            <span className="font-semibold">{item.chefAverageRating.toFixed(1)}</span>
+                            <span className="text-gray-500">({item.chefTotalRatings})</span>
+                            {item.chefVerified && (
+                              <span title="Verified Chef">
+                                <BadgeCheck className="w-4 h-4 text-green-600 ml-0.5" />
+                              </span>
+                            )}
                           </div>
                         </div>
-                        {userRole === 'student' && (
-                          <button
-                            onClick={() => setReviewsModal({
-                              isOpen: true,
-                              menuItemId: item.id,
-                              menuItemName: item.name
-                            })}
-                            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline"
-                          >
-                            <MessageSquare className="w-3 h-3" />
-                            View Reviews
-                          </button>
-                        )}
-                      </div>
-                    )}
+                      )}
+                      
+                      {/* Food Rating */}
+                      {item.menuItemAverageRating !== undefined && item.menuItemAverageRating > 0 && (
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-500 font-medium">Food Rating:</span>
+                            <div className="flex items-center gap-1 text-orange-600">
+                              <Star className="w-3 h-3 fill-current" />
+                              <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                              <span className="text-gray-500">({item.menuItemTotalRatings})</span>
+                            </div>
+                          </div>
+                          {userRole === 'student' && (
+                            <button
+                              onClick={() => setReviewsModal({
+                                isOpen: true,
+                                menuItemId: item.id,
+                                menuItemName: item.name
+                              })}
+                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline"
+                            >
+                              <MessageSquare className="w-3 h-3" />
+                              View Reviews
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-orange-600">₹{item.price}</span>
+                <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                  <span className="text-xl font-bold text-orange-600">₹{item.price}</span>
                   {showOrderButton && item.available && onOrderClick && (
                     <Button 
-                      onClick={() => onOrderClick(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOrderClick(item);
+                      }}
                       size="sm"
-                      className="bg-orange-500 hover:bg-orange-600"
+                      className="bg-orange-500 hover:bg-orange-600 text-xs h-7 px-2"
                     >
-                      <ShoppingCart className="w-4 h-4 mr-1" />
+                      <ShoppingCart className="w-3 h-3 mr-0.5" />
                       Order
                     </Button>
                   )}
@@ -300,6 +307,119 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
           ))}
         </div>
       )}
+
+      {/* Item Detail Modal */}
+      <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedItem && (
+            <>
+              <DialogHeader>
+                <div className="flex items-start justify-between w-full">
+                  <div className="flex-1">
+                    <DialogTitle className="text-2xl mb-2">{selectedItem.name}</DialogTitle>
+                    <DialogDescription className="flex items-center gap-2">
+                      <Badge className={selectedItem.vegetarian ? 'bg-green-500' : 'bg-red-500'}>
+                        {selectedItem.vegetarian ? '🌱 Veg' : '🥩 Non-Veg'}
+                      </Badge>
+                      <Badge variant="outline">{selectedItem.category.replace('_', ' ')}</Badge>
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Image */}
+                {selectedItem.imageUrl && (
+                  <div className="w-full h-64 rounded-lg overflow-hidden">
+                    <img src={selectedItem.imageUrl} alt={selectedItem.name} className="w-full h-full object-cover" />
+                  </div>
+                )}
+
+                {/* Full Description */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Description</h3>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedItem.description}</p>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Price</p>
+                    <p className="text-2xl font-bold text-orange-600">₹{selectedItem.price}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Preparation Time</p>
+                    <p className="text-2xl font-bold text-blue-600">{selectedItem.preparationTime} min</p>
+                  </div>
+                </div>
+
+                {/* Chef Info */}
+                <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Chef</p>
+                      <p className="font-semibold text-lg">{selectedItem.chefName}</p>
+                    </div>
+                    {selectedItem.chefVerified && (
+                      <BadgeCheck className="w-6 h-6 text-green-600" />
+                    )}
+                  </div>
+                  
+                  {/* Chef Rating */}
+                  {selectedItem.chefAverageRating !== undefined && selectedItem.chefAverageRating > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                      <span className="font-semibold">{selectedItem.chefAverageRating.toFixed(1)}</span>
+                      <span className="text-gray-600">({selectedItem.chefTotalRatings} ratings)</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Food Rating */}
+                {selectedItem.menuItemAverageRating !== undefined && selectedItem.menuItemAverageRating > 0 && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-gray-600 mb-2">Food Rating</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Star className="w-4 h-4 fill-orange-500 text-orange-500" />
+                      <span className="font-semibold">{selectedItem.menuItemAverageRating.toFixed(1)}</span>
+                      <span className="text-gray-600">({selectedItem.menuItemTotalRatings} ratings)</span>
+                    </div>
+                    {userRole === 'student' && (
+                      <button
+                        onClick={() => {
+                          setSelectedItem(null);
+                          setReviewsModal({
+                            isOpen: true,
+                            menuItemId: selectedItem.id,
+                            menuItemName: selectedItem.name
+                          });
+                        }}
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        View All Reviews
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Availability Status */}
+                <div className="p-4 rounded-lg border-2" style={{
+                  borderColor: selectedItem.available ? '#10b981' : '#ef4444',
+                  backgroundColor: selectedItem.available ? '#ecfdf5' : '#fef2f2'
+                }}>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" style={{ color: selectedItem.available ? '#10b981' : '#ef4444' }} />
+                    <span className="font-semibold" style={{ color: selectedItem.available ? '#10b981' : '#ef4444' }}>
+                      {selectedItem.available ? 'Available' : 'Currently Unavailable'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Reviews Modal */}
       <ReviewsModal
