@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck, RefreshCw, Award, Users, Sparkles, Clock, ShieldAlert, MessageSquare, X } from 'lucide-react';
+import { ChefHat, LogOut, Plus, Package, IndianRupee, TrendingUp, Edit, Trash2, Star, BadgeCheck, RefreshCw, Award, Users, Sparkles, Clock, ShieldAlert, MessageSquare, X, Bell, Home, UtensilsCrossed, Truck, BarChart3, MessageCircle, Search, ChevronDown, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { chefApi, MenuItemRequest, MenuItemResponse } from '@/services/chefApi';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,11 +18,13 @@ import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { ChefRatingsDisplay } from './ChefRatingsDisplay';
 import { ChefAnalytics } from './ChefAnalytics';
 import { TestimonialForm } from '@/components/shared/TestimonialForm';
+import { menuApi } from '@/services/menuApi';
 
 export const ChefDashboard = () => {
   const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
+  const [allMenuItems, setAllMenuItems] = useState<MenuItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -35,7 +38,11 @@ export const ChefDashboard = () => {
     vegetarian: false,
     preparationTime: 30
   });
-  const [activeTab, setActiveTab] = useState('menu');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [ratingSort, setRatingSort] = useState<'none' | 'high-to-low' | 'low-to-high'>('none');
+  const [expandedItem, setExpandedItem] = useState<MenuItemResponse | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -48,6 +55,12 @@ export const ChefDashboard = () => {
       setLoading(true);
       const items = await chefApi.getMyMenuItems();
       setMenuItems(items);
+      
+      // Load all menu items from all chefs
+      const allItemsResponse = await menuApi.getAllMenuItems();
+      if (allItemsResponse.success && allItemsResponse.data) {
+        setAllMenuItems(allItemsResponse.data);
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -255,199 +268,252 @@ export const ChefDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-white">
-      {/* Modern Navbar */}
-      <nav className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
-        <div className="container mx-auto px-6 py-3">
-          <div className="flex items-center justify-between">
-            {/* Logo and Brand */}
-            <div className="flex items-center gap-3">
-              <img src="/best.png" alt="PlatePal Logo" className="h-10 w-10 object-contain" />
-              <span className="text-xl font-bold text-gray-900">PlatePal</span>
-            </div>
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col">
+        {/* Logo */}
+        <div className="flex items-center gap-2 mb-8">
+          <img src="/best.png" alt="PlatePal" className="w-8 h-8 object-contain" />
+          <span className="text-xl font-bold text-gray-900">PlatePal</span>
+        </div>
 
-            {/* Center Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-            </div>
+        {/* Navigation */}
+        <nav className="space-y-2 flex-1">
+          <NavItemIcon 
+            icon={Home}
+            label="Overview" 
+            active={activeTab === 'overview'}
+            onClick={() => setActiveTab('overview')}
+          />
+          <NavItemIcon 
+            icon={UtensilsCrossed}
+            label="Menu" 
+            active={activeTab === 'menu'}
+            onClick={() => setActiveTab('menu')}
+          />
+          <NavItemIcon 
+            icon={Star}
+            label="Rating & reviews" 
+            active={activeTab === 'ratings'}
+            onClick={() => setActiveTab('ratings')}
+          />
+          <NavItemIcon 
+            icon={Truck}
+            label="Delivery" 
+            active={activeTab === 'orders'}
+            onClick={() => setActiveTab('orders')}
+          />
+          <NavItemIcon 
+            icon={BarChart3}
+            label="Analytics" 
+            active={activeTab === 'analytics'}
+            onClick={() => setActiveTab('analytics')}
+          />
+          <NavItemIcon 
+            icon={MessageCircle}
+            label="Testimonial" 
+            active={activeTab === 'testimonial'}
+            onClick={() => setActiveTab('testimonial')}
+          />
+        </nav>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveTab('testimonial')}
-                className="transition-all duration-200 rounded-lg px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50"
-                title="Leave a Testimonial"
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span className="text-sm font-medium hidden md:inline">Feedback</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={async () => {
-                  try {
-                    await refreshUser();
-                    await loadMenuItems();
-                    toast({
-                      title: "Refreshed",
-                      description: "Your dashboard has been updated.",
-                    });
-                  } catch (error) {
-                    console.error('Error refreshing:', error);
-                  }
-                }}
-                className="transition-all duration-200 rounded-lg px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                title="Refresh"
-              >
-                <RefreshCw className="w-5 h-5" />
-                <span className="text-sm font-medium hidden md:inline">Refresh</span>
-              </Button>
-              <div className="h-6 w-px bg-gray-300"></div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={logout}
-                className="transition-all duration-200 rounded-lg px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50"
-                title="Logout"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="text-sm font-medium hidden md:inline">Logout</span>
-              </Button>
+        {/* Logout Button */}
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-600 hover:bg-gray-100"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium text-sm">Logout</span>
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+          {(activeTab === 'overview' || activeTab === 'menu') && (
+            <div className="relative flex-1 max-w-2xl">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                type="text"
+                placeholder="Search menu items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-gray-100 border-0 rounded-lg w-full"
+              />
+            </div>
+          )}
+          {(activeTab !== 'overview' && activeTab !== 'menu') && (
+            <div />
+          )}
+
+          <div className="flex items-center gap-3">
+            {user?.verified && (
+              <div className="flex items-center gap-1 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                <BadgeCheck className="w-4 h-4 text-green-600" />
+                <span className="text-xs font-semibold text-green-700">Verified</span>
+              </div>
+            )}
+            {!user?.verified && (
+              <div className="flex items-center gap-1 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full">
+                <ShieldAlert className="w-4 h-4 text-amber-600" />
+                <span className="text-xs font-semibold text-amber-700">Pending</span>
+              </div>
+            )}
+            <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                <p className="text-xs text-gray-500">Chef</p>
+              </div>
+              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-orange-600" />
+              </div>
             </div>
           </div>
         </div>
-      </nav>
 
-      {/* Professional Chef Header with Welcome Message */}
-      <div className="bg-gradient-to-r from-orange-400 via-red-400 to-red-500 text-white shadow-lg">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-              <ChefHat className="w-10 h-10" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold tracking-tight">Welcome back, {user?.name}!</h1>
-              <p className="text-orange-100 text-lg mt-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Manage your menu, track orders, and grow your culinary business
-                {user?.verified ? (
-                  <span title="Verified Chef" className="flex items-center bg-green-500 rounded-full px-2 py-0.5 ml-2">
-                    <BadgeCheck className="w-5 h-5 text-white" />
-                  </span>
-                ) : (
-                  <span title="Pending Verification" className="flex items-center bg-amber-500 rounded-full px-2 py-0.5 ml-2">
-                    <ShieldAlert className="w-4 h-4 text-white" />
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Overview Cards */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Items</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
-                </div>
-                <Package className="w-10 h-10 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Available</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.available}</p>
-                </div>
-                <TrendingUp className="w-10 h-10 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Avg Order Value</p>
-                  <p className="text-3xl font-bold text-gray-900">₹{stats.avgPrice}</p>
-                  <p className="text-xs text-gray-500 mt-1">Per order</p>
-                </div>
-                <IndianRupee className="w-10 h-10 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Rating</p>
-                  <p className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                    {stats.avgRating}
-                    <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-                  </p>
-                </div>
-                <div className="text-sm text-gray-600">{stats.totalRatings} reviews</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 pb-8">
-
-        <Card className="border shadow-sm">
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b px-6 pt-6">
-              <TabsList className="bg-transparent border-0 h-auto">
-                <TabsTrigger 
-                  value="menu" 
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
-                >
-                  My Menu
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="orders" 
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
-                >
-                  Orders
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ratings" 
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
-                >
-                  Ratings
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="analytics" 
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
-                >
-                  Analytics
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="testimonial" 
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md sr-only"
-                  style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}
-                >
-                  Testimonial
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="browse" 
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-4 py-2 rounded-md"
-                >
-                  Browse
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="p-6 mt-0">
+              <div className="space-y-6">
+                {/* Welcome Message */}
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-6 mb-6 flex items-start gap-4">
+                  <ChefHat className="w-8 h-8 text-orange-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, {user?.name}!</h2>
+                    <p className="text-gray-600">Manage your menu items, track orders, and monitor customer ratings all in one place.</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Menu</h2>
+                  <div className="flex items-center gap-4">
+                    <Select value={ratingSort} onValueChange={setRatingSort}>
+                      <SelectTrigger className="w-48 bg-white border border-gray-300">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Sort by Rating</SelectItem>
+                        <SelectItem value="high-to-low">High to Low ↓</SelectItem>
+                        <SelectItem value="low-to-high">Low to High ↑</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-sm text-gray-600">
+                      Total: <span className="font-bold text-orange-600">{allMenuItems.length}</span> items
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category Filter Tabs */}
+                <div className="flex gap-3 overflow-x-auto pb-4">
+                  <CategoryFilterTab
+                    label="All"
+                    count={allMenuItems.length}
+                    active={selectedCategory === 'All'}
+                    onClick={() => setSelectedCategory('All')}
+                  />
+                  {Array.from(new Set(allMenuItems.map(item => item.category))).map((category) => {
+                    const count = allMenuItems.filter(item => item.category === category).length;
+                    return (
+                      <CategoryFilterTab
+                        key={category}
+                        label={category}
+                        count={count}
+                        active={selectedCategory === category}
+                        onClick={() => setSelectedCategory(category)}
+                      />
+                    );
+                  })}
+                </div>
+
+                {loading ? (
+                  <div className="flex items-center justify-center h-96">
+                    <div className="text-center">
+                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
+                      <p className="text-gray-600">Loading menu items...</p>
+                    </div>
+                  </div>
+                ) : allMenuItems.length === 0 ? (
+                  <Card className="border-2 border-dashed border-gray-300">
+                    <CardContent className="py-12 text-center">
+                      <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-600">No menu items available yet</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {allMenuItems
+                      .filter(item => {
+                        const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+                        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+                        return matchesCategory && matchesSearch;
+                      })
+                      .sort((a, b) => {
+                        if (ratingSort === 'high-to-low') {
+                          const ratingA = a.menuItemAverageRating || 0;
+                          const ratingB = b.menuItemAverageRating || 0;
+                          return ratingB - ratingA;
+                        } else if (ratingSort === 'low-to-high') {
+                          const ratingA = a.menuItemAverageRating || 0;
+                          const ratingB = b.menuItemAverageRating || 0;
+                          return ratingA - ratingB;
+                        }
+                        return 0;
+                      })
+                      .map((item) => (
+                      <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full cursor-pointer" onClick={() => setExpandedItem(item)}>
+                        <div className="w-full h-48 bg-gray-200 relative flex-shrink-0">
+                          {item.imageUrl ? (
+                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                              <Package className="w-12 h-12 text-gray-400" />
+                            </div>
+                          )}
+                          {item.vegetarian ? (
+                            <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">Veg</Badge>
+                          ) : (
+                            <Badge className="absolute top-2 right-2 bg-red-500 text-white text-xs">Non-Veg</Badge>
+                          )}
+                          <Badge variant={item.available ? "default" : "secondary"} className="absolute top-2 left-2 text-xs">
+                            {item.available ? 'Available' : 'Unavailable'}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4 flex flex-col flex-1">
+                          <h3 className="font-semibold text-lg mb-1 text-gray-900">{item.name}</h3>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
+                          
+                          <div className="flex items-center justify-between mb-3 pb-3 border-b">
+                            <span className="text-2xl font-bold text-gray-900">₹{item.price}</span>
+                            <span className="text-sm text-gray-500">{item.preparationTime} min</span>
+                          </div>
+
+                          <div className="text-sm mb-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-600">Chef:</span>
+                              <span className="font-semibold text-gray-900">{item.chefName || 'Unknown'}</span>
+                            </div>
+                          </div>
+
+                          {item.menuItemAverageRating && item.menuItemAverageRating > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              <span className="font-semibold text-sm">{item.menuItemAverageRating.toFixed(1)}</span>
+                              <span className="text-gray-500 text-sm">({item.menuItemTotalRatings})</span>
+                            </div>
+                          ) : (
+                            <div className="text-gray-500 text-sm italic">No ratings yet</div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
 
             {/* Menu Items Tab */}
             <TabsContent value="menu" className="p-6 mt-0 space-y-6">
@@ -479,7 +545,9 @@ export const ChefDashboard = () => {
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {menuItems.map((item) => (
+                  {menuItems
+                    .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map((item) => (
                     <Card key={item.id} className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
                       <div className="w-full h-48 bg-gray-100 relative flex-shrink-0">
                         {item.imageUrl ? (
@@ -599,7 +667,7 @@ export const ChefDashboard = () => {
               <MenuBrowser userRole="chef" />
             </TabsContent>
           </Tabs>
-        </Card>
+        </div>
       </div>
 
       {/* Create Modal */}
@@ -637,6 +705,163 @@ export const ChefDashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Expanded Item Modal */}
+      {expandedItem && (
+        <Dialog open={!!expandedItem} onOpenChange={(open) => !open && setExpandedItem(null)}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{expandedItem.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+
+              {/* Image */}
+              <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
+                {expandedItem.imageUrl ? (
+                  <img src={expandedItem.imageUrl} alt={expandedItem.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                    <Package className="w-16 h-16 text-gray-400" />
+                  </div>
+                )}
+              </div>
+
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Price</p>
+                  <p className="text-2xl font-bold text-gray-900">₹{expandedItem.price}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Preparation Time</p>
+                  <p className="text-2xl font-bold text-gray-900">{expandedItem.preparationTime} min</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Category</p>
+                  <p className="text-lg font-semibold text-gray-900">{expandedItem.category}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Type</p>
+                  <p className="text-lg font-semibold">{expandedItem.vegetarian ? '🥗 Vegetarian' : '🍗 Non-Vegetarian'}</p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Description</p>
+                <p className="text-gray-700 leading-relaxed">{expandedItem.description}</p>
+              </div>
+
+              {/* Chef Info */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Chef</p>
+                <p className="text-lg font-semibold text-gray-900">{expandedItem.chefName || 'Unknown'}</p>
+              </div>
+
+              {/* Rating */}
+              {expandedItem.menuItemAverageRating && expandedItem.menuItemAverageRating > 0 ? (
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-lg font-semibold">{expandedItem.menuItemAverageRating.toFixed(1)}</span>
+                  <span className="text-gray-500">({expandedItem.menuItemTotalRatings} ratings)</span>
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No ratings yet</p>
+              )}
+
+              {/* Status */}
+              <div className="flex gap-2">
+                <Badge variant={expandedItem.available ? "default" : "secondary"}>
+                  {expandedItem.available ? 'Available' : 'Unavailable'}
+                </Badge>
+                <Badge className={expandedItem.vegetarian ? "bg-green-500" : "bg-red-500"} variant="default">
+                  {expandedItem.vegetarian ? 'Vegetarian' : 'Non-Vegetarian'}
+                </Badge>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
+
+interface NavItemProps {
+  icon: string;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+interface CategoryFilterTabProps {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+  icon?: React.ReactNode;
+}
+
+const getCategoryIcon = (category: string) => {
+  const iconMap: Record<string, string> = {
+    'All': '🍽️',
+    'STARTER': '🥗',
+    'MAIN_COURSE': '🍛',
+    'DESSERT': '🍰',
+    'BEVERAGE': '🥤',
+    'SNACK': '🥪',
+  };
+  return iconMap[category] || '🍽️';
+};
+
+const CategoryFilterTab = ({ label, count, active, onClick }: CategoryFilterTabProps) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-5 py-3 rounded-lg whitespace-nowrap transition border ${
+      active
+        ? 'bg-green-50 border-green-300'
+        : 'bg-white border-gray-200 hover:border-gray-300'
+    }`}
+  >
+    <span className={`font-semibold text-sm ${active ? 'text-green-700' : 'text-gray-700'}`}>
+      {label === 'All' ? 'All' : label}
+    </span>
+    <span className={`text-xs font-medium ${active ? 'text-green-600' : 'text-gray-500'}`}>
+      ({count})
+    </span>
+  </button>
+);
+
+const NavItem = ({ icon, label, active, onClick }: NavItemProps) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+      active
+        ? 'bg-orange-100 text-orange-600'
+        : 'text-gray-600 hover:bg-gray-100'
+    }`}
+  >
+    <span className="text-xl">{icon}</span>
+    <span className="font-medium">{label}</span>
+  </button>
+);
+
+interface NavItemIconProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+const NavItemIcon = ({ icon: Icon, label, active, onClick }: NavItemIconProps) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+      active
+        ? 'bg-orange-100 text-orange-600'
+        : 'text-gray-600 hover:bg-gray-100'
+    }`}
+  >
+    <Icon className="w-5 h-5" />
+    <span className="font-medium text-sm">{label}</span>
+  </button>
+);

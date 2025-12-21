@@ -71,6 +71,7 @@ export interface OrderItemResponse {
   vegetarian?: boolean; // Added for veg/non-veg icon display
   chefId?: number; // Added for rating functionality
   chefName?: string; // Added for rating functionality
+  description?: string; // Added for displaying item description
 }
 
 export interface OrderResponse {

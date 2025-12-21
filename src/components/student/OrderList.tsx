@@ -320,17 +320,25 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                         const isDelivered = order.status === 'DELIVERED';
                         
                         return (
-                          <div key={item.id} className="flex justify-between items-center text-sm text-muted-foreground mb-2">
-                            <div className="flex items-center gap-2 flex-1">
-                              {item.vegetarian ? (
-                                <VegIcon size="sm" />
-                              ) : (
-                                <NonVegIcon size="sm" />
-                              )}
-                              <span>{item.menuItemName} x {item.quantity}</span>
+                          <div key={item.id} className="mb-3 pb-3 border-b border-border last:border-b-0">
+                            <div className="flex justify-between items-start text-sm text-muted-foreground mb-1">
+                              <div className="flex items-center gap-2 flex-1">
+                                {item.vegetarian ? (
+                                  <VegIcon size="sm" />
+                                ) : (
+                                  <NonVegIcon size="sm" />
+                                )}
+                                <div>
+                                  <span className="font-medium text-foreground">{item.menuItemName}</span>
+                                  <span className="text-muted-foreground ml-2">x {item.quantity}</span>
+                                </div>
+                              </div>
+                              <span className="font-semibold text-foreground">₹{item.subtotal.toFixed(2)}</span>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <span>₹{item.subtotal.toFixed(2)}</span>
+                            {item.description && (
+                              <p className="text-xs text-muted-foreground ml-6 mb-2">{item.description}</p>
+                            )}
+                            <div className="flex items-center gap-3 ml-6">
                               {isDelivered && item.menuItemId && (
                                 <button
                                   onClick={() => handleRateMenuItem(item.menuItemId, item.menuItemName, order.id)}

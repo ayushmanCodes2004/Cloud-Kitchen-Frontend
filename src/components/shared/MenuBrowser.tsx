@@ -7,19 +7,19 @@ import { ratingApi } from '@/services/ratingApi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Search, Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck, X } from 'lucide-react';
+import { Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck, X } from 'lucide-react';
 import { ReviewsModal } from '@/components/ui/ReviewsModal';
 
 interface MenuBrowserProps {
   onOrderClick?: (item: MenuItemResponse) => void;
   showOrderButton?: boolean;
   userRole?: 'student' | 'chef' | 'admin';
+  externalSearchQuery?: string;
 }
 
-export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }: MenuBrowserProps) => {
+export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, externalSearchQuery = '' }: MenuBrowserProps) => {
   const { toast } = useToast();
   const { token } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
@@ -27,6 +27,8 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [ratingFilter, setRatingFilter] = useState<string>('ALL');
+  const [priceFilter, setPriceFilter] = useState<string>('ALL');
   const [availableOnly, setAvailableOnly] = useState(true);
   const [ratedChefs, setRatedChefs] = useState<Set<number>>(new Set());
   const [ratedMenuItems, setRatedMenuItems] = useState<Set<number>>(new Set());
@@ -42,8 +44,12 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
   }, [availableOnly]);
 
   useEffect(() => {
+    setSearchQuery(externalSearchQuery);
+  }, [externalSearchQuery]);
+
+  useEffect(() => {
     filterMenuItems();
-  }, [menuItems, searchQuery, categoryFilter]);
+  }, [menuItems, searchQuery, categoryFilter, ratingFilter, priceFilter]);
 
   // Load rated items for students
   useEffect(() => {
@@ -123,6 +129,22 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
       filtered = filtered.filter(item => item.category === categoryFilter);
     }
 
+    // Rating filter
+    if (ratingFilter !== 'ALL') {
+      const minRating = parseFloat(ratingFilter);
+      filtered = filtered.filter(item => 
+        (item.menuItemAverageRating || 0) >= minRating
+      );
+    }
+
+    // Price filter
+    if (priceFilter !== 'ALL') {
+      const [minPrice, maxPrice] = priceFilter.split('-').map(Number);
+      filtered = filtered.filter(item => 
+        item.price >= minPrice && (maxPrice ? item.price <= maxPrice : true)
+      );
+    }
+
     setFilteredItems(filtered);
   };
 
@@ -146,16 +168,6 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <Input
-            placeholder="Search menu items, chef name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-full md:w-48">
             <SelectValue placeholder="Category" />
@@ -167,6 +179,32 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole }:
             <SelectItem value="DESSERT">Dessert</SelectItem>
             <SelectItem value="BEVERAGE">Beverage</SelectItem>
             <SelectItem value="SNACK">Snack</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={ratingFilter} onValueChange={setRatingFilter}>
+          <SelectTrigger className="w-full md:w-48">
+            <SelectValue placeholder="Rating" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Ratings</SelectItem>
+            <SelectItem value="4">4★ & Above</SelectItem>
+            <SelectItem value="3.5">3.5★ & Above</SelectItem>
+            <SelectItem value="3">3★ & Above</SelectItem>
+            <SelectItem value="2">2★ & Above</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={priceFilter} onValueChange={setPriceFilter}>
+          <SelectTrigger className="w-full md:w-48">
+            <SelectValue placeholder="Price" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Prices</SelectItem>
+            <SelectItem value="0-100">₹0 - ₹100</SelectItem>
+            <SelectItem value="100-250">₹100 - ₹250</SelectItem>
+            <SelectItem value="250-500">₹250 - ₹500</SelectItem>
+            <SelectItem value="500-999999">₹500+</SelectItem>
           </SelectContent>
         </Select>
 
