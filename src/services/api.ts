@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 import { ApiResponse, Order, OrderRequest } from '@/types/api';
 import { MenuItemRequest, MenuItemResponse } from '@/types/menu';
