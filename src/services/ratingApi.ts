@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 // Example:
 // VITE_API_URL=https://ayushman-backend-latest.onrender.com/api
 
@@ -120,6 +120,26 @@ export const ratingApi = {
       throw new Error('Failed to fetch chef ratings');
     }
 
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message);
+    return data.data;
+  },
+
+  async getAllRatings(): Promise<{
+    chefRatings: ChefRatingStats[];
+    menuItemRatings: MenuItemRatingStats[];
+  }> {
+    const response = await fetch(`${API_BASE_URL}/ratings/all`, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
+      const text = await response.text();
+      throw new Error(text || 'Failed to fetch all ratings');
+    }
     const data = await response.json();
     if (!data.success) throw new Error(data.message);
     return data.data;

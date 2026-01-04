@@ -5,7 +5,7 @@ import { ratingApi, ChefRatingStats, MenuItemRatingStats } from '@/services/rati
 import { ChefHat, UtensilsCrossed, MessageSquare, Calendar } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
-interface RatingsDisplayProps {
+  interface RatingsDisplayProps {
   type: 'chef' | 'menuItem' | 'all';
   itemId?: number;
   token?: string;
@@ -39,10 +39,10 @@ export const RatingsDisplay: React.FC<RatingsDisplayProps> = ({ type, itemId, to
       console.log('loadRatings started');
       setLoading(true);
       
-      if (type === 'all' && token) {
+      if (type === 'all') {
         console.log('Fetching all ratings with token');
         try {
-          const data = await ratingApi.getAllRatings(token);
+          const data = await ratingApi.getAllRatings();
           console.log('Raw API response:', data);
           
           if (!data) {
@@ -64,12 +64,12 @@ export const RatingsDisplay: React.FC<RatingsDisplayProps> = ({ type, itemId, to
         }
       } else if (type === 'chef' && itemId) {
         console.log(`Loading chef ratings for chef ${itemId}...`);
-        const data = await ratingApi.getChefRatings(itemId, token);
+        const data = await ratingApi.getChefRatings(itemId);
         console.log('Chef rating data:', data);
         setSingleChefRating(data || null);
       } else if (type === 'menuItem' && itemId) {
         console.log(`Loading menu item ratings for item ${itemId}...`);
-        const data = await ratingApi.getMenuItemRatings(itemId, token);
+        const data = await ratingApi.getMenuItemRatings(itemId);
         console.log('Menu item rating data:', data);
         setSingleMenuItemRating(data || null);
       }
@@ -87,13 +87,12 @@ export const RatingsDisplay: React.FC<RatingsDisplayProps> = ({ type, itemId, to
     }
   };
 
-  // Handle missing token for 'all' type
+  // Handle empty state for 'all' type when not authenticated
   if (type === 'all' && !token) {
     return (
       <Card>
         <CardContent className="py-8 text-center">
-          <p className="text-destructive">Authentication required to view ratings</p>
-          <p className="text-sm text-muted-foreground mt-2">Please log in again</p>
+          <p className="text-muted-foreground">Login to view all ratings</p>
         </CardContent>
       </Card>
     );

@@ -58,29 +58,13 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
         try {
           // Use getMyRatings which returns both chef and menu item ratings
           const myRatings = await ratingApi.getMyRatings();
+          console.log("Loaded ratings:", myRatings);
           
-          // Extract chef IDs from chef ratings
-          const chefIds = new Set<number>();
-          if (myRatings.chefRatings) {
-             // Depending on API response structure, we might need to map differently
-             // Assuming chefRatings contains ChefRatingResponse with chefId
-             // But ratingApi.ts interface for RatingResponse doesn't have chefId directly?
-             // Let's check ratingApi.ts types again.
-             // RatingResponse has: id, rating, comment, studentName, createdAt.
-             // It does NOT have chefId. 
-             // Wait, getMyRatings returns { chefRatings: RatingResponse[], menuItemRatings: RatingResponse[] }
-             // This seems insufficient if RatingResponse doesn't link back to the chef/item.
-             // However, for now, let's just use what's available or try to fetch properly.
-             // Since I can't easily change the backend response type without seeing it, 
-             // I will comment out the detail extraction if types don't match, 
-             // OR assume the response actually has more fields than the interface says.
-             // But to be safe and fix the "token as arg" error, I will just call getMyRatings()
-             // and log it for now, or attempt to use it.
-             console.log("Loaded ratings:", myRatings);
-          }
-          
-          // For now, let's just fix the function call to not pass token.
-          // And since getMyRatedOrders doesn't exist, we use getMyRatings.
+          // TODO: Process ratings when API response structure is confirmed
+          // const [ratedChefIds, ratedMenuItemKeys] = await Promise.all([
+          //   ratingApi.getMyRatedOrders(token),
+          //   ratingApi.getMyRatedMenuItems(token)
+          // ]);
           
         } catch (error) {
           console.error('Failed to load rated items:', error);
