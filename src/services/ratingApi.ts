@@ -221,4 +221,46 @@ export const ratingApi = {
     if (!data.success) throw new Error(data.message);
     return data.data;
   },
+
+  async getMyRatedOrders(): Promise<number[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/ratings/my-rated-orders`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized');
+      }
+      throw new Error('Failed to fetch rated orders');
+    }
+
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message);
+    return data.data;
+  },
+
+  async getMyRatedMenuItems(): Promise<string[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/ratings/my-rated-menu-items`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized');
+      }
+      throw new Error('Failed to fetch rated menu items');
+    }
+
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message);
+    return data.data;
+  },
 };

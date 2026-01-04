@@ -45,15 +45,13 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
   useEffect(() => {
     const loadRatedData = async () => {
       try {
-        // TODO: Implement getMyRatedOrders and getMyRatedMenuItems in ratingApi
-        // const [ratedOrderIds, ratedMenuItemKeys] = await Promise.all([
-        //   ratingApi.getMyRatedOrders(token!),
-        //   ratingApi.getMyRatedMenuItems(token!)
-        // ]);
+        const [ratedOrderIds, ratedMenuItemKeys] = await Promise.all([
+          ratingApi.getMyRatedOrders(),
+          ratingApi.getMyRatedMenuItems()
+        ]);
         
-        // setRatedChefOrders(new Set(ratedOrderIds));
-        // setRatedMenuItems(new Set(ratedMenuItemKeys));
-        console.log('Loading rated data skipped - API not implemented');
+        setRatedChefOrders(new Set(ratedOrderIds));
+        setRatedMenuItems(new Set(ratedMenuItemKeys));
       } catch (error) {
         console.error('Failed to load rated data:', error);
       } finally {
@@ -110,7 +108,7 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
 
   const handleSubmitChefRating = async (rating: number, comment?: string) => {
     try {
-      await ratingApi.rateChef(token!, {
+      await ratingApi.rateChef({
         chefId: chefRatingModal.chefId,
         orderId: chefRatingModal.orderId,
         rating,
