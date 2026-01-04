@@ -22,7 +22,7 @@ export enum OrderStatus {
 ======================= */
 
 const getAuthHeaders = () => {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('No authentication token found. Please login again.');
   }

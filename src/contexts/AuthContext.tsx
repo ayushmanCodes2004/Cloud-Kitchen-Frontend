@@ -68,15 +68,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = sessionStorage.getItem('token');
-    const storedUser = sessionStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
     
     if (storedToken && storedUser) {
       // Check if token is expired
       if (isTokenExpired(storedToken)) {
         // Token expired, clear storage
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         console.warn('Stored token has expired');
       } else {
         setToken(storedToken);
@@ -137,15 +137,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (userData: User, userToken: string) => {
     setUser(userData);
     setToken(userToken);
-    sessionStorage.setItem('token', userToken);
-    sessionStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', userToken);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     // Redirect to home page
     window.location.href = '/';
   };
@@ -187,7 +187,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         
         setUser(updatedUser);
-        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } catch (error) {
       console.error('Failed to refresh user data:', error);
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout, refreshUser, isTokenExpired: () => isTokenExpired(token) }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
