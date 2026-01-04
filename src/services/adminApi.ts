@@ -209,8 +209,6 @@ export const authApi = {
   },
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
 export interface UserResponse {
   id: number;
   name: string;
