@@ -1,5 +1,5 @@
 // authApi.ts - COMPLETE FIXED VERSION
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+ /*const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export interface RegisterChefRequest {
   name: string;
@@ -207,4 +207,83 @@ export const authApi = {
 
     return data;
   },
+}; **/
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+export interface UserResponse {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  active: boolean;
+  verified?: boolean;
+}
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
 };
+
+export const adminApi = {
+  // ✅ Get all users
+  getAllUsers: async (): Promise<UserResponse[]> => {
+    const res = await fetch(`${API_BASE_URL}/admin/users`, {
+      headers: getAuthHeaders(),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch users");
+    return data.data;
+  },
+
+  // ✅ Get all chefs
+  getAllChefs: async (): Promise<UserResponse[]> => {
+    const res = await fetch(`${API_BASE_URL}/admin/chefs`, {
+      headers: getAuthHeaders(),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch chefs");
+    return data.data;
+  },
+
+  // ✅ Activate user
+  activateUser: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${id}/activate`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) throw new Error("Failed to activate user");
+  },
+
+  // ✅ Deactivate user
+  deactivateUser: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${id}/deactivate`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) throw new Error("Failed to deactivate user");
+  },
+
+  // ✅ Verify / Unverify chef
+  toggleChefVerification: async (id: number): Promise<UserResponse> => {
+    const res = await fetch(
+      `${API_BASE_URL}/admin/chefs/${id}/toggle-verification`,
+      {
+        method: "PUT",
+        headers: getAuthHeaders(),
+      }
+    );
+
+    const data = await res.json();
+    if (!res.ok) throw new Error("Failed to toggle chef verification");
+    return data.data;
+  },
+};
+
