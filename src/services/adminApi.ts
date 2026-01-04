@@ -219,12 +219,61 @@ export interface UserResponse {
 }
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 };
 
+export const adminApi = {
+  async getAllUsers(): Promise<UserResponse[]> {
+    const res = await fetch(`${API_BASE_URL}/admin/users`, {
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch users");
+    return data.data || [];
+  },
+
+  async getAllChefs(): Promise<UserResponse[]> {
+    const res = await fetch(`${API_BASE_URL}/admin/chefs`, {
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch chefs");
+    return data.data || [];
+  },
+
+  async activateUser(id: number): Promise<UserResponse> {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${id}/activate`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to activate user");
+    return data.data;
+  },
+
+  async deactivateUser(id: number): Promise<UserResponse> {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${id}/deactivate`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to deactivate user");
+    return data.data;
+  },
+
+  async toggleChefVerification(id: number): Promise<UserResponse> {
+    const res = await fetch(`${API_BASE_URL}/admin/chefs/${id}/toggle-verify`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to toggle chef verification");
+    return data.data;
+  },
+};
 
 
