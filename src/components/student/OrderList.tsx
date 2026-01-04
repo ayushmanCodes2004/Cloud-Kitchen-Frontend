@@ -372,25 +372,8 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                             
                             console.log('Chef keys found:', chefKeys);
                             
-                            // If no chef info available, show fallback rating button
                             if (chefKeys.length === 0) {
-                              console.log('No chef info found, showing fallback rating button');
-                              const isRated = ratedChefOrders.has(order.id);
-                              return (
-                                <button
-                                  onClick={() => handleRateChef(1, 'Chef', order.id)} // Fallback chef ID and name
-                                  className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg transition-colors mb-2 ${
-                                    isRated
-                                      ? 'text-yellow-600 bg-yellow-50 cursor-not-allowed'
-                                      : 'text-gray-600 hover:text-yellow-600 hover:bg-yellow-50'
-                                  }`}
-                                  disabled={isRated}
-                                >
-                                  <ChefHat className="w-4 h-4" />
-                                  <span>{isRated ? 'Chef Rated' : 'Rate Chef'}</span>
-                                  <Star className="w-4 h-4" fill={isRated ? 'currentColor' : 'none'} />
-                                </button>
-                              );
+                              return null;
                             }
                             
                             // Show chef-specific rating buttons if chef info is available
