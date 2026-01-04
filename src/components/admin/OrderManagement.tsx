@@ -21,8 +21,8 @@ export const OrderManagement = () => {
     try {
       setLoading(true);
       const response = filterStatus === 'ALL' 
-        ? await orderApi.getAllOrders(token!)
-        : await orderApi.getOrdersByStatus(token!, filterStatus);
+        ? await orderApi.getAllOrders()
+        : await orderApi.getOrdersByStatus(filterStatus);
       
       if (response.success && response.data) {
         setOrders(response.data);
@@ -47,7 +47,7 @@ export const OrderManagement = () => {
   const handleStatusUpdate = async (orderId: number, newStatus: OrderStatus) => {
     try {
       setUpdatingOrderId(orderId);
-      const response = await orderApi.updateOrderStatus(token!, orderId, newStatus);
+      const response = await orderApi.updateOrderStatus(orderId, newStatus);
       
       if (response.success) {
         setOrders(prevOrders =>

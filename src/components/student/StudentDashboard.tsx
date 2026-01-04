@@ -49,7 +49,7 @@ export const StudentDashboard = () => {
     if (!token) return;
     
     try {
-      const result = await orderApi.getMyOrders(token);
+      const result = await orderApi.getMyOrders();
       if (result.success) {
         setOrders(result.data || []);
       }
@@ -130,7 +130,7 @@ export const StudentDashboard = () => {
     };
 
     try {
-      const result = await orderApi.createOrder(token, orderData);
+      const result = await orderApi.createOrder(orderData);
       if (result.success) {
         toast({
           title: 'Order placed',

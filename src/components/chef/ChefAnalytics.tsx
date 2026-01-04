@@ -38,7 +38,7 @@ export const ChefAnalytics = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const response = await orderApi.getChefOrders(token!);
+      const response = await orderApi.getChefOrders();
       if (response.success && response.data) {
         setOrders(response.data);
       }

@@ -39,13 +39,13 @@ export const ChefOrderManagement = () => {
       try {
         // Try chef-specific endpoint first
         console.log('📡 Calling /orders/chef/my-orders...');
-        response = await orderApi.getChefOrders(token!);
+        response = await orderApi.getChefOrders();
         console.log('📦 Response from /orders/chef/my-orders:', response);
       } catch (chefError: any) {
         console.warn('⚠️ Chef endpoint failed, trying fallback to /orders:', chefError);
         // Fallback to general orders endpoint
         try {
-          response = await orderApi.getAllOrders(token!);
+          response = await orderApi.getAllOrders();
           usedFallback = true;
           console.log('📦 Fallback response from /orders:', response);
         } catch (fallbackError: any) {
@@ -132,7 +132,7 @@ export const ChefOrderManagement = () => {
   const handleStatusUpdate = async (orderId: number, newStatus: OrderStatus) => {
     try {
       setUpdatingOrderId(orderId);
-      const response = await orderApi.updateOrderStatus(token!, orderId, newStatus);
+      const response = await orderApi.updateOrderStatus(orderId, newStatus);
       
       if (response.success) {
         // Update the order in allOrders
@@ -164,7 +164,7 @@ export const ChefOrderManagement = () => {
 
     setCancellingOrderId(orderId);
     try {
-      const response = await orderApi.cancelChefOrder(token!, orderId);
+      const response = await orderApi.cancelChefOrder(orderId);
       if (response.success) {
         toast({
           title: "Success",

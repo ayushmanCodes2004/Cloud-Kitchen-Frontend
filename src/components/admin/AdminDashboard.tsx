@@ -36,7 +36,7 @@ export const AdminDashboard = () => {
         adminApi.getAllUsers(),
         adminApi.getAllChefs(),
         testimonialApi.getPendingTestimonials().catch(() => []),
-        orderApi.getAllOrders(token).catch(() => ({ success: false, data: [] })),
+        orderApi.getAllOrders().catch(() => ({ success: false, data: [] })),
         menuApi.getAllMenuItems().catch(() => ({ success: false, data: [] }))
       ]);
       

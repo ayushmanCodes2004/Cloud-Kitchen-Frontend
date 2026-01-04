@@ -41,7 +41,7 @@ export const AdminAnalytics = () => {
       setLoading(true);
       if (!token) return;
       
-      const response = await orderApi.getAllOrders(token);
+      const response = await orderApi.getAllOrders();
       if (response.success && response.data) {
         setOrders(response.data);
       }

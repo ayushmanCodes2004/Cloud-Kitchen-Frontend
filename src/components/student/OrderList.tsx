@@ -164,7 +164,7 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
 
     setCancellingOrderId(orderId);
     try {
-      const result = await orderApi.cancelOrder(token!, orderId);
+      const result = await orderApi.cancelOrder(orderId);
       if (result.success) {
         toast({
           title: "Success",
