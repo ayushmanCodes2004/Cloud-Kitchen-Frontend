@@ -68,21 +68,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
-      // Check if token is expired
-      if (isTokenExpired(storedToken)) {
-        // Token expired, clear storage
+    const initializeAuth = () => {
+      try {
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+        
+        if (storedToken && storedUser) {
+          // Check if token is expired
+          if (isTokenExpired(storedToken)) {
+            // Token expired, clear storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            console.warn('Stored token has expired');
+          } else {
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        // Clear potentially corrupted storage
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        console.warn('Stored token has expired');
-      } else {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    initializeAuth();
   }, []);
 
   // Set up token expiration check interval and user status check
