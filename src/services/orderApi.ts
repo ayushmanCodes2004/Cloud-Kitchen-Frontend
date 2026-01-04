@@ -22,7 +22,8 @@ export enum OrderStatus {
 ======================= */
 
 const getAuthHeaders = () => {
-  const token = sessionStorage.getItem('token');
+  // ✅ CHANGED FROM sessionStorage TO localStorage
+  const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('No authentication token found. Please login again.');
   }
@@ -31,6 +32,13 @@ const getAuthHeaders = () => {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
+};
+
+// ✅ ADD HELPER TO HANDLE 401 ERRORS
+const handle401 = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
 };
 
 /* =======================
@@ -52,6 +60,7 @@ export const orderApi = {
     if (!response.ok) {
       const text = await response.text();
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized: Token expired or invalid');
       }
       throw new Error(text || 'Failed to create order');
@@ -70,6 +79,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to fetch orders');
@@ -89,6 +99,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to cancel order');
@@ -109,6 +120,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to fetch chef orders');
@@ -128,6 +140,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to cancel chef order');
@@ -150,6 +163,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to update order status');
@@ -167,6 +181,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to fetch all orders');
@@ -187,6 +202,7 @@ export const orderApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to fetch orders by status');

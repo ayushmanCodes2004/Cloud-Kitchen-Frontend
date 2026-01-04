@@ -27,7 +27,8 @@ export interface TestimonialResponse {
 ======================= */
 
 const getAuthHeaders = () => {
-  const token = sessionStorage.getItem('token');
+  // ✅ CHANGED FROM sessionStorage TO localStorage
+  const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('No authentication token found. Please login again.');
   }
@@ -36,6 +37,13 @@ const getAuthHeaders = () => {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
+};
+
+// ✅ ADD HELPER TO HANDLE 401 ERRORS
+const handle401 = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
 };
 
 /* =======================
@@ -56,6 +64,7 @@ export const testimonialApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to submit testimonial');
@@ -75,6 +84,10 @@ export const testimonialApi = {
     }
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to fetch testimonial');
     }
 
@@ -96,6 +109,10 @@ export const testimonialApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to update testimonial');
     }
 
@@ -113,6 +130,10 @@ export const testimonialApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to delete testimonial');
     }
   },
@@ -143,6 +164,10 @@ export const testimonialApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to fetch pending testimonials');
     }
 
@@ -162,6 +187,10 @@ export const testimonialApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to approve testimonial');
     }
 
@@ -179,6 +208,10 @@ export const testimonialApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401(); // ✅ Clear storage and redirect
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to reject testimonial');
     }
   },

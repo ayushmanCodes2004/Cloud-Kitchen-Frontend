@@ -1,9 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-// Example:
-// VITE_API_URL = https://ayushman-backend-latest.onrender.com/api
+// api.ts or services/api.ts - ADD THESE FUNCTIONS
 
-import { ApiResponse, Order, OrderRequest } from '@/types/api';
-import { MenuItemRequest, MenuItemResponse } from '@/types/menu';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const api = {
   /* =======================
@@ -22,7 +19,15 @@ export const api = {
       }
     );
 
-    return response.json();
+    const result = await response.json();
+
+    // ✅ SAVE TOKEN AFTER REGISTRATION
+    if (result.success && result.data?.token) {
+      localStorage.setItem('token', result.data.token);
+      localStorage.setItem('user', JSON.stringify(result.data.user));
+    }
+
+    return result;
   },
 
   async login(data: any) {
@@ -36,6 +41,51 @@ export const api = {
         body: JSON.stringify(data),
       }
     );
+
+    const result = await response.json();
+
+    // ✅ SAVE TOKEN AFTER LOGIN
+    if (result.success && result.data?.token) {
+      localStorage.setItem('token', result.data.token);
+      localStorage.setItem('user', JSON.stringify(result.data.user));
+    }
+
+    return result;
+  },
+
+  // ✅ ADD LOGOUT FUNCTION
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+
+  // ✅ ADD GET TOKEN FUNCTION
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  },
+
+  // ✅ ADD GET USER FUNCTION
+  getUser(): any | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  },
+
+  // ✅ ADD VERIFY TOKEN FUNCTION
+  async verifyToken(token: string) {
+    const response = await fetch(
+      `${API_BASE_URL}/auth/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      // Token is invalid/expired
+      this.logout();
+      return null;
+    }
 
     return response.json();
   },
@@ -54,12 +104,17 @@ export const api = {
       }
     );
 
+    // ✅ HANDLE 401 UNAUTHORIZED
+    if (response.status === 401) {
+      this.logout();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+
     return response.json();
   },
 
-  async getMyMenuItems(
-    token: string
-  ): Promise<ApiResponse<MenuItemResponse[]>> {
+  async getMyMenuItems(token: string) {
     const response = await fetch(
       `${API_BASE_URL}/chef/my-menu-items`,
       {
@@ -69,13 +124,17 @@ export const api = {
       }
     );
 
+    // ✅ HANDLE 401 UNAUTHORIZED
+    if (response.status === 401) {
+      this.logout();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+
     return response.json();
   },
 
-  async createMenuItem(
-    token: string,
-    data: MenuItemRequest
-  ) {
+  async createMenuItem(token: string, data: any) {
     const response = await fetch(
       `${API_BASE_URL}/menu`,
       {
@@ -88,13 +147,17 @@ export const api = {
       }
     );
 
+    // ✅ HANDLE 401 UNAUTHORIZED
+    if (response.status === 401) {
+      this.logout();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+
     return response.json();
   },
 
-  async toggleAvailability(
-    token: string,
-    id: string
-  ) {
+  async toggleAvailability(token: string, id: string) {
     const response = await fetch(
       `${API_BASE_URL}/menu/${id}/toggle-availability`,
       {
@@ -105,6 +168,13 @@ export const api = {
       }
     );
 
+    // ✅ HANDLE 401 UNAUTHORIZED
+    if (response.status === 401) {
+      this.logout();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+
     return response.json();
   },
 
@@ -112,10 +182,7 @@ export const api = {
      ORDERS
   ======================= */
 
-  async placeOrder(
-    token: string,
-    data: OrderRequest
-  ): Promise<ApiResponse<Order>> {
+  async placeOrder(token: string, data: any) {
     const response = await fetch(
       `${API_BASE_URL}/orders`,
       {
@@ -127,6 +194,13 @@ export const api = {
         body: JSON.stringify(data),
       }
     );
+
+    // ✅ HANDLE 401 UNAUTHORIZED
+    if (response.status === 401) {
+      this.logout();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
 
     return response.json();
   },
@@ -140,6 +214,13 @@ export const api = {
         },
       }
     );
+
+    // ✅ HANDLE 401 UNAUTHORIZED
+    if (response.status === 401) {
+      this.logout();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
 
     return response.json();
   },

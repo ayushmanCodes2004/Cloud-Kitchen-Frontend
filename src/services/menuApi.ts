@@ -19,7 +19,8 @@ export interface ApiResponse<T> {
 ======================= */
 
 const getAuthHeaders = () => {
-  const token = sessionStorage.getItem('token');
+  // ✅ CHANGED FROM sessionStorage TO localStorage
+  const token = localStorage.getItem('token');
 
   // token OPTIONAL for public endpoints
   return {
@@ -41,6 +42,10 @@ export const menuApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
+        // ✅ Clear localStorage and redirect on 401
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to fetch menu items');
@@ -113,4 +118,3 @@ export const menuApi = {
     return response.json();
   },
 };
-
