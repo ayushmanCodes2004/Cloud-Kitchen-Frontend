@@ -1,129 +1,62 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-export interface UserResponse {
-  id: number;
+export interface RegisterChefRequest {
   name: string;
   email: string;
-  role: string;
-  active: boolean;
-  verified?: boolean;
+  password: string;
+  phone?: string;
 }
 
-export const adminApi = {
-  // Get all users
-  getAllUsers: async (): Promise<UserResponse[]> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/users`, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+}
+
+export const authApi = {
+  // Register Chef (PUBLIC API – no JWT required)
+  registerChef: async (
+    payload: RegisterChefRequest
+  ): Promise<AuthResponse> => {
+    const response = await fetch(
+      `${API_BASE_URL}/auth/register/chef`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       }
-    });
+    );
+
     const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to fetch users');
-    return data.data;
+
+    if (!response.ok) {
+      throw new Error(data.message || "Chef registration failed");
+    }
+
+    return data;
   },
 
-  // Get user by ID
-  getUserById: async (id: number): Promise<UserResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/users/${id}`, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  // Login (example)
+  login: async (email: string, password: string): Promise<AuthResponse> => {
+    const response = await fetch(
+      `${API_BASE_URL}/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       }
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to fetch user');
-    return data.data;
-  },
+    );
 
-  // Deactivate user
-  deactivateUser: async (id: number): Promise<UserResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/users/${id}/deactivate`, {
-      method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
     const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to deactivate user');
-    return data.data;
-  },
 
-  // Activate user
-  activateUser: async (id: number): Promise<UserResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/users/${id}/activate`, {
-      method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to activate user');
-    return data.data;
-  },
+    if (!response.ok) {
+      throw new Error(data.message || "Login failed");
+    }
 
-  // Get all chefs
-  getAllChefs: async (): Promise<UserResponse[]> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/chefs`, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to fetch chefs');
-    return data.data;
+    return data;
   },
-
-  // Verify chef
-  verifyChef: async (id: number): Promise<UserResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/chefs/${id}/verify`, {
-      method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to verify chef');
-    return data.data;
-  },
-
-  // Unverify chef
-  unverifyChef: async (id: number): Promise<UserResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/chefs/${id}/unverify`, {
-      method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to unverify chef');
-    return data.data;
-  },
-
-  // Toggle chef verification
-  toggleChefVerification: async (id: number): Promise<UserResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/admin/chefs/${id}/toggle-verify`, {
-      method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to toggle chef verification');
-    return data.data;
-  }
 };

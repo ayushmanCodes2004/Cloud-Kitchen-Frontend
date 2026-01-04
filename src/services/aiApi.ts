@@ -1,5 +1,10 @@
 const API_ROOT = import.meta.env.VITE_API_URL;
+// VITE_API_URL = https://ayushman-backend-latest.onrender.com/api
 const API_BASE_URL = `${API_ROOT}/ai`;
+
+/* =======================
+   Types
+======================= */
 
 export interface MenuCombination {
   itemName: string;
@@ -18,7 +23,6 @@ export interface MenuItem {
   [key: string]: any;
 }
 
-// Response format for AI responses with menu items
 export interface AiResponse {
   success: boolean;
   explanation?: string;
@@ -32,50 +36,70 @@ export interface AiCombinationResponse extends AiResponse {}
 export interface AiPairingResponse extends AiResponse {}
 export interface AiRecommendationResponse extends AiResponse {}
 
+/* =======================
+   API
+======================= */
+
 export const aiApi = {
-  // Get menu combinations with items
-  async getSuggestedCombinations(itemCount: number = 3): Promise<AiResponse> {
+  // Get menu combinations
+  async getSuggestedCombinations(
+    itemCount: number = 3
+  ): Promise<AiResponse> {
     try {
-      console.log('Fetching combinations with itemCount:', itemCount);
-      const response = await fetch(`${API_BASE_URL}/suggest-combinations-with-items?itemCount=${itemCount}`);
-      const json = await response.json();
-      console.log('Combinations response:', json);
+      const response = await fetch(
+        `${API_BASE_URL}/suggest-combinations-with-items?itemCount=${itemCount}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
       return {
         success: response.ok,
-        ...json
+        ...data,
       };
     } catch (error) {
-      console.error('Error fetching combinations:', error);
       return {
         success: false,
-        error: 'Failed to fetch combinations',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: "Failed to fetch combinations",
+        message: error instanceof Error ? error.message : "Unknown error",
       };
     }
   },
 
-  // Get pairing suggestions for a menu item
-  async getSuggestedPairings(menuItemId: number): Promise<AiResponse> {
+  // Get pairing suggestions
+  async getSuggestedPairings(
+    menuItemId: number
+  ): Promise<AiResponse> {
     try {
-      console.log('Fetching pairings for menuItemId:', menuItemId);
-      const response = await fetch(`${API_BASE_URL}/suggest-pairings/${menuItemId}`);
-      const json = await response.json();
-      console.log('Pairings response:', json);
+      const response = await fetch(
+        `${API_BASE_URL}/suggest-pairings/${menuItemId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
       return {
         success: response.ok,
-        ...json
+        ...data,
       };
     } catch (error) {
-      console.error('Error fetching pairings:', error);
       return {
         success: false,
-        error: 'Failed to fetch pairings',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: "Failed to fetch pairings",
+        message: error instanceof Error ? error.message : "Unknown error",
       };
     }
   },
 
-  // Get meal recommendations based on preferences
+  // Get meal recommendations
   async getMealRecommendations(preferences?: {
     vegetarian?: boolean;
     maxBudget?: number;
@@ -83,27 +107,28 @@ export const aiApi = {
     dietary?: string;
   }): Promise<AiResponse> {
     try {
-      console.log('Sending recommendations request with preferences:', preferences);
-      const response = await fetch(`${API_BASE_URL}/get-recommendations-with-items`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(preferences || {})
-      });
-      console.log('Response status:', response.status, response.statusText);
-      const json = await response.json();
-      console.log('Recommendations response:', json);
+      const response = await fetch(
+        `${API_BASE_URL}/get-recommendations-with-items`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(preferences ?? {}),
+        }
+      );
+
+      const data = await response.json();
+
       return {
         success: response.ok,
-        ...json
+        ...data,
       };
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
       return {
         success: false,
-        error: 'Failed to fetch recommendations',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: "Failed to fetch recommendations",
+        message: error instanceof Error ? error.message : "Unknown error",
       };
     }
   },
@@ -113,13 +138,16 @@ export const aiApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/health`);
       const text = await response.text();
+
       return {
         success: response.ok,
-        data: text
+        data: text,
       };
     } catch (error) {
-      console.error('Error checking AI service health:', error);
-      return { success: false, error: 'Service down' };
+      return {
+        success: false,
+        error: "AI service down",
+      };
     }
-  }
+  },
 };

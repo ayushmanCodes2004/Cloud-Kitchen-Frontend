@@ -1,4 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+// Example:
+// VITE_API_URL=https://ayushman-backend-latest.onrender.com/api
+
+/* =======================
+   TYPES
+======================= */
 
 export interface TestimonialRequest {
   content: string;
@@ -16,154 +22,164 @@ export interface TestimonialResponse {
   approved: boolean;
 }
 
+/* =======================
+   HELPER
+======================= */
+
+const getAuthHeaders = () => {
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
+/* =======================
+   API
+======================= */
+
 export const testimonialApi = {
-  // Submit a testimonial
-  submitTestimonial: async (data: TestimonialRequest): Promise<TestimonialResponse> => {
-    const token = sessionStorage.getItem('token');
+  /* -------- STUDENT / CHEF -------- */
+
+  async submitTestimonial(
+    data: TestimonialRequest
+  ): Promise<TestimonialResponse> {
     const response = await fetch(`${API_BASE_URL}/testimonials`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to submit testimonial');
     }
-    
+
     const result = await response.json();
     return result.data;
   },
 
-  // Get all approved testimonials (public)
-  getApprovedTestimonials: async (): Promise<TestimonialResponse[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/approved`);
-      
-      if (!response.ok) {
-        console.warn('Failed to fetch testimonials, returning empty array');
-        return [];
-      }
-      
-      const result = await response.json();
-      // Handle both direct array and wrapped response
-      return Array.isArray(result) ? result : (result.data || []);
-    } catch (error) {
-      console.error('Error fetching testimonials:', error);
-      return [];
-    }
-  },
-
-  // Get user's own testimonial
-  getMyTestimonial: async (): Promise<TestimonialResponse | null> => {
-    const token = sessionStorage.getItem('token');
+  async getMyTestimonial(): Promise<TestimonialResponse | null> {
     const response = await fetch(`${API_BASE_URL}/testimonials/my`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers: getAuthHeaders(),
     });
-    
+
     if (response.status === 404) {
       return null;
     }
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch testimonial');
     }
-    
+
     const result = await response.json();
     return result.data || null;
   },
 
-  // Update existing testimonial
-  updateTestimonial: async (id: number, data: TestimonialRequest): Promise<TestimonialResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-    
+  async updateTestimonial(
+    id: number,
+    data: TestimonialRequest
+  ): Promise<TestimonialResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/testimonials/${id}`,
+      {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      }
+    );
+
     if (!response.ok) {
       throw new Error('Failed to update testimonial');
     }
-    
+
     const result = await response.json();
     return result.data;
   },
 
-  // Delete testimonial
-  deleteTestimonial: async (id: number): Promise<void> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  async deleteTestimonial(id: number): Promise<void> {
+    const response = await fetch(
+      `${API_BASE_URL}/testimonials/${id}`,
+      {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
       }
-    });
-    
+    );
+
     if (!response.ok) {
       throw new Error('Failed to delete testimonial');
     }
   },
 
-  // Admin: Get pending testimonials
-  getPendingTestimonials: async (): Promise<TestimonialResponse[]> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/testimonials/pending`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  /* -------- PUBLIC -------- */
+
+  async getApprovedTestimonials(): Promise<TestimonialResponse[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/testimonials/approved`
+    );
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const result = await response.json();
+    return Array.isArray(result) ? result : result.data || [];
+  },
+
+  /* -------- ADMIN -------- */
+
+  async getPendingTestimonials(): Promise<TestimonialResponse[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/testimonials/pending`,
+      {
+        headers: getAuthHeaders(),
       }
-    });
-    
+    );
+
     if (!response.ok) {
       throw new Error('Failed to fetch pending testimonials');
     }
-    
+
     const result = await response.json();
     return result.data || [];
   },
 
-  // Admin: Approve testimonial
-  approveTestimonial: async (id: number): Promise<TestimonialResponse> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/testimonials/${id}/approve`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  async approveTestimonial(
+    id: number
+  ): Promise<TestimonialResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/testimonials/${id}/approve`,
+      {
+        method: 'POST',
+        headers: getAuthHeaders(),
       }
-    });
-    
+    );
+
     if (!response.ok) {
       throw new Error('Failed to approve testimonial');
     }
-    
+
     const result = await response.json();
     return result.data;
   },
 
-  // Admin: Reject testimonial
-  rejectTestimonial: async (id: number): Promise<void> => {
-    const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/testimonials/${id}/reject`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  async rejectTestimonial(id: number): Promise<void> {
+    const response = await fetch(
+      `${API_BASE_URL}/testimonials/${id}/reject`,
+      {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
       }
-    });
-    
+    );
+
     if (!response.ok) {
       throw new Error('Failed to reject testimonial');
     }
-  }
+  },
 };
