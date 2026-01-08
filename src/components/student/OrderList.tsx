@@ -1,5 +1,5 @@
 import { OrderResponse, OrderItemResponse } from '@/types/api.types';
-import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart, Timer } from 'lucide-react';
+import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart, Clock } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 import { RatingModal } from '@/components/ui/RatingModal';
 import { ratingApi } from '@/services/ratingApi';
@@ -314,8 +314,8 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                             ) : (
                               <span className="flex items-center gap-2">
                                 <span>Cancel Order</span>
-                                <span className="flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded">
-                                  <Timer className="w-3 h-3" />
+                                <span className="flex items-center gap-1 bg-black/20 border border-white/20 px-2 py-0.5 rounded">
+                                  <Clock className="w-4 h-4 text-white" />
                                   {formatTime(getRemainingCancelTime(order.createdAt))}
                                 </span>
                               </span>
