@@ -3,7 +3,10 @@ import { aiApi, MenuCombination, MenuItem } from '@/services/aiApi';
 import { MenuItemResponse } from '@/services/chefApi';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Sparkles, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Sparkles, Loader2, AlertCircle, CheckCircle, Settings2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 // Helper function to format explanation as bullet points
@@ -15,6 +18,7 @@ const formatExplanation = (text: string): string[] => {
     .replace(/```json[\s\S]*?```/g, '') // Remove code blocks
     .replace(/\{[\s\S]*?\}/g, '') // Remove JSON objects
     .replace(/\[[\s\S]*?\]/g, '') // Remove JSON arrays
+    .replace(/\*\*/g, '') // Remove bold markers
     .trim();
   
   // Split by newlines first to preserve paragraph structure
@@ -45,6 +49,11 @@ export const AiSuggestions = ({ onAddToCart }: AiSuggestionsProps) => {
   const [combinations, setCombinations] = useState<MenuItem[]>([]);
   const [explanation, setExplanation] = useState('');
   const [error, setError] = useState('');
+  
+  // Preferences
+  const [isVegetarian, setIsVegetarian] = useState(false);
+  const [maxBudget, setMaxBudget] = useState<string>('500');
+
   const { toast } = useToast();
 
   const handleGetCombinations = async () => {
@@ -78,11 +87,20 @@ export const AiSuggestions = ({ onAddToCart }: AiSuggestionsProps) => {
     setLoading(true);
     setError('');
     setExplanation(''); // Clear previous explanation
+    
+    // Validate budget
+    const budget = parseFloat(maxBudget);
+    if (isNaN(budget) || budget <= 0) {
+      setError('Please enter a valid budget');
+      setLoading(false);
+      return;
+    }
+
     try {
       console.log('Fetching recommendations...');
       const result = await aiApi.getMealRecommendations({
-        vegetarian: false,
-        maxBudget: 500
+        vegetarian: isVegetarian,
+        maxBudget: budget
       });
       console.log('Recommendations result:', result);
       
@@ -173,6 +191,42 @@ export const AiSuggestions = ({ onAddToCart }: AiSuggestionsProps) => {
                 Get Recommendations
               </button>
             </div>
+
+            {/* Preferences Panel */}
+            {activeTab === 'recommendations' && (
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 flex flex-wrap gap-4 items-end">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="veg-mode"
+                    checked={isVegetarian}
+                    onCheckedChange={setIsVegetarian}
+                  />
+                  <Label htmlFor="veg-mode" className="cursor-pointer">Vegetarian Only</Label>
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="budget" className="text-xs text-gray-500">Max Budget (₹)</Label>
+                  <Input
+                    id="budget"
+                    type="number"
+                    value={maxBudget}
+                    onChange={(e) => setMaxBudget(e.target.value)}
+                    className="w-24 h-8 text-sm"
+                    min="0"
+                  />
+                </div>
+
+                <Button 
+                  size="sm" 
+                  onClick={handleGetRecommendations}
+                  disabled={loading}
+                  className="ml-auto"
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-2" />
+                  Update
+                </Button>
+              </div>
+            )}
 
             {/* Loading State */}
             {loading && (

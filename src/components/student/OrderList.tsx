@@ -1,5 +1,5 @@
 import { OrderResponse, OrderItemResponse } from '@/types/api.types';
-import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart } from 'lucide-react';
+import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart, Timer } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 import { RatingModal } from '@/components/ui/RatingModal';
 import { ratingApi } from '@/services/ratingApi';
@@ -305,11 +305,21 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                           <button
                             onClick={() => handleCancelOrder(order.id)}
                             disabled={cancellingOrderId === order.id}
-                            className="flex items-center gap-1 px-3 py-1 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-3 py-1 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Cancel order"
                           >
                             <XCircle className="w-4 h-4" />
-                            {cancellingOrderId === order.id ? 'Cancelling Order...' : `Cancel Order (${formatTime(getRemainingCancelTime(order.createdAt))})`}
+                            {cancellingOrderId === order.id ? (
+                              'Cancelling Order...'
+                            ) : (
+                              <span className="flex items-center gap-2">
+                                <span>Cancel Order</span>
+                                <span className="flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded">
+                                  <Timer className="w-3 h-3" />
+                                  {formatTime(getRemainingCancelTime(order.createdAt))}
+                                </span>
+                              </span>
+                            )}
                           </button>
                         )}
                       </div>

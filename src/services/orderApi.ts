@@ -97,11 +97,19 @@ export const orderApi = {
     );
 
     if (!response.ok) {
-      if (response.status === 401) {
-        handle401(); // ✅ Clear storage and redirect
-        throw new Error('Unauthorized');
+      let message = 'Failed to cancel order';
+      try {
+        const data = await response.json();
+        message = data?.message || message;
+      } catch {
+        const text = await response.text();
+        if (text) message = text;
       }
-      throw new Error('Failed to cancel order');
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized: Token expired or invalid');
+      }
+      throw new Error(message);
     }
 
     return response.json();
@@ -138,11 +146,19 @@ export const orderApi = {
     );
 
     if (!response.ok) {
-      if (response.status === 401) {
-        handle401(); // ✅ Clear storage and redirect
-        throw new Error('Unauthorized');
+      let message = 'Failed to cancel chef order';
+      try {
+        const data = await response.json();
+        message = data?.message || message;
+      } catch {
+        const text = await response.text();
+        if (text) message = text;
       }
-      throw new Error('Failed to cancel chef order');
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized: Token expired or invalid');
+      }
+      throw new Error(message);
     }
 
     return response.json();
