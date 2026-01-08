@@ -291,6 +291,12 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
+                        {order.status === 'PENDING' && getRemainingCancelTime(order.createdAt) > 0 && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
+                            <Clock className="w-4 h-4" />
+                            {formatTime(getRemainingCancelTime(order.createdAt))}
+                          </span>
+                        )}
                         {order.status === 'DELIVERED' && onReorder && (
                           <button
                             onClick={() => onReorder(order)}
@@ -309,17 +315,7 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                             title="Cancel order"
                           >
                             <XCircle className="w-4 h-4" />
-                            {cancellingOrderId === order.id ? (
-                              'Cancelling Order...'
-                            ) : (
-                              <span className="flex items-center gap-2">
-                                <span>Cancel Order</span>
-                                <span className="flex items-center gap-1 bg-black/20 border border-white/20 px-2 py-0.5 rounded">
-                                  <Clock className="w-4 h-4 text-white" />
-                                  {formatTime(getRemainingCancelTime(order.createdAt))}
-                                </span>
-                              </span>
-                            )}
+                            {cancellingOrderId === order.id ? 'Cancelling Order...' : 'Cancel Order'}
                           </button>
                         )}
                       </div>
