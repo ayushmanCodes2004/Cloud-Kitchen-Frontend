@@ -38,8 +38,6 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
   const [ratedChefOrders, setRatedChefOrders] = useState<Set<number>>(new Set());
   const [ratedMenuItems, setRatedMenuItems] = useState<Set<string>>(new Set()); // Format: "orderId-menuItemId"
   const [loadingRatings, setLoadingRatings] = useState(true);
-  const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Load rated orders and menu items from backend on mount
   useEffect(() => {
@@ -63,15 +61,6 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
       loadRatedData();
     }
   }, [token]);
-
-  // Update current time every second for countdown timer
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Get unique chefs from all delivered orders for rating
   const getUniqueChefs = (orders: OrderResponse[]) => {
@@ -311,17 +300,6 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                           >
                             <RotateCcw className="w-4 h-4" />
                             Reorder
-                          </button>
-                        )}
-                        {canCancelOrder(order) && (
-                          <button
-                            onClick={() => handleCancelOrder(order.id)}
-                            disabled={cancellingOrderId === order.id}
-                            className="flex items-center gap-2 px-3 py-1 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Cancel order"
-                          >
-                            <XCircle className="w-4 h-4" />
-                            {cancellingOrderId === order.id ? 'Cancelling Order...' : `Cancel Order (${formatTime(getRemainingCancelTime(order.createdAt))})`}
                           </button>
                         )}
                       </div>

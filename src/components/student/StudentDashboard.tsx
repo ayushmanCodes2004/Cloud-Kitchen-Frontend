@@ -300,7 +300,6 @@ export const StudentDashboard = () => {
                 <TabsContent value="active" className="mt-0">
                   <OrderList
                     orders={orders.filter(order => order.status !== 'DELIVERED' && order.status !== 'CANCELLED')}
-                    onOrderCancelled={loadOrders}
                     onReorder={handleReorder}
                   />
                 </TabsContent>
@@ -308,7 +307,6 @@ export const StudentDashboard = () => {
                 <TabsContent value="all" className="mt-0">
                   <OrderList
                     orders={orders}
-                    onOrderCancelled={loadOrders}
                     onReorder={handleReorder}
                   />
                 </TabsContent>
