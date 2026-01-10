@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 // Example:
 // VITE_API_URL=https://ayushman-backend-latest.onrender.com/api
 
@@ -83,6 +83,13 @@ export const testimonialApi = {
       return null;
     }
 
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.warn('Expected JSON but received:', contentType);
+      return null;
+    }
+
     if (!response.ok) {
       if (response.status === 401) {
         handle401(); // ✅ Clear storage and redirect
@@ -141,22 +148,34 @@ export const testimonialApi = {
   /* -------- PUBLIC -------- */
 
   async getApprovedTestimonials(): Promise<TestimonialResponse[]> {
-    const response = await fetch(
-      `${API_BASE_URL}/testimonials/approved`,
-      {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/testimonials/approved`,
+        {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
         }
-      }
-    );
+      );
 
-    if (!response.ok) {
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Expected JSON but received:', contentType);
+        return [];
+      }
+
+      if (!response.ok) {
+        return [];
+      }
+
+      const result = await response.json();
+      return Array.isArray(result) ? result : result.data || [];
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
       return [];
     }
-
-    const result = await response.json();
-    return Array.isArray(result) ? result : result.data || [];
   },
 
   /* -------- ADMIN -------- */
@@ -168,6 +187,12 @@ export const testimonialApi = {
         headers: getAuthHeaders(),
       }
     );
+
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Received non-JSON response');
+    }
 
     if (!response.ok) {
       if (response.status === 401) {
