@@ -72,33 +72,35 @@
    },
 
    // Get pairing suggestions
-   async getSuggestedPairings(
-     menuItemId: number
-   ): Promise<AiResponse> {
-     try {
-       const response = await fetch(
-         `${API_BASE_URL}/suggest-pairings/${menuItemId}`,
-         {
-           headers: {
-             "Content-Type": "application/json",
-           },
-         }
-       );
-
-       const data = await response.json();
-
-       return {
-         success: response.ok,
-         ...data,
-       };
-     } catch (error) {
-       return {
-         success: false,
-         error: "Failed to fetch pairings",
-         message: error instanceof Error ? error.message : "Unknown error",
-       };
-     }
-   },
+   // ⚠️ NOTE: This endpoint is not yet implemented in the backend
+   // Uncomment when backend implements /api/ai/suggest-pairings/{menuItemId}
+   // async getSuggestedPairings(
+   //   menuItemId: number
+   // ): Promise<AiResponse> {
+   //   try {
+   //     const response = await fetch(
+   //       `${API_BASE_URL}/suggest-pairings/${menuItemId}`,
+   //       {
+   //         headers: {
+   //           "Content-Type": "application/json",
+   //         },
+   //       }
+   //     );
+   
+   //     const data = await response.json();
+   
+   //     return {
+   //       success: response.ok,
+   //       ...data,
+   //     };
+   //   } catch (error) {
+   //     return {
+   //       success: false,
+   //       error: "Failed to fetch pairings",
+   //       message: error instanceof Error ? error.message : "Unknown error",
+   //     };
+   //   }
+   // },
 
    // Get meal recommendations
    async getMealRecommendations(preferences?: {

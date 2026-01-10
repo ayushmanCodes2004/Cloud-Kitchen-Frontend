@@ -220,10 +220,19 @@ export interface UserResponse {
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No authentication token found. Please login again.");
+  }
   return {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    Authorization: `Bearer ${token}`,
   };
+};
+
+const handle401 = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/login";
 };
 
 export const adminApi = {
@@ -231,6 +240,10 @@ export const adminApi = {
     const res = await fetch(`${API_BASE_URL}/admin/users`, {
       headers: getAuthHeaders(),
     });
+    if (res.status === 401) {
+      handle401();
+      throw new Error("Unauthorized");
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to fetch users");
     return data.data || [];
@@ -240,6 +253,10 @@ export const adminApi = {
     const res = await fetch(`${API_BASE_URL}/admin/chefs`, {
       headers: getAuthHeaders(),
     });
+    if (res.status === 401) {
+      handle401();
+      throw new Error("Unauthorized");
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to fetch chefs");
     return data.data || [];
@@ -250,6 +267,10 @@ export const adminApi = {
       method: "PATCH",
       headers: getAuthHeaders(),
     });
+    if (res.status === 401) {
+      handle401();
+      throw new Error("Unauthorized");
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to activate user");
     return data.data;
@@ -260,6 +281,10 @@ export const adminApi = {
       method: "PATCH",
       headers: getAuthHeaders(),
     });
+    if (res.status === 401) {
+      handle401();
+      throw new Error("Unauthorized");
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to deactivate user");
     return data.data;
@@ -270,6 +295,10 @@ export const adminApi = {
       method: "PATCH",
       headers: getAuthHeaders(),
     });
+    if (res.status === 401) {
+      handle401();
+      throw new Error("Unauthorized");
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to toggle chef verification");
     return data.data;

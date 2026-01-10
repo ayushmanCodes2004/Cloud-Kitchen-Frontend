@@ -29,6 +29,13 @@ const getAuthHeaders = () => {
   };
 };
 
+// ✅ ADD HELPER TO HANDLE 401 ERRORS
+const handle401 = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
+};
+
 /* =======================
    API
 ======================= */
@@ -42,10 +49,7 @@ export const menuApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // ✅ Clear localStorage and redirect on 401
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized');
       }
       throw new Error('Failed to fetch menu items');
@@ -61,6 +65,10 @@ export const menuApi = {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to fetch available menu items');
     }
 
@@ -76,6 +84,10 @@ export const menuApi = {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to fetch menu item');
     }
 
@@ -94,6 +106,10 @@ export const menuApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to fetch menu items by category');
     }
 
@@ -112,6 +128,10 @@ export const menuApi = {
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Unauthorized');
+      }
       throw new Error('Failed to fetch menu items by chef');
     }
 

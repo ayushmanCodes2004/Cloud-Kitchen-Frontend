@@ -50,6 +50,13 @@ const getAuthHeaders = () => {
   };
 };
 
+// ✅ ADD HELPER TO HANDLE 401 ERRORS
+const handle401 = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
+};
+
 /* =======================
    API
 ======================= */
@@ -67,10 +74,7 @@ export const chefApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // ✅ Clear storage and redirect on 401
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        handle401(); // ✅ Clear storage and redirect
         throw new Error('Unauthorized: Token expired or invalid');
       }
       throw new Error(`Failed to fetch menu items`);
@@ -95,9 +99,7 @@ export const chefApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        handle401();
         throw new Error('Unauthorized: Token expired or invalid');
       }
       throw new Error(`Failed to create menu item`);
@@ -123,9 +125,7 @@ export const chefApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        handle401();
         throw new Error('Unauthorized: Token expired or invalid');
       }
       throw new Error(`Failed to update menu item`);
@@ -147,9 +147,7 @@ export const chefApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        handle401();
         throw new Error('Unauthorized: Token expired or invalid');
       }
       const text = await response.text();
@@ -168,9 +166,7 @@ export const chefApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        handle401();
         throw new Error('Unauthorized: Token expired or invalid');
       }
       throw new Error('Failed to toggle availability');
@@ -197,7 +193,8 @@ export const chefApi = {
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('token');
+        handle401();
+
         localStorage.removeItem('user');
         window.location.href = '/login';
         throw new Error('Unauthorized: Token expired or invalid');
