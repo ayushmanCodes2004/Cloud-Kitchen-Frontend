@@ -142,7 +142,13 @@ export const testimonialApi = {
 
   async getApprovedTestimonials(): Promise<TestimonialResponse[]> {
     const response = await fetch(
-      `${API_BASE_URL}/testimonials/approved`
+      `${API_BASE_URL}/testimonials/approved`,
+      {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      }
     );
 
     if (!response.ok) {

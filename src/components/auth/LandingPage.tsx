@@ -19,8 +19,13 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
     try {
       const testimonials = await testimonialApi.getApprovedTestimonials();
       console.log('Fetched approved testimonials:', testimonials);
-      console.log('Number of approved testimonials:', testimonials.length);
-      setRealTestimonials(testimonials || []);
+      
+      // Sort by newest first (redundant safety check in case backend isn't updated yet)
+      const sortedTestimonials = (testimonials || []).sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      
+      setRealTestimonials(sortedTestimonials);
     } catch (error) {
       console.error('Failed to load testimonials:', error);
       setRealTestimonials([]);
