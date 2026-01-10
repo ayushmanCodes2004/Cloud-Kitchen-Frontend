@@ -192,8 +192,20 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
     }
   };
 
-  const getRemainingCancelTime = (orderCreatedAt: string): number => {
-    const createdTime = new Date(orderCreatedAt).getTime();
+  const getRemainingCancelTime = (orderCreatedAt: string | number[]): number => {
+    let createdTime: number;
+
+    // Handle array format [year, month, day, hour, minute, second, nano] from Java LocalDateTime
+    if (Array.isArray(orderCreatedAt)) {
+      const [year, month, day, hour, minute, second] = orderCreatedAt;
+      createdTime = new Date(Date.UTC(year, month - 1, day, hour, minute, second)).getTime();
+    } else {
+      const dateStr = String(orderCreatedAt);
+      // If the date string doesn't have timezone information, treat it as UTC
+      const hasTimezone = dateStr.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(dateStr);
+      createdTime = new Date(hasTimezone ? dateStr : dateStr + 'Z').getTime();
+    }
+
     const twoMinutesInMs = 2 * 60 * 1000;
     const expiryTime = createdTime + twoMinutesInMs;
     const remaining = expiryTime - currentTime.getTime();
