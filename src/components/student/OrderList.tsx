@@ -299,17 +299,19 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
-                        {/* Show chat icon for all orders */}
-                        <button
-                          onClick={() => {
-                            setSelectedOrderId(order.id);
-                            setChatModalOpen(true);
-                          }}
-                          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                          title="Chat with chef"
-                        >
-                          <MessageCircle className="w-4 h-4 text-blue-500" />
-                        </button>
+                        {/* Show chat icon for all orders except DELIVERED */}
+                        {order.status !== 'DELIVERED' && (
+                          <button
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setChatModalOpen(true);
+                            }}
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            title="Chat with chef"
+                          >
+                            <MessageCircle className="w-4 h-4 text-blue-500" />
+                          </button>
+                        )}
                         {order.status === 'DELIVERED' && onReorder && (
                           <button
                             onClick={() => onReorder(order)}

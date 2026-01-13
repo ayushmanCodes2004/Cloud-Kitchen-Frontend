@@ -38,8 +38,10 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isChatEnabled, setIsChatEnabled] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load chat messages and initialize WebSocket connection
   useEffect(() => {
@@ -77,6 +79,10 @@ export const ChatModal: React.FC<ChatModalProps> = ({
         wsRef.current.close();
         wsRef.current = null;
       }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
     };
   }, [orderId, token, isOpen]);
 
@@ -97,42 +103,84 @@ export const ChatModal: React.FC<ChatModalProps> = ({
       wsRef.current.close();
     }
 
-    // Get the base URL for WebSocket connection
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const baseUrl = `${protocol}//${window.location.host}`;
-    const wsUrl = `${baseUrl}/ws/chat/order/${orderId}/${user.id}`;
+    setConnectionStatus('connecting');
+
+    // Get the backend URL from environment
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    
+    // Convert HTTP/HTTPS URL to WebSocket URL
+    let wsUrl: string;
+    if (backendUrl.includes('onrender.com')) {
+      // Production: Render backend
+      const renderHost = backendUrl.replace(/^https?:\/\//, '').replace('/api', '');
+      wsUrl = `wss://${renderHost}/ws/chat/order/${orderId}/${user.id}`;
+    } else if (backendUrl.includes('localhost')) {
+      // Development: Local backend
+      const protocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
+      const host = backendUrl.replace(/^https?:\/\//, '').replace('/api', '');
+      wsUrl = `${protocol}//${host}/ws/chat/order/${orderId}/${user.id}`;
+    } else {
+      // Fallback: Auto-detect protocol
+      const protocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
+      const host = backendUrl.replace(/^https?:\/\//, '').replace('/api', '');
+      wsUrl = `${protocol}//${host}/ws/chat/order/${orderId}/${user.id}`;
+    }
+
+    console.log('Backend URL:', backendUrl);
+    console.log('Connecting to WebSocket:', wsUrl);
 
     try {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Chat WebSocket connected');
+        console.log('Chat WebSocket connected to:', wsUrl);
+        setConnectionStatus('connected');
       };
 
       ws.onmessage = (event) => {
         try {
           const messageData = JSON.parse(event.data);
-          setMessages(prev => [...prev, messageData]);
+          console.log('Received WebSocket message:', messageData);
+          
+          // Only add to messages if it's not a system welcome message
+          if (messageData.messageType !== 'SYSTEM' || messageData.message !== 'Chat connection established successfully!') {
+            setMessages(prev => [...prev, messageData]);
+          }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
       };
 
-      ws.onclose = () => {
-        console.log('Chat WebSocket disconnected');
+      ws.onclose = (event) => {
+        console.log('Chat WebSocket disconnected:', event.code, event.reason);
+        setConnectionStatus('disconnected');
+        
+        // Attempt to reconnect after 3 seconds if the modal is still open
+        if (isOpen && event.code !== 1000) { // 1000 is normal closure
+          console.log('Scheduling WebSocket reconnection in 3 seconds...');
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log('Attempting to reconnect WebSocket...');
+            initializeWebSocket();
+          }, 3000);
+        }
       };
 
       ws.onerror = (error) => {
         console.error('Chat WebSocket error:', error);
+        setConnectionStatus('error');
       };
     } catch (error) {
       console.error('Error initializing WebSocket:', error);
+      setConnectionStatus('error');
     }
   };
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+    if (!newMessage.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      console.warn('Cannot send message: WebSocket not ready or message empty');
+      return;
+    }
 
     // Prepare message to send
     const messageToSend = {
@@ -140,6 +188,8 @@ export const ChatModal: React.FC<ChatModalProps> = ({
       userId: user?.id,
       message: newMessage.trim()
     };
+
+    console.log('Sending message:', messageToSend);
 
     // Send via WebSocket
     wsRef.current.send(JSON.stringify(messageToSend));
@@ -208,7 +258,33 @@ export const ChatModal: React.FC<ChatModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-2xl h-3/4 flex flex-col max-h-[80vh]">
         <div className="flex justify-between items-center p-4 border-b">
-          <h3 className="text-lg font-semibold">Order #{orderId} Chat</h3>
+          <div className="flex items-center space-x-2">
+            <h3 className="text-lg font-semibold">Order #{orderId} Chat</h3>
+            {connectionStatus === 'connected' && (
+              <div className="flex items-center space-x-1 text-green-600 text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Connected</span>
+              </div>
+            )}
+            {connectionStatus === 'connecting' && (
+              <div className="flex items-center space-x-1 text-yellow-600 text-sm">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                <span>Connecting...</span>
+              </div>
+            )}
+            {connectionStatus === 'disconnected' && (
+              <div className="flex items-center space-x-1 text-red-600 text-sm">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span>Disconnected</span>
+              </div>
+            )}
+            {connectionStatus === 'error' && (
+              <div className="flex items-center space-x-1 text-red-600 text-sm">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span>Connection Error</span>
+              </div>
+            )}
+          </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
@@ -274,7 +350,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
             />
             <button
               onClick={handleSendMessage}
-              disabled={!isChatEnabled || !newMessage.trim() || (wsRef.current && wsRef.current.readyState !== WebSocket.OPEN)}
+              disabled={!isChatEnabled || !newMessage.trim() || connectionStatus !== 'connected'}
               className="bg-orange-500 text-white rounded-lg p-2 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="w-5 h-5" />
