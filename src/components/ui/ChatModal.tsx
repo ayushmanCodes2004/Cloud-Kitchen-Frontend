@@ -184,9 +184,22 @@ export const ChatModal: React.FC<ChatModalProps> = ({
         try {
           const messageData = JSON.parse(event.data);
           console.log('📨 Received WebSocket message:', messageData);
+          console.log('📨 Message structure:', {
+            id: messageData.id,
+            senderUserId: messageData.senderUserId,
+            senderName: messageData.senderName,
+            message: messageData.message,
+            sentAt: messageData.sentAt
+          });
           
           // Validate message data before adding to state
           if (messageData && typeof messageData === 'object') {
+            // Check for required fields
+            if (!messageData.senderName || !messageData.message) {
+              console.warn('⚠️ Message missing required fields:', messageData);
+              return;
+            }
+            
             // Add all messages to the chat
             setMessages(prev => {
               // Check if message already exists (by id if available)
@@ -197,6 +210,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                   return prev;
                 }
               }
+              console.log('✅ Adding message to state');
               return [...prev, messageData];
             });
           } else {
@@ -398,34 +412,44 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map((msg, index) => (
-                    <div
-                      key={msg.id || `temp-${index}-${msg.sentAt}`}
-                      className={`flex ${
-                        msg.senderUserId.toString() === user?.id?.toString() ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
+                  {messages.map((msg, index) => {
+                    // Safety check - skip invalid messages
+                    if (!msg || !msg.message || !msg.senderName) {
+                      console.warn('Skipping invalid message:', msg);
+                      return null;
+                    }
+                    
+                    // Safely compare sender ID
+                    const isOwnMessage = msg.senderUserId && user?.id && 
+                                        msg.senderUserId.toString() === user.id.toString();
+                    
+                    return (
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          msg.senderUserId.toString() === user?.id?.toString()
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-white border border-gray-200'
-                        }`}
+                        key={msg.id || `temp-${index}-${msg.sentAt}`}
+                        className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div className="font-medium text-sm mb-1">
-                          {msg.senderName}
-                        </div>
-                        <p className="text-sm">{msg.message}</p>
-                        <div className="text-xs opacity-70 mt-1 flex items-center">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {new Date(msg.sentAt).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                        <div
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                            isOwnMessage
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-white border border-gray-200'
+                          }`}
+                        >
+                          <div className="font-medium text-sm mb-1">
+                            {msg.senderName}
+                          </div>
+                          <p className="text-sm">{msg.message}</p>
+                          <div className="text-xs opacity-70 mt-1 flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : 'Just now'}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <div ref={messagesEndRef} />
                 </div>
               )}
