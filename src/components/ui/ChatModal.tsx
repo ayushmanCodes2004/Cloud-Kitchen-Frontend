@@ -185,12 +185,26 @@ export const ChatModal: React.FC<ChatModalProps> = ({
           const messageData = JSON.parse(event.data);
           console.log('📨 Received WebSocket message:', messageData);
           
-          // Only add to messages if it's not a system welcome message
-          if (messageData.messageType !== 'SYSTEM' || messageData.message !== 'Chat connection established successfully!') {
-            setMessages(prev => [...prev, messageData]);
+          // Validate message data before adding to state
+          if (messageData && typeof messageData === 'object') {
+            // Add all messages to the chat
+            setMessages(prev => {
+              // Check if message already exists (by id if available)
+              if (messageData.id) {
+                const exists = prev.some(m => m.id === messageData.id);
+                if (exists) {
+                  console.log('Message already exists, skipping:', messageData.id);
+                  return prev;
+                }
+              }
+              return [...prev, messageData];
+            });
+          } else {
+            console.warn('Invalid message format:', messageData);
           }
         } catch (error) {
           console.error('❌ Error parsing WebSocket message:', error);
+          console.error('Raw event data:', event.data);
         }
       };
 
@@ -201,13 +215,22 @@ export const ChatModal: React.FC<ChatModalProps> = ({
         console.log('Was clean:', event.wasClean);
         setConnectionStatus('disconnected');
         
-        // Attempt to reconnect after 3 seconds if the modal is still open
-        if (isOpen && event.code !== 1000) { // 1000 is normal closure
-          console.log('🔄 Scheduling WebSocket reconnection in 3 seconds...');
+        // Clear any existing reconnect timeout
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+        
+        // Only attempt to reconnect if:
+        // 1. Modal is still open
+        // 2. Close was not normal (code 1000)
+        // 3. Close was not intentional (code 1001)
+        if (isOpen && event.code !== 1000 && event.code !== 1001) {
+          console.log('🔄 Scheduling WebSocket reconnection in 5 seconds...');
           reconnectTimeoutRef.current = setTimeout(() => {
             console.log('🔄 Attempting to reconnect WebSocket...');
             initializeWebSocket();
-          }, 3000);
+          }, 5000); // Increased from 3 to 5 seconds
         }
       };
 
@@ -229,20 +252,25 @@ export const ChatModal: React.FC<ChatModalProps> = ({
       return;
     }
 
-    // Prepare message to send
-    const messageToSend = {
-      orderId: orderId,
-      userId: user?.id,
-      message: newMessage.trim()
-    };
+    try {
+      // Prepare message to send
+      const messageToSend = {
+        orderId: orderId,
+        userId: user?.id,
+        message: newMessage.trim()
+      };
 
-    console.log('Sending message:', messageToSend);
+      console.log('Sending message:', messageToSend);
 
-    // Send via WebSocket
-    wsRef.current.send(JSON.stringify(messageToSend));
+      // Send via WebSocket
+      wsRef.current.send(JSON.stringify(messageToSend));
 
-    // Clear input
-    setNewMessage('');
+      // Clear input
+      setNewMessage('');
+    } catch (error) {
+      console.error('❌ Error sending message:', error);
+      // Don't crash the app, just log the error
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -302,8 +330,13 @@ export const ChatModal: React.FC<ChatModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl h-3/4 flex flex-col max-h-[80vh]">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={(e) => {
+      // Close modal if clicking on backdrop
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    }}>
+      <div className="bg-white rounded-lg w-full max-w-2xl h-3/4 flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center p-4 border-b">
           <div className="flex items-center space-x-2">
             <h3 className="text-lg font-semibold">Order #{orderId} Chat</h3>
@@ -350,9 +383,9 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map((msg) => (
+                  {messages.map((msg, index) => (
                     <div
-                      key={msg.id}
+                      key={msg.id || `temp-${index}-${msg.sentAt}`}
                       className={`flex ${
                         msg.senderUserId.toString() === user?.id?.toString() ? 'justify-end' : 'justify-start'
                       }`}
