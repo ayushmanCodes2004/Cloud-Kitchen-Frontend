@@ -148,22 +148,22 @@ export const ChatModal: React.FC<ChatModalProps> = ({
     // Get the backend URL from environment
     const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
     
-    // Convert HTTP/HTTPS URL to WebSocket URL
+    // Convert HTTP/HTTPS URL to WebSocket URL with query parameters including token
     let wsUrl: string;
     if (backendUrl.includes('onrender.com')) {
       // Production: Render backend
       const renderHost = backendUrl.replace(/^https?:\/\//, '').replace('/api', '');
-      wsUrl = `wss://${renderHost}/ws/chat/order/${orderId}/${user.id}`;
+      wsUrl = `wss://${renderHost}/ws/chat?orderId=${orderId}&userId=${user.id}&token=${encodeURIComponent(token)}`;
     } else if (backendUrl.includes('localhost')) {
       // Development: Local backend
       const protocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
       const host = backendUrl.replace(/^https?:\/\//, '').replace('/api', '');
-      wsUrl = `${protocol}//${host}/ws/chat/order/${orderId}/${user.id}`;
+      wsUrl = `${protocol}//${host}/ws/chat?orderId=${orderId}&userId=${user.id}&token=${encodeURIComponent(token)}`;
     } else {
       // Fallback: Auto-detect protocol
       const protocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
       const host = backendUrl.replace(/^https?:\/\//, '').replace('/api', '');
-      wsUrl = `${protocol}//${host}/ws/chat/order/${orderId}/${user.id}`;
+      wsUrl = `${protocol}//${host}/ws/chat?orderId=${orderId}&userId=${user.id}&token=${encodeURIComponent(token)}`;
     }
 
     console.log('Backend URL:', backendUrl);
