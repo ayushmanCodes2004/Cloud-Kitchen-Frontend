@@ -168,46 +168,53 @@ export const ChatModal: React.FC<ChatModalProps> = ({
 
     console.log('Backend URL:', backendUrl);
     console.log('Connecting to WebSocket:', wsUrl);
+    console.log('User ID:', user.id);
+    console.log('Order ID:', orderId);
 
     try {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Chat WebSocket connected to:', wsUrl);
+        console.log('✅ Chat WebSocket connected to:', wsUrl);
         setConnectionStatus('connected');
       };
 
       ws.onmessage = (event) => {
         try {
           const messageData = JSON.parse(event.data);
-          console.log('Received WebSocket message:', messageData);
+          console.log('📨 Received WebSocket message:', messageData);
           
           // Only add to messages if it's not a system welcome message
           if (messageData.messageType !== 'SYSTEM' || messageData.message !== 'Chat connection established successfully!') {
             setMessages(prev => [...prev, messageData]);
           }
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error('❌ Error parsing WebSocket message:', error);
         }
       };
 
       ws.onclose = (event) => {
-        console.log('Chat WebSocket disconnected:', event.code, event.reason);
+        console.log('❌ Chat WebSocket disconnected');
+        console.log('Close code:', event.code);
+        console.log('Close reason:', event.reason);
+        console.log('Was clean:', event.wasClean);
         setConnectionStatus('disconnected');
         
         // Attempt to reconnect after 3 seconds if the modal is still open
         if (isOpen && event.code !== 1000) { // 1000 is normal closure
-          console.log('Scheduling WebSocket reconnection in 3 seconds...');
+          console.log('🔄 Scheduling WebSocket reconnection in 3 seconds...');
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('Attempting to reconnect WebSocket...');
+            console.log('🔄 Attempting to reconnect WebSocket...');
             initializeWebSocket();
           }, 3000);
         }
       };
 
       ws.onerror = (error) => {
-        console.error('Chat WebSocket error:', error);
+        console.error('❌ Chat WebSocket error:', error);
+        console.error('WebSocket URL:', wsUrl);
+        console.error('WebSocket readyState:', ws.readyState);
         setConnectionStatus('error');
       };
     } catch (error) {
