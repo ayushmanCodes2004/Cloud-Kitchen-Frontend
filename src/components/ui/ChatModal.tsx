@@ -51,22 +51,62 @@ export const ChatModal: React.FC<ChatModalProps> = ({
       try {
         setIsLoading(true);
         
+        console.log('🔍 Checking chat availability for order:', orderId);
+        console.log('🔍 Order status:', orderStatus);
+        
         // Check if chat is enabled for this order
         const chatEnabledResponse = await chatApi.isChatEnabled(orderId, token);
         
-        setIsChatEnabled(chatEnabledResponse.data.data);
+        console.log('🔍 Chat enabled API response:', chatEnabledResponse);
+        console.log('🔍 Response structure:', JSON.stringify(chatEnabledResponse, null, 2));
         
-        if (chatEnabledResponse.data.data) {
+        // The response structure is: { success: true, message: "...", data: true/false }
+        // So we access chatEnabledResponse.data directly, not chatEnabledResponse.data.data
+        const isChatAvailable = chatEnabledResponse.data;
+        
+        console.log('🔍 Chat enabled value:', isChatAvailable);
+        
+        // Check if the API call was successful
+        if (!chatEnabledResponse.success) {
+          console.error('❌ Chat enabled API failed:', chatEnabledResponse.message);
+          setIsChatEnabled(false);
+          return;
+        }
+        
+        setIsChatEnabled(isChatAvailable);
+        
+        if (isChatAvailable) {
+          console.log('✅ Chat is enabled, loading messages...');
           // Load existing messages
           const messagesResponse = await chatApi.getChatMessages(orderId, token);
           
-          setMessages(messagesResponse.data.data || []);
+          setMessages(messagesResponse.data || []);
           
           // Initialize WebSocket connection
           initializeWebSocket();
+        } else {
+          console.log('❌ Chat is disabled for this order');
+          console.log('🔍 API Response:', chatEnabledResponse);
+          
+          // Try to get debug info if available
+          try {
+            const debugResponse = await fetch(
+              `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/chat/order/${orderId}/debug`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            const debugData = await debugResponse.json();
+            console.log('🔍 Debug info:', debugData);
+          } catch (debugError) {
+            console.log('🔍 Debug endpoint not available');
+          }
         }
       } catch (error) {
-        console.error('Error loading chat data:', error);
+        console.error('❌ Error loading chat data:', error);
+        setIsChatEnabled(false);
       } finally {
         setIsLoading(false);
       }
