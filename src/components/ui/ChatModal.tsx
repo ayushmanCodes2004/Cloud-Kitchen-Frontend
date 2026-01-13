@@ -246,13 +246,23 @@ export const ChatModal: React.FC<ChatModalProps> = ({
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('🔵 handleSendMessage called');
+    
+    // Prevent any default behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!newMessage.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       console.warn('Cannot send message: WebSocket not ready or message empty');
       return;
     }
 
     try {
+      console.log('🔵 Preparing to send message...');
+      
       // Prepare message to send
       const messageToSend = {
         orderId: orderId,
@@ -260,15 +270,20 @@ export const ChatModal: React.FC<ChatModalProps> = ({
         message: newMessage.trim()
       };
 
-      console.log('Sending message:', messageToSend);
+      console.log('🔵 Sending message:', messageToSend);
 
       // Send via WebSocket
       wsRef.current.send(JSON.stringify(messageToSend));
 
+      console.log('🔵 Message sent, clearing input...');
+      
       // Clear input
       setNewMessage('');
+      
+      console.log('🔵 handleSendMessage completed successfully');
     } catch (error) {
       console.error('❌ Error sending message:', error);
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       // Don't crash the app, just log the error
     }
   };
@@ -429,9 +444,10 @@ export const ChatModal: React.FC<ChatModalProps> = ({
               disabled={!isChatEnabled}
             />
             <button
-              onClick={handleSendMessage}
+              onClick={(e) => handleSendMessage(e)}
               disabled={!isChatEnabled || !newMessage.trim() || connectionStatus !== 'connected'}
               className="bg-orange-500 text-white rounded-lg p-2 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
             >
               <Send className="w-5 h-5" />
             </button>

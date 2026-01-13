@@ -512,7 +512,11 @@ export const ChefOrderManagement = () => {
           orderId={selectedOrderId}
           orderStatus={allOrders.find(o => o.id === selectedOrderId)?.status || ''}
           isOpen={chatModalOpen}
-          onClose={() => setChatModalOpen(false)}
+          onClose={() => {
+            console.log('🔴 Chat modal onClose called');
+            setChatModalOpen(false);
+            console.log('🔴 Chat modal closed');
+          }}
         />
       )}
     </div>
