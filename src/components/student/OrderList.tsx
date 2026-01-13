@@ -299,8 +299,8 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
-                        {/* Show chat icon for all orders except DELIVERED */}
-                        {order.status !== 'DELIVERED' && (
+                        {/* Show chat icon for CONFIRMED, PREPARING, and READY orders */}
+                        {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
                           <button
                             onClick={() => {
                               setSelectedOrderId(order.id);

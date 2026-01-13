@@ -468,8 +468,8 @@ export const ChefOrderManagement = () => {
                           </SelectContent>
                         </Select>
                                             
-                        {/* Show chat icon for all orders except DELIVERED */}
-                        {order.status !== 'DELIVERED' && (
+                        {/* Show chat icon for CONFIRMED, PREPARING, and READY orders */}
+                        {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
                           <button
                             onClick={() => {
                               setSelectedOrderId(order.id);
