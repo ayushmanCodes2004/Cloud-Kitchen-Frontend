@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Clock, CheckCircle, Package, Loader2, RefreshCw, AlertCircle, TrendingUp, IndianRupee, XCircle } from 'lucide-react';
+import { Clock, CheckCircle, Package, Loader2, RefreshCw, AlertCircle, TrendingUp, IndianRupee, XCircle, MessageCircle } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
+import { ChatModal } from '@/components/ui/ChatModal';
 
 export const ChefOrderManagement = () => {
   const { token } = useAuth();
@@ -21,6 +22,10 @@ export const ChefOrderManagement = () => {
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
   const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  
+  // State for chat modal
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const loadOrders = async (isRefresh = false) => {
     try {
@@ -462,8 +467,23 @@ export const ChefOrderManagement = () => {
                             <SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
                           </SelectContent>
                         </Select>
+                                            
+                        {/* Show chat icon for active orders (CONFIRMED, PREPARING, READY) */}
+                        {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
+                          <button
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setChatModalOpen(true);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                            title="Chat with student"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Chat
+                          </button>
+                        )}
                       </div>
-                      
+                                          
                       {canCancelOrder(order.status) && (
                         <Button
                           onClick={() => handleCancelOrder(order.id)}
@@ -485,6 +505,16 @@ export const ChefOrderManagement = () => {
         )}
         </div>
       </div>
+      
+      {/* Chat Modal */}
+      {selectedOrderId && (
+        <ChatModal
+          orderId={selectedOrderId}
+          orderStatus={allOrders.find(o => o.id === selectedOrderId)?.status || ''}
+          isOpen={chatModalOpen}
+          onClose={() => setChatModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

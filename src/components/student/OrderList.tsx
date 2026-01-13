@@ -1,5 +1,5 @@
 import { OrderResponse, OrderItemResponse } from '@/types/api.types';
-import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart, Clock } from 'lucide-react';
+import { ChefHat, Star, XCircle, RotateCcw, ShoppingCart, Clock, MessageCircle } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 import { RatingModal } from '@/components/ui/RatingModal';
 import { ratingApi } from '@/services/ratingApi';
@@ -7,6 +7,7 @@ import { orderApi } from '@/services/orderApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
+import { ChatModal } from '@/components/ui/ChatModal';
 
 interface OrderListProps {
   orders: OrderResponse[];
@@ -38,6 +39,12 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
   const [ratedChefOrders, setRatedChefOrders] = useState<Set<number>>(new Set());
   const [ratedMenuItems, setRatedMenuItems] = useState<Set<string>>(new Set()); // Format: "orderId-menuItemId"
   const [loadingRatings, setLoadingRatings] = useState(true);
+  const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // State for chat modal
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   // Load rated orders and menu items from backend on mount
   useEffect(() => {
@@ -197,7 +204,7 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
 
     const twoMinutesInMs = 2 * 60 * 1000;
     const expiryTime = createdTime + twoMinutesInMs;
-    const remaining = expiryTime - currentTime.getTime();
+    const remaining = expiryTime - Date.now();
     return Math.max(0, Math.floor(remaining / 1000)); // Return seconds
   };
 
@@ -292,6 +299,19 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
+                        {/* Show chat icon for active orders (CONFIRMED, PREPARING, READY) */}
+                        {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
+                          <button
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setChatModalOpen(true);
+                            }}
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            title="Chat with chef"
+                          >
+                            <MessageCircle className="w-4 h-4 text-blue-500" />
+                          </button>
+                        )}
                         {order.status === 'DELIVERED' && onReorder && (
                           <button
                             onClick={() => onReorder(order)}
@@ -415,6 +435,16 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
         type="menuItem"
         itemName={menuItemRatingModal.menuItemName}
       />
+      
+      {/* Chat Modal */}
+      {selectedOrderId && (
+        <ChatModal
+          orderId={selectedOrderId}
+          orderStatus={orders.find(o => o.id === selectedOrderId)?.status || ''}
+          isOpen={chatModalOpen}
+          onClose={() => setChatModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
