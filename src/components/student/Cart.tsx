@@ -128,7 +128,7 @@ export const Cart = ({ cart, setCart, onClose, onPlaceOrder }: CartProps) => {
                 onClick={onPlaceOrder}
                 className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-soft"
               >
-                {isMultiChef ? `Place ${chefCount} Orders` : 'Place Order'}
+                Proceed to Checkout
               </button>
             </>
           )}

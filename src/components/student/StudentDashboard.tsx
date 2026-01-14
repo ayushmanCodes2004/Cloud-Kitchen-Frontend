@@ -19,6 +19,7 @@ import { OrderResponse } from '@/types/api.types';
 import { useToast } from '@/components/ui/use-toast';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Cart } from './Cart';
+import { Checkout } from './Checkout';
 import { OrderList } from './OrderList';
 import { AiRecommendationBanner } from './AiRecommendationBanner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -39,6 +40,7 @@ export const StudentDashboard = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [activeTab, setActiveTab] = useState('menu');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -119,7 +121,13 @@ export const StudentDashboard = () => {
     });
   };
 
-  const placeOrder = async () => {
+  const proceedToCheckout = () => {
+    if (cart.length === 0) return;
+    setShowCart(false);
+    setShowCheckout(true);
+  };
+
+  const placeOrder = async (paymentMethod: 'CASH_ON_DELIVERY' | 'ONLINE_PAYMENT') => {
     if (!token || cart.length === 0) return;
 
     const orderData = {
@@ -128,7 +136,8 @@ export const StudentDashboard = () => {
         quantity: item.quantity
       })),
       deliveryAddress: 'Student Hostel',
-      specialInstructions: ''
+      specialInstructions: '',
+      paymentMethod: paymentMethod
     };
 
     try {
@@ -139,7 +148,7 @@ export const StudentDashboard = () => {
           description: 'Your order has been placed successfully.'
         });
         setCart([]);
-        setShowCart(false);
+        setShowCheckout(false);
         loadOrders();
       } else {
         toast({
@@ -349,7 +358,15 @@ export const StudentDashboard = () => {
             cart={cart}
             setCart={setCart}
             onClose={() => setShowCart(false)}
-            onPlaceOrder={placeOrder}
+            onPlaceOrder={proceedToCheckout}
+          />
+        )}
+
+        {showCheckout && (
+          <Checkout
+            cart={cart}
+            onClose={() => setShowCheckout(false)}
+            onConfirmOrder={placeOrder}
           />
         )}
       </div>
