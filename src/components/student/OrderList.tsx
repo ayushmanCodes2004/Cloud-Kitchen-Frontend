@@ -209,7 +209,9 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
   };
 
   const canCancelOrder = (order: OrderResponse): boolean => {
-    return order.status === 'PENDING' && getRemainingCancelTime(order.createdAt) > 0;
+    // Students can cancel only if order is still PENDING
+    // Once chef confirms, cancellation is not allowed
+    return order.status === 'PENDING';
   };
 
   const formatTime = (seconds: number): string => {
@@ -299,6 +301,18 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
+                        {/* Show cancel button for PENDING orders */}
+                        {canCancelOrder(order) && (
+                          <button
+                            onClick={() => handleCancelOrder(order.id)}
+                            disabled={cancellingOrderId === order.id}
+                            className="flex items-center gap-1 px-3 py-1 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-full transition-all duration-200 shadow-md"
+                            title="Cancel order"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                          </button>
+                        )}
                         {/* Show chat icon for CONFIRMED, PREPARING, and READY orders */}
                         {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
                           <button
