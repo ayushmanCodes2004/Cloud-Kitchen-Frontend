@@ -3,6 +3,7 @@ import { UtensilsCrossed, User, ChefHat } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
 import { Alert } from '@/components/Alert';
+import { emailService } from '@/services/emailService';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
@@ -60,6 +61,16 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
       if (result.success) {
         login(result.data, result.data.token);
         setAlert({ type: 'success', message: 'Registration successful!' });
+        
+        // Send welcome email
+        emailService.sendWelcomeEmail({
+          to_name: formData.name,
+          to_email: formData.email,
+          user_role: userType === 'student' ? 'Student' : 'Chef'
+        }).catch(err => {
+          console.error('Welcome email failed (non-critical):', err);
+          // Don't show error to user - email is optional
+        });
       } else {
         setAlert({ type: 'error', message: result.message || 'Registration failed' });
       }
