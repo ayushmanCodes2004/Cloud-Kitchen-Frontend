@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, Loader2, DollarSign } from 'lucide-react';
 import { VegIcon, NonVegIcon } from '@/components/ui/NonVegIcon';
 
 export const OrderManagement = () => {
@@ -93,11 +93,18 @@ export const OrderManagement = () => {
   };
 
   const getOrderStats = () => {
+    const totalPlatformFees = orders.reduce((sum, order) => {
+      // platformFee is ₹8 per order, or use the value from order if available
+      const fee = (order as any).platformFee || 8;
+      return sum + fee;
+    }, 0);
+
     return {
       total: orders.length,
       pending: orders.filter(o => o.status === OrderStatus.PENDING).length,
       preparing: orders.filter(o => o.status === OrderStatus.PREPARING).length,
-      delivered: orders.filter(o => o.status === OrderStatus.DELIVERED).length
+      delivered: orders.filter(o => o.status === OrderStatus.DELIVERED).length,
+      totalEarnings: totalPlatformFees
     };
   };
 
@@ -114,7 +121,19 @@ export const OrderManagement = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Platform Earnings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">₹{stats.totalEarnings.toFixed(2)}</div>
+            <p className="text-xs text-green-600 mt-1">From {stats.total} orders</p>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
@@ -211,7 +230,13 @@ export const OrderManagement = () => {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Total Amount</p>
                     <p className="text-xl font-bold text-orange-600">₹{order.totalAmount}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                      <p className="text-xs text-green-700 font-medium flex items-center gap-1">
+                        <DollarSign className="w-3 h-3" />
+                        Platform Fee: ₹{((order as any).platformFee || 8).toFixed(2)}
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </p>
                     <p className="text-xs text-gray-500">
