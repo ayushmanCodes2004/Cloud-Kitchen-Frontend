@@ -93,8 +93,9 @@ export const OrderManagement = () => {
   };
 
   const getOrderStats = () => {
+    // Only count platform fees from DELIVERED orders
     const totalPlatformFees = orders.reduce((sum, order) => {
-      // platformFee is ₹8 per order, or use the value from order if available
+      if (order.status !== OrderStatus.DELIVERED) return sum;
       const fee = (order as any).platformFee || 8;
       return sum + fee;
     }, 0);
@@ -229,35 +230,50 @@ export const OrderManagement = () => {
 
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Bill Details</p>
-                    <div className="space-y-1">
-                      {(() => {
-                        const platformFee = (order as any).platformFee || 8;
-                        const taxAmount = (order as any).taxAmount || 0;
-                        const subtotal = order.totalAmount - platformFee - taxAmount;
-                        
-                        return (
-                          <>
-                            <div className="text-xs text-gray-600">
-                              <span>Subtotal: </span>
-                              <span className="font-medium">₹{subtotal.toFixed(2)}</span>
-                            </div>
-                            <div className="text-xs text-gray-600">
-                              <span>Tax (2%): </span>
-                              <span className="font-medium">₹{taxAmount.toFixed(2)}</span>
-                            </div>
-                            <div className="text-xs text-gray-600">
-                              <span>Platform Fee: </span>
-                              <span className="font-medium text-green-600">₹{platformFee.toFixed(2)}</span>
-                            </div>
-                            <div className="border-t border-gray-200 pt-1 mt-1">
-                              <div className="text-sm font-bold text-orange-600">
-                                Total: ₹{order.totalAmount.toFixed(2)}
+                    {order.status === OrderStatus.DELIVERED ? (
+                      <div className="space-y-1">
+                        {(() => {
+                          const platformFee = (order as any).platformFee || 8;
+                          const taxAmount = (order as any).taxAmount || 0;
+                          const subtotal = order.totalAmount - platformFee - taxAmount;
+                          
+                          return (
+                            <>
+                              <div className="text-xs text-gray-600">
+                                <span>Subtotal: </span>
+                                <span className="font-medium">₹{subtotal.toFixed(2)}</span>
                               </div>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
+                              <div className="text-xs text-gray-600">
+                                <span>Tax (2%): </span>
+                                <span className="font-medium">₹{taxAmount.toFixed(2)}</span>
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                <span>Platform Fee: </span>
+                                <span className="font-medium text-green-600">₹{platformFee.toFixed(2)}</span>
+                              </div>
+                              <div className="border-t border-gray-200 pt-1 mt-1">
+                                <div className="text-sm font-bold text-orange-600">
+                                  Total: ₹{order.totalAmount.toFixed(2)}
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    ) : order.status === OrderStatus.CANCELLED ? (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded">
+                        <p className="text-sm font-semibold text-red-700">Order Cancelled</p>
+                        <p className="text-xs text-red-600 mt-1">No charges applied</p>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                        <p className="text-sm font-semibold text-blue-700">Order {order.status}</p>
+                        <p className="text-xs text-blue-600 mt-1">Bill finalized on delivery</p>
+                        <p className="text-sm font-medium text-gray-700 mt-2">
+                          Expected: ₹{order.totalAmount.toFixed(2)}
+                        </p>
+                      </div>
+                    )}
                     <p className="text-xs text-gray-500 mt-2">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </p>
