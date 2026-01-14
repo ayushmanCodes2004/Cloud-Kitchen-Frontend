@@ -306,10 +306,14 @@ export const OrderList = ({ orders, onOrderCancelled, onReorder }: OrderListProp
                               setSelectedOrderId(order.id);
                               setChatModalOpen(true);
                             }}
-                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
                             title="Chat with chef"
                           >
-                            <MessageCircle className="w-4 h-4 text-blue-500" />
+                            <div className="relative">
+                              <MessageCircle className="w-4 h-4 text-blue-500" />
+                              {/* Unread message indicator - shows a red dot */}
+                              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            </div>
                           </button>
                         )}
                         {order.status === 'DELIVERED' && onReorder && (

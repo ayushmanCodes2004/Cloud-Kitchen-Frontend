@@ -476,10 +476,14 @@ export const ChefOrderManagement = () => {
                               setSelectedOrderId(order.id);
                               setChatModalOpen(true);
                             }}
-                            className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors relative"
                             title="Chat with student"
                           >
-                            <MessageCircle className="w-4 h-4" />
+                            <div className="relative">
+                              <MessageCircle className="w-4 h-4" />
+                              {/* Unread message indicator - shows a red dot */}
+                              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            </div>
                             Chat
                           </button>
                         )}
