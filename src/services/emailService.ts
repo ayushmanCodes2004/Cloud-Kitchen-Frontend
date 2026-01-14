@@ -3,10 +3,12 @@ import emailjs from '@emailjs/browser';
 // EmailJS Configuration
 const EMAILJS_SERVICE_ID = 'service_0imi2rl';
 const EMAILJS_PUBLIC_KEY = 'i97hERR272deTG2i4';
-const WELCOME_TEMPLATE_ID = 'template_e1mqnsu';
+const WELCOME_TEMPLATE_ID = 'template_4nzdapf';
 
-// Initialize EmailJS
-emailjs.init(EMAILJS_PUBLIC_KEY);
+// Initialize EmailJS with public key
+if (typeof window !== 'undefined') {
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+}
 
 interface WelcomeEmailParams {
   to_name: string;
@@ -20,6 +22,8 @@ export const emailService = {
    */
   async sendWelcomeEmail(params: WelcomeEmailParams): Promise<boolean> {
     try {
+      console.log('📧 Attempting to send welcome email to:', params.to_email);
+      
       const templateParams = {
         to_name: params.to_name,
         to_email: params.to_email,
@@ -28,16 +32,26 @@ export const emailService = {
         app_url: window.location.origin,
       };
 
+      console.log('📧 Template params:', templateParams);
+      console.log('📧 Using service:', EMAILJS_SERVICE_ID);
+      console.log('📧 Using template:', WELCOME_TEMPLATE_ID);
+
       const response = await emailjs.send(
         EMAILJS_SERVICE_ID,
         WELCOME_TEMPLATE_ID,
-        templateParams
+        templateParams,
+        EMAILJS_PUBLIC_KEY
       );
 
-      console.log('Welcome email sent successfully:', response);
+      console.log('✅ Welcome email sent successfully:', response);
       return response.status === 200;
-    } catch (error) {
-      console.error('Failed to send welcome email:', error);
+    } catch (error: any) {
+      console.error('❌ Failed to send welcome email:', error);
+      console.error('Error details:', {
+        message: error.message,
+        text: error.text,
+        status: error.status
+      });
       return false;
     }
   },
