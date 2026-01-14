@@ -8,7 +8,8 @@ import {
   LogOut,
   User,
   MessageCircle,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { orderApi } from '@/services/orderApi';
@@ -26,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { TestimonialForm } from '@/components/shared/TestimonialForm';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Favourites } from './Favourites';
 
 export interface CartItem extends MenuItemResponse {
   quantity: number;
@@ -184,6 +186,12 @@ export const StudentDashboard = () => {
               onClick={() => setActiveTab('menu')}
             />
             <NavItemIcon 
+              icon={Heart}
+              label="Favourites" 
+              active={activeTab === 'favourites'}
+              onClick={() => setActiveTab('favourites')}
+            />
+            <NavItemIcon 
               icon={PackageSearch}
               label="My Orders" 
               active={activeTab === 'orders'}
@@ -265,6 +273,7 @@ export const StudentDashboard = () => {
             <div className="hidden">
               <TabsList className="bg-transparent border-0 h-auto">
                 <TabsTrigger value="menu" className="sr-only">Menu</TabsTrigger>
+                <TabsTrigger value="favourites" className="sr-only">Favourites</TabsTrigger>
                 <TabsTrigger value="orders" className="sr-only">My Orders</TabsTrigger>
                 <TabsTrigger value="testimonial" className="sr-only">Testimonial</TabsTrigger>
               </TabsList>
@@ -278,6 +287,10 @@ export const StudentDashboard = () => {
                 userRole="student"
                 externalSearchQuery={searchQuery}
               />
+            </TabsContent>
+
+            <TabsContent value="favourites" className="mt-0">
+              <Favourites onAddToCart={addToCart} />
             </TabsContent>
 
             <TabsContent value="orders" className="mt-0">

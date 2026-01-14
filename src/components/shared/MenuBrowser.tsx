@@ -4,12 +4,13 @@ import { MenuItemResponse } from '@/services/chefApi';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { ratingApi } from '@/services/ratingApi';
+import { favouriteApi } from '@/services/favouriteApi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck, X } from 'lucide-react';
+import { Package, Clock, User, Loader2, ShoppingCart, Star, CheckCircle, MessageSquare, BadgeCheck, X, Heart } from 'lucide-react';
 import { ReviewsModal } from '@/components/ui/ReviewsModal';
 
 interface MenuBrowserProps {
@@ -38,10 +39,15 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
     menuItemName: string;
   }>({ isOpen: false, menuItemId: 0, menuItemName: '' });
   const [selectedItem, setSelectedItem] = useState<MenuItemResponse | null>(null);
+  const [favouriteIds, setFavouriteIds] = useState<Set<number>>(new Set());
+  const [togglingFavourite, setTogglingFavourite] = useState<number | null>(null);
 
   useEffect(() => {
     loadMenuItems();
-  }, [availableOnly]);
+    if (userRole === 'student') {
+      loadFavourites();
+    }
+  }, [availableOnly, userRole]);
 
   useEffect(() => {
     setSearchQuery(externalSearchQuery);
@@ -99,6 +105,56 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadFavourites = async () => {
+    try {
+      const response = await favouriteApi.getFavouriteIds();
+      if (response.success && response.data) {
+        setFavouriteIds(new Set(response.data));
+      }
+    } catch (error) {
+      console.error('Failed to load favourites:', error);
+    }
+  };
+
+  const toggleFavourite = async (menuItemId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (togglingFavourite === menuItemId) return;
+    
+    try {
+      setTogglingFavourite(menuItemId);
+      const isFavourite = favouriteIds.has(menuItemId);
+      
+      if (isFavourite) {
+        await favouriteApi.removeFavourite(menuItemId);
+        setFavouriteIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(menuItemId);
+          return newSet;
+        });
+        toast({
+          title: 'Removed',
+          description: 'Removed from favourites',
+        });
+      } else {
+        await favouriteApi.addFavourite(menuItemId);
+        setFavouriteIds(prev => new Set(prev).add(menuItemId));
+        toast({
+          title: 'Added',
+          description: 'Added to favourites',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to update favourite',
+      });
+    } finally {
+      setTogglingFavourite(null);
     }
   };
 
@@ -236,6 +292,26 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                   <Badge className="absolute top-2 left-2 bg-red-500">
                     🥩 Non-Veg
                   </Badge>
+                )}
+                {userRole === 'student' && (
+                  <button
+                    onClick={(e) => toggleFavourite(item.id, e)}
+                    disabled={togglingFavourite === item.id}
+                    className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition disabled:opacity-50"
+                    title={favouriteIds.has(item.id) ? 'Remove from favourites' : 'Add to favourites'}
+                  >
+                    {togglingFavourite === item.id ? (
+                      <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
+                    ) : (
+                      <Heart 
+                        className={`w-5 h-5 transition ${
+                          favouriteIds.has(item.id) 
+                            ? 'text-red-500 fill-red-500' 
+                            : 'text-gray-400 hover:text-red-500'
+                        }`}
+                      />
+                    )}
+                  </button>
                 )}
                 {!item.available && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
