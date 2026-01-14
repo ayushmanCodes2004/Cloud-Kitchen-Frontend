@@ -47,6 +47,14 @@ export const StudentDashboard = () => {
 
   useEffect(() => {
     loadOrders();
+    
+    // Auto-refresh orders every 30 seconds
+    const intervalId = setInterval(() => {
+      loadOrders();
+    }, 30000); // 30 seconds
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, [token]);
 
   const loadOrders = async () => {
@@ -59,11 +67,14 @@ export const StudentDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading orders:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to load orders. Please try again.',
-      });
+      // Only show error toast on initial load, not on auto-refresh
+      if (loading) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Failed to load orders. Please try again.',
+        });
+      }
     } finally {
       setLoading(false);
     }

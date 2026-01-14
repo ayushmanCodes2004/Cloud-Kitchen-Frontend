@@ -41,6 +41,13 @@ export const OrderManagement = () => {
   useEffect(() => {
     if (token) {
       loadOrders();
+      
+      // Auto-refresh orders every 30 seconds
+      const intervalId = setInterval(() => {
+        loadOrders();
+      }, 30000);
+
+      return () => clearInterval(intervalId);
     }
   }, [token, filterStatus]);
 
