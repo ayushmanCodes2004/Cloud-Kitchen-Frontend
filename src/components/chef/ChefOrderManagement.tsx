@@ -467,35 +467,38 @@ export const ChefOrderManagement = () => {
                             <SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
                           </SelectContent>
                         </Select>
-                                            
-                        {/* Show chat icon for CONFIRMED, PREPARING, and READY orders */}
-                        {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
-                          <button
-                            onClick={() => {
-                              setSelectedOrderId(order.id);
-                              setChatModalOpen(true);
-                            }}
-                            className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-                            title="Chat with student"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                            Chat
-                          </button>
-                        )}
+                        
+                        {/* Action buttons with consistent spacing */}
+                        <div className="space-y-2 mt-2">
+                          {/* Show chat button for CONFIRMED, PREPARING, and READY orders */}
+                          {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
+                            <button
+                              onClick={() => {
+                                setSelectedOrderId(order.id);
+                                setChatModalOpen(true);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                              title="Chat with student"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                              Chat
+                            </button>
+                          )}
+                          
+                          {/* Cancel order button */}
+                          {canCancelOrder(order.status) && (
+                            <Button
+                              onClick={() => handleCancelOrder(order.id)}
+                              disabled={cancellingOrderId === order.id}
+                              variant="destructive"
+                              className="w-full flex items-center justify-center gap-2"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                                          
-                      {canCancelOrder(order.status) && (
-                        <Button
-                          onClick={() => handleCancelOrder(order.id)}
-                          disabled={cancellingOrderId === order.id}
-                          variant="destructive"
-                          className="w-full flex items-center justify-center gap-2"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
-                        </Button>
-                      )}
-                    </div>
                   </div>
                 </div>
               </CardContent>
