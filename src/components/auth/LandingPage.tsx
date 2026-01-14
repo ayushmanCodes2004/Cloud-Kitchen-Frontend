@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Clock, UtensilsCrossed, Star, ChefHat, Quote } from 'lucide-react';
+import { ArrowRight, Clock, UtensilsCrossed, Star, ChefHat } from 'lucide-react';
 import { testimonialApi, TestimonialResponse } from '@/services/testimonialApi';
 
 interface LandingPageProps {
@@ -529,7 +529,6 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
             <div className="flex gap-6 min-w-max">
             {allTestimonials.map((testimonial) => (
             <div key={testimonial.id} className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 flex-shrink-0 w-80 h-64 flex flex-col">
-              <Quote className="w-8 h-8 text-orange-500 mb-4" />
               <p className="text-gray-700 mb-6 italic flex-grow">
                 "{testimonial.content}"
               </p>
