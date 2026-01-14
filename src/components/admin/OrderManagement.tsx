@@ -228,13 +228,35 @@ export const OrderManagement = () => {
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Total Amount</p>
-                    <p className="text-xl font-bold text-orange-600">₹{order.totalAmount}</p>
-                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
-                      <p className="text-xs text-green-700 font-medium flex items-center gap-1">
-                        <DollarSign className="w-3 h-3" />
-                        Platform Fee: ₹{((order as any).platformFee || 8).toFixed(2)}
-                      </p>
+                    <p className="text-sm text-gray-600 mb-1">Bill Details</p>
+                    <div className="space-y-1">
+                      {(() => {
+                        const platformFee = (order as any).platformFee || 8;
+                        const taxAmount = (order as any).taxAmount || 0;
+                        const subtotal = order.totalAmount - platformFee - taxAmount;
+                        
+                        return (
+                          <>
+                            <div className="text-xs text-gray-600">
+                              <span>Subtotal: </span>
+                              <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              <span>Tax (2%): </span>
+                              <span className="font-medium">₹{taxAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              <span>Platform Fee: </span>
+                              <span className="font-medium text-green-600">₹{platformFee.toFixed(2)}</span>
+                            </div>
+                            <div className="border-t border-gray-200 pt-1 mt-1">
+                              <div className="text-sm font-bold text-orange-600">
+                                Total: ₹{order.totalAmount.toFixed(2)}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
                       {new Date(order.createdAt).toLocaleDateString()}
