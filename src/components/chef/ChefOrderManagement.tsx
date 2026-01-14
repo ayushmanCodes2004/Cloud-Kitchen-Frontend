@@ -443,68 +443,67 @@ export const ChefOrderManagement = () => {
                       {getStatusBadge(order.status)}
                     </div>
                     
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-gray-600 mb-2">Update Status</p>
-                        {isMultiChefOrder && (
-                          <p className="text-xs text-yellow-700 mb-2 bg-yellow-50 p-2 rounded">
-                            ⚠️ Status updates affect the entire order
-                          </p>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Update Status</p>
+                      {isMultiChefOrder && (
+                        <p className="text-xs text-yellow-700 mb-2 bg-yellow-50 p-2 rounded">
+                          ⚠️ Status updates affect the entire order
+                        </p>
+                      )}
+                      <Select
+                        value={order.status}
+                        onValueChange={(value) => handleStatusUpdate(order.id, value as OrderStatus)}
+                        disabled={updatingOrderId === order.id || order.status === 'DELIVERED' || order.status === 'CANCELLED'}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
+                          <SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
+                          <SelectItem value={OrderStatus.PREPARING}>Preparing</SelectItem>
+                          <SelectItem value={OrderStatus.READY}>Ready</SelectItem>
+                          <SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {/* Action buttons with consistent spacing */}
+                      <div className="space-y-2 mt-2">
+                        {/* Show chat button for CONFIRMED, PREPARING, and READY orders */}
+                        {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
+                          <button
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setChatModalOpen(true);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                            title="Chat with student"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Chat
+                          </button>
                         )}
-                        <Select
-                          value={order.status}
-                          onValueChange={(value) => handleStatusUpdate(order.id, value as OrderStatus)}
-                          disabled={updatingOrderId === order.id || order.status === 'DELIVERED' || order.status === 'CANCELLED'}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
-                            <SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
-                            <SelectItem value={OrderStatus.PREPARING}>Preparing</SelectItem>
-                            <SelectItem value={OrderStatus.READY}>Ready</SelectItem>
-                            <SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
-                          </SelectContent>
-                        </Select>
                         
-                        {/* Action buttons with consistent spacing */}
-                        <div className="space-y-2 mt-2">
-                          {/* Show chat button for CONFIRMED, PREPARING, and READY orders */}
-                          {(order.status === 'CONFIRMED' || order.status === 'PREPARING' || order.status === 'READY') && (
-                            <button
-                              onClick={() => {
-                                setSelectedOrderId(order.id);
-                                setChatModalOpen(true);
-                              }}
-                              className="w-full flex items-center justify-center gap-2 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-                              title="Chat with student"
-                            >
-                              <MessageCircle className="w-4 h-4" />
-                              Chat
-                            </button>
-                          )}
-                          
-                          {/* Cancel order button */}
-                          {canCancelOrder(order.status) && (
-                            <Button
-                              onClick={() => handleCancelOrder(order.id)}
-                              disabled={cancellingOrderId === order.id}
-                              variant="destructive"
-                              className="w-full flex items-center justify-center gap-2"
-                            >
-                              <XCircle className="w-4 h-4" />
-                              {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
-                            </Button>
-                          )}
-                        </div>
+                        {/* Cancel order button */}
+                        {canCancelOrder(order.status) && (
+                          <Button
+                            onClick={() => handleCancelOrder(order.id)}
+                            disabled={cancellingOrderId === order.id}
+                            variant="destructive"
+                            className="w-full flex items-center justify-center gap-2"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
+                          </Button>
+                        )}
                       </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           );
-            })
+          })
         )}
         </div>
       </div>
