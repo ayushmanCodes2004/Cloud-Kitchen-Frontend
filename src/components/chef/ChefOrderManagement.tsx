@@ -123,13 +123,13 @@ export const ChefOrderManagement = () => {
     }
   }, [token]);
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       if (token) {
         loadOrders(true);
       }
-    }, 30000); // 30 seconds
+    }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
   }, [token]);

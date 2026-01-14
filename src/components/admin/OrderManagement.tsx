@@ -42,10 +42,10 @@ export const OrderManagement = () => {
     if (token) {
       loadOrders();
       
-      // Auto-refresh orders every 30 seconds
+      // Auto-refresh orders every 10 seconds
       const intervalId = setInterval(() => {
         loadOrders();
-      }, 30000);
+      }, 10000);
 
       return () => clearInterval(intervalId);
     }

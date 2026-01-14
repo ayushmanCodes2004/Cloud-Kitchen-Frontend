@@ -48,10 +48,10 @@ export const StudentDashboard = () => {
   useEffect(() => {
     loadOrders();
     
-    // Auto-refresh orders every 30 seconds
+    // Auto-refresh orders every 10 seconds
     const intervalId = setInterval(() => {
       loadOrders();
-    }, 30000); // 30 seconds
+    }, 10000); // 10 seconds
 
     // Cleanup interval on unmount
     return () => clearInterval(intervalId);
