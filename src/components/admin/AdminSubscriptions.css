@@ -284,38 +284,76 @@
 
 /* Card Body */
 .sub-body {
-  display: grid;
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
+/* Info Section */
+.info-section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.section-title svg {
+  color: #ff6b35;
+  flex-shrink: 0;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 10px 0;
   font-size: 0.9rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-row.highlight-row {
+  background: #e8f5e9;
+  margin: 0 -14px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  border-bottom: none;
 }
 
 .info-label {
   color: #7f8c8d;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .info-value {
   color: #2c3e50;
   font-weight: 600;
   text-align: right;
+  word-break: break-word;
+  margin-left: 16px;
 }
 
 .info-value.highlight {
   color: #4CAF50;
   font-size: 1rem;
+  font-weight: 700;
 }
 
 /* Invoice Row */
@@ -529,15 +567,22 @@
     gap: 12px;
   }
 
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
   .action-row {
     flex-direction: column;
   }
 
   .invoice-row {
     flex-wrap: wrap;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .info-value {
+    text-align: left;
+    margin-left: 0;
   }
 }

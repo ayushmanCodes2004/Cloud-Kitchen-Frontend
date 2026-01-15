@@ -163,7 +163,12 @@ const AdminSubscriptions: React.FC = () => {
       </div>
 
       <div className="sub-body">
-        <div className="info-grid">
+        {/* Plan Details Section */}
+        <div className="info-section">
+          <div className="section-title">
+            <Crown size={16} />
+            <span>Plan Details</span>
+          </div>
           <div className="info-row">
             <span className="info-label">Plan</span>
             <span className="info-value">{sub.planName}</span>
@@ -172,13 +177,29 @@ const AdminSubscriptions: React.FC = () => {
             <span className="info-label">Price</span>
             <span className="info-value">₹{sub.planPrice}</span>
           </div>
+        </div>
+
+        {/* Payment Information Section */}
+        <div className="info-section">
+          <div className="section-title">
+            <CreditCard size={16} />
+            <span>Payment Information</span>
+          </div>
           <div className="info-row">
             <span className="info-label">Payment Method</span>
             <span className="info-value">{sub.paymentMethod}</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Transaction Ref</span>
+            <span className="info-label">Transaction Reference</span>
             <span className="info-value">{sub.transactionReference}</span>
+          </div>
+        </div>
+
+        {/* Timeline Section */}
+        <div className="info-section">
+          <div className="section-title">
+            <Calendar size={16} />
+            <span>Timeline</span>
           </div>
           <div className="info-row">
             <span className="info-label">Requested</span>
@@ -197,7 +218,7 @@ const AdminSubscriptions: React.FC = () => {
             </div>
           )}
           {sub.status === 'ACTIVE' && sub.endDate && (
-            <div className="info-row">
+            <div className="info-row highlight-row">
               <span className="info-label">Days Remaining</span>
               <span className="info-value highlight">{getDaysRemaining(sub.endDate)} days</span>
             </div>
