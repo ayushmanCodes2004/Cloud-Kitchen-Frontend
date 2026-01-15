@@ -2,23 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { customMealApi, AIMealGenerationRequest, AIMealGenerationResponse, CustomMealItemRequest } from '../../services/customMealApi';
 import { subscriptionApi } from '../../services/subscriptionApi';
 import { 
-  Sparkles, 
-  Send, 
-  RefreshCw, 
-  Save, 
-  Lock, 
-  Crown, 
-  TrendingUp,
-  Zap,
-  Target,
-  Brain,
-  ChefHat,
-  Clock,
-  DollarSign,
-  Star,
-  Flame,
-  Leaf,
-  X
+  Sparkles, Send, RefreshCw, Save, Lock, Crown,
+  TrendingUp, Zap, Target, Brain, ChefHat,
+  Star, X
 } from 'lucide-react';
 import './AIMealBuilder.css';
 
@@ -38,24 +24,17 @@ const AIMealBuilder: React.FC = () => {
   const [savingMeal, setSavingMeal] = useState(false);
 
   const occasions = [
-    'Post-workout',
-    'Exam Preparation',
-    'Late Night Study',
-    'Sunday Brunch',
-    'Party',
-    'Quick Lunch',
-    'Healthy Dinner',
+    'Post-workout', 'Exam Preparation', 'Late Night Study',
+    'Sunday Brunch', 'Party', 'Quick Lunch', 'Healthy Dinner'
   ];
 
   const dietaryOptions = ['Vegetarian', 'Vegan', 'Non-Veg', 'Eggetarian', 'Jain'];
 
   const quickPrompts = [
-    'I want something healthy for post-workout',
-    'Create a meal for late night study session under ₹200',
-    'Suggest a high protein meal',
-    'I need energy boosting food',
-    'Light dinner for better sleep',
-    'Brain food for studying',
+    'High protein post-workout meal',
+    'Light healthy dinner under ₹200',
+    'Energy boosting study snack',
+    'Quick filling lunch'
   ];
 
   useEffect(() => {
@@ -83,7 +62,6 @@ const AIMealBuilder: React.FC = () => {
       setSavedMeals(meals);
     } catch (error) {
       console.error('Failed to load saved meals:', error);
-      // Set empty array so the section still shows with empty state
       setSavedMeals([]);
     }
   };
@@ -108,10 +86,10 @@ const AIMealBuilder: React.FC = () => {
 
       const response = await customMealApi.generateAIMeal(request);
       setAiResponse(response);
-      setCustomMealName(response.mealName); // Pre-fill with AI-generated name
+      setCustomMealName(response.mealName);
     } catch (err: any) {
       if (err.response?.status === 403) {
-        setError('AI Meal Builder is a premium feature. Please subscribe to Gold Plan to access this feature.');
+        setError('AI Meal Builder is a premium feature. Please subscribe to Gold Plan.');
       } else {
         setError(err.response?.data?.message || 'Failed to generate meal. Please try again.');
       }
@@ -120,9 +98,15 @@ const AIMealBuilder: React.FC = () => {
     }
   };
 
+  const handleOpenSaveDialog = () => {
+    if (aiResponse) {
+      setCustomMealName(aiResponse.mealName);
+      setShowSaveDialog(true);
+    }
+  };
+
   const handleSaveMeal = async () => {
     if (!aiResponse) return;
-
     if (!customMealName.trim()) {
       alert('Please enter a name for your meal');
       return;
@@ -144,7 +128,7 @@ const AIMealBuilder: React.FC = () => {
         items,
       });
 
-      alert('Meal saved successfully! You can order it anytime from Favourites → Saved Meals.');
+      alert('Meal saved! Find it in Favourites → Saved Meals.');
       setShowSaveDialog(false);
       setCustomMealName('');
       loadSavedMeals();
@@ -155,17 +139,6 @@ const AIMealBuilder: React.FC = () => {
     }
   };
 
-  const handleOpenSaveDialog = () => {
-    if (aiResponse) {
-      setCustomMealName(aiResponse.mealName); // Pre-fill with AI name
-      setShowSaveDialog(true);
-    }
-  };
-
-  const handleQuickPrompt = (prompt: string) => {
-    setUserInput(prompt);
-  };
-
   const toggleDietaryPreference = (pref: string) => {
     setDietaryPreferences(prev =>
       prev.includes(pref) ? prev.filter(p => p !== pref) : [...prev, pref]
@@ -173,7 +146,7 @@ const AIMealBuilder: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading-state">Loading...</div>;
   }
 
   if (!hasSubscription) {
@@ -221,215 +194,246 @@ const AIMealBuilder: React.FC = () => {
 
   return (
     <div className="ai-meal-builder">
-      <div className="builder-header">
-        <h1>🤖 AI Meal Builder</h1>
-        <p>Tell me what you want, and I'll create the perfect meal for you!</p>
+      {/* Header */}
+      <div className="page-header">
+        <Sparkles size={24} />
+        <h1>AI Meal Builder</h1>
       </div>
 
-      <div className="builder-content">
+      {/* Main Container */}
+      <div className="main-container">
+        
         {/* Input Section */}
-        <div className="input-section">
-          <div className="main-input">
-            <label>What are you craving?</label>
-            <textarea
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              placeholder="E.g., I want something healthy for post-workout..."
-              rows={4}
-            />
+        <div className="section">
+          <div className="section-title">
+            <Brain size={18} />
+            <span>What do you want?</span>
           </div>
+          
+          <textarea
+            className="simple-input"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            placeholder="E.g., I want a high-protein meal for post-workout under ₹300..."
+            rows={3}
+          />
 
-          <div className="quick-prompts">
-            <label>⚡ Quick Prompts:</label>
-            <div className="prompt-buttons">
-              {quickPrompts.map((prompt, index) => (
-                <button
-                  key={index}
-                  className="prompt-btn"
-                  onClick={() => handleQuickPrompt(prompt)}
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
+          <div className="quick-chips">
+            {quickPrompts.map((prompt, index) => (
+              <button
+                key={index}
+                className="quick-chip"
+                onClick={() => setUserInput(prompt)}
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
-
-          <div className="filters">
-            <div className="filter-group">
-              <label>Budget: ₹{budget}</label>
-              <input
-                type="range"
-                min="100"
-                max="500"
-                step="50"
-                value={budget}
-                onChange={(e) => setBudget(Number(e.target.value))}
-              />
-            </div>
-
-            <div className="filter-group">
-              <label>Dietary Preferences:</label>
-              <div className="checkbox-group">
-                {dietaryOptions.map((option) => (
-                  <label key={option} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={dietaryPreferences.includes(option)}
-                      onChange={() => toggleDietaryPreference(option)}
-                    />
-                    {option}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="filter-group">
-              <label>Occasion:</label>
-              <select value={occasion} onChange={(e) => setOccasion(e.target.value)}>
-                <option value="">Select occasion (optional)</option>
-                {occasions.map((occ) => (
-                  <option key={occ} value={occ}>
-                    {occ}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <button
-            className="generate-btn"
-            onClick={handleGenerate}
-            disabled={generating || !userInput.trim()}
-          >
-            {generating ? '✨ Generating...' : '✨ Generate Meal'}
-          </button>
-
-          {error && <div className="error-message">{error}</div>}
         </div>
 
-        {/* AI Response Section */}
+        {/* Preferences Section */}
+        <div className="section">
+          <div className="section-title">
+            <Target size={18} />
+            <span>Preferences</span>
+          </div>
+
+          <div className="inline-control">
+            <label>Budget</label>
+            <input
+              type="range"
+              min="100"
+              max="500"
+              step="50"
+              value={budget}
+              onChange={(e) => setBudget(Number(e.target.value))}
+            />
+            <span className="value">₹{budget}</span>
+          </div>
+
+          <div className="inline-control">
+            <label>Dietary</label>
+            <div className="pills-row">
+              {dietaryOptions.map((option) => (
+                <label key={option} className={`pill ${dietaryPreferences.includes(option) ? 'active' : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={dietaryPreferences.includes(option)}
+                    onChange={() => toggleDietaryPreference(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="inline-control">
+            <label>Occasion</label>
+            <select value={occasion} onChange={(e) => setOccasion(e.target.value)}>
+              <option value="">Select (optional)</option>
+              {occasions.map((occ) => (
+                <option key={occ} value={occ}>{occ}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Generate Button */}
+        <button
+          className="generate-button"
+          onClick={handleGenerate}
+          disabled={generating || !userInput.trim()}
+        >
+          {generating ? (
+            <>
+              <RefreshCw size={20} className="spinning" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Send size={20} />
+              Generate Meal
+            </>
+          )}
+        </button>
+
+        {error && (
+          <div className="error-banner">
+            <X size={16} />
+            {error}
+          </div>
+        )}
+
+        {/* AI Response */}
         {aiResponse && (
-          <div className="ai-response">
-            <div className="response-header">
-              <h2>✨ {aiResponse.mealName}</h2>
-              <div className="nutritional-score">
-                Score: {aiResponse.nutritionalScore}/10 ⭐
-              </div>
+          <div className="section">
+            <div className="meal-header">
+              <h2>{aiResponse.mealName}</h2>
+              <span className="score-badge">
+                <Star size={14} />
+                {aiResponse.nutritionalScore}/10
+              </span>
             </div>
 
-            <p className="meal-description">{aiResponse.description}</p>
+            <p className="meal-desc">{aiResponse.description}</p>
 
-            <div className="meal-items">
-              <h3>🍽️ Your Meal:</h3>
+            <div className="items-list">
               {aiResponse.items.map((item, index) => (
-                <div key={index} className="meal-item">
+                <div key={index} className="item-row">
                   <div className="item-info">
-                    <h4>{item.name}</h4>
-                    <p className="item-reason">💡 {item.reason}</p>
-                    <p className="item-chef">👨‍🍳 Chef: {item.chefName}</p>
+                    <div className="item-name">{item.name}</div>
+                    <div className="item-meta">
+                      <ChefHat size={12} />
+                      {item.chefName} • Qty: {item.quantity}
+                    </div>
                   </div>
-                  <div className="item-price">
-                    <span className="quantity">×{item.quantity}</span>
-                    <span className="price">₹{item.price}</span>
-                  </div>
+                  <div className="item-price">₹{item.price}</div>
                 </div>
               ))}
             </div>
 
-            <div className="nutritional-info">
-              <h3>📊 Nutritional Information:</h3>
-              <div className="nutrition-grid">
-                <div className="nutrition-item">
-                  <span className="label">Calories</span>
-                  <span className="value">{aiResponse.nutritionalInfo.calories} kcal</span>
-                </div>
-                <div className="nutrition-item">
-                  <span className="label">Protein</span>
-                  <span className="value">{aiResponse.nutritionalInfo.protein}g</span>
-                </div>
-                <div className="nutrition-item">
-                  <span className="label">Carbs</span>
-                  <span className="value">{aiResponse.nutritionalInfo.carbs}g</span>
-                </div>
-                <div className="nutrition-item">
-                  <span className="label">Fat</span>
-                  <span className="value">{aiResponse.nutritionalInfo.fat}g</span>
-                </div>
+            <div className="nutrition-compact">
+              <div className="nut-item">
+                <span className="label">Calories</span>
+                <span className="value">{aiResponse.nutritionalInfo.calories}</span>
+              </div>
+              <div className="nut-item">
+                <span className="label">Protein</span>
+                <span className="value">{aiResponse.nutritionalInfo.protein}g</span>
+              </div>
+              <div className="nut-item">
+                <span className="label">Carbs</span>
+                <span className="value">{aiResponse.nutritionalInfo.carbs}g</span>
+              </div>
+              <div className="nut-item">
+                <span className="label">Fat</span>
+                <span className="value">{aiResponse.nutritionalInfo.fat}g</span>
               </div>
             </div>
 
-            <div className="meal-tags">
+            <div className="tags-row">
               {aiResponse.tags.map((tag, index) => (
-                <span key={index} className="tag">
-                  #{tag}
-                </span>
+                <span key={index} className="tag">#{tag}</span>
               ))}
             </div>
 
-            <div className="total-price">
-              <span>Total Price:</span>
-              <span className="price">₹{aiResponse.totalPrice.toFixed(2)}</span>
+            <div className="total-row">
+              <span>Total Amount</span>
+              <span className="total-price">₹{aiResponse.totalPrice.toFixed(2)}</span>
             </div>
 
-            <div className="action-buttons">
-              <button className="save-btn" onClick={handleOpenSaveDialog}>
-                💾 Save Meal
+            <div className="action-row">
+              <button className="btn-save" onClick={handleOpenSaveDialog}>
+                <Save size={16} />
+                Save Meal
               </button>
-              <button className="regenerate-btn" onClick={handleGenerate}>
-                🔄 Regenerate
+              <button className="btn-regenerate" onClick={handleGenerate}>
+                <RefreshCw size={16} />
+                Regenerate
               </button>
             </div>
           </div>
         )}
 
-        {/* Saved Meals Section - Always Visible */}
-        <div className="saved-meals" style={{ marginTop: '40px', padding: '20px', background: '#f9f9f9', borderRadius: '10px' }}>
-          <h2 style={{ marginBottom: '20px' }}>📚 Your Saved Meals ({savedMeals.length})</h2>
-          {savedMeals.length > 0 ? (
-            <div className="meals-grid">
-              {savedMeals.map((meal) => (
-                <div key={meal.id} className="saved-meal-card">
-                  <div className="meal-header">
-                    <h3>{meal.name}</h3>
-                    {meal.aiGenerated && <span className="ai-badge">🤖 AI</span>}
-                  </div>
-                  <p className="meal-desc">{meal.description}</p>
-                  <div className="meal-stats">
-                    <span>₹{meal.totalPrice}</span>
-                    <span>Ordered {meal.timesOrdered} times</span>
-                  </div>
-                  {meal.nutritionalScore && (
-                    <div className="score">Score: {meal.nutritionalScore}/10 ⭐</div>
-                  )}
-                </div>
-              ))}
+        {/* Saved Meals */}
+        <div className="section">
+          <div className="section-title">
+            <Sparkles size={18} />
+            <span>Your Saved Meals</span>
+            {savedMeals.length > 0 && (
+              <span className="count-badge">({savedMeals.length})</span>
+            )}
+          </div>
+
+          {savedMeals.length === 0 ? (
+            <div className="empty-state">
+              <p>No saved meals yet</p>
+              <p className="empty-subtitle">Generate and save your first AI meal!</p>
             </div>
           ) : (
-            <div className="empty-saved-meals" style={{ padding: '40px', textAlign: 'center', background: 'white', borderRadius: '10px' }}>
-              <p style={{ fontSize: '1.2rem', color: '#666', margin: '0 0 10px 0' }}>No Saved Meals Yet</p>
-              <p className="empty-subtitle" style={{ fontSize: '1rem', color: '#999' }}>Create your first AI-powered meal and save it for quick ordering!</p>
+            <div className="saved-grid">
+              {savedMeals.map((meal) => (
+                <div key={meal.id} className="saved-card">
+                  <div className="saved-header">
+                    <h4>{meal.name}</h4>
+                    {meal.aiGenerated && (
+                      <span className="ai-badge">
+                        <Sparkles size={12} />
+                        AI
+                      </span>
+                    )}
+                  </div>
+                  <p className="saved-desc">{meal.description}</p>
+                  <div className="saved-footer">
+                    <span className="saved-price">₹{meal.totalPrice}</span>
+                    {meal.nutritionalScore && (
+                      <span className="saved-score">
+                        <Star size={12} />
+                        {meal.nutritionalScore}/10
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Save Meal Dialog */}
+      {/* Save Dialog */}
       {showSaveDialog && (
         <div className="modal-overlay" onClick={() => setShowSaveDialog(false)}>
           <div className="save-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
-              <h2>💾 Save Your Meal</h2>
-              <button
-                className="close-dialog-btn"
-                onClick={() => setShowSaveDialog(false)}
-              >
+              <h2>Save Your Meal</h2>
+              <button className="close-dialog-btn" onClick={() => setShowSaveDialog(false)}>
                 ×
               </button>
             </div>
             
             <div className="dialog-content">
               <p className="dialog-description">
-                Give your meal a custom name to easily find it later in Favourites → Saved Meals
+                Give your meal a custom name to find it easily later
               </p>
               
               <div className="input-group">
@@ -448,7 +452,7 @@ const AIMealBuilder: React.FC = () => {
 
               {aiResponse && (
                 <div className="meal-preview">
-                  <h4>📋 Meal Preview:</h4>
+                  <h4>Meal Preview</h4>
                   <p className="preview-description">{aiResponse.description}</p>
                   <div className="preview-items">
                     <strong>{aiResponse.items.length} items</strong> • 
@@ -472,7 +476,7 @@ const AIMealBuilder: React.FC = () => {
                 onClick={handleSaveMeal}
                 disabled={savingMeal || !customMealName.trim()}
               >
-                {savingMeal ? '💾 Saving...' : '💾 Save Meal'}
+                {savingMeal ? 'Saving...' : 'Save Meal'}
               </button>
             </div>
           </div>

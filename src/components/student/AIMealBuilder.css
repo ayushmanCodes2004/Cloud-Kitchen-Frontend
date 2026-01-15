@@ -1,9 +1,481 @@
-/* AI Meal Builder - Professional Orange Theme */
+/* AI Meal Builder - Professional Orange Theme (Checkout Style) */
 
 .ai-meal-builder {
   min-height: 100vh;
   background: #f5f5f5;
   padding: 0;
+}
+
+/* Page Header */
+.page-header {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-header svg {
+  color: #ff6b35;
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* Main Container */
+.main-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* Section Cards */
+.section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 14px;
+}
+
+.section-title svg {
+  color: #ff6b35;
+}
+
+.count-badge {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7f8c8d;
+  margin-left: auto;
+}
+
+/* Simple Input */
+.simple-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+  color: #2c3e50;
+}
+
+.simple-input:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+.simple-input::placeholder {
+  color: #95a5a6;
+}
+
+/* Quick Chips */
+.quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quick-chip {
+  padding: 6px 12px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  color: #34495e;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-chip:hover {
+  background: #ff6b35;
+  border-color: #ff6b35;
+  color: white;
+}
+
+/* Inline Controls */
+.inline-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.inline-control:last-child {
+  margin-bottom: 0;
+}
+
+.inline-control label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #34495e;
+  min-width: 80px;
+}
+
+.inline-control input[type="range"] {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.inline-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff6b35;
+  cursor: pointer;
+}
+
+.inline-control input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff6b35;
+  cursor: pointer;
+  border: none;
+}
+
+.inline-control .value {
+  font-weight: 600;
+  color: #ff6b35;
+  min-width: 70px;
+  text-align: right;
+}
+
+.inline-control select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.inline-control select:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+/* Pills Row */
+.pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+/* Meal Header */
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.meal-header h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+}
+
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #fff3e0;
+  border-radius: 16px;
+  color: #ff6b35;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  border: 1px solid #ffe0b2;
+}
+
+/* Meal Description */
+.meal-desc {
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  margin: 0 0 16px 0;
+  line-height: 1.6;
+}
+
+/* Items List (Like Order Summary) */
+.items-list {
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 14px 0;
+  margin: 14px 0;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+}
+
+.item-row:not(:last-child) {
+  border-bottom: 1px solid #fafafa;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #95a5a6;
+}
+
+.item-meta svg {
+  flex-shrink: 0;
+}
+
+.item-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+/* Compact Nutrition */
+.nutrition-compact {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 6px;
+  margin: 12px 0;
+}
+
+.nut-item {
+  text-align: center;
+}
+
+.nut-item .label {
+  display: block;
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  margin-bottom: 2px;
+}
+
+.nut-item .value {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Tags Row */
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.tag {
+  padding: 4px 10px;
+  background: #fff3e0;
+  color: #ff6b35;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #ffe0b2;
+}
+
+/* Total Row (Like Checkout) */
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: #fafafa;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-weight: 600;
+}
+
+.total-row .total-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+/* Action Row */
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn-save,
+.btn-regenerate {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-save {
+  background: #ff6b35;
+  color: white;
+  border: none;
+}
+
+.btn-save:hover {
+  background: #e55a2b;
+}
+
+.btn-regenerate {
+  background: white;
+  color: #34495e;
+  border: 1px solid #e0e0e0;
+}
+
+.btn-regenerate:hover {
+  background: #fafafa;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+
+.empty-state p:first-child {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #34495e;
+  margin: 0 0 6px 0;
+}
+
+.empty-subtitle {
+  font-size: 0.9rem;
+  color: #95a5a6;
+  margin: 0;
+}
+
+/* Saved Grid */
+.saved-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.saved-card {
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 6px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #f0f0f0;
+}
+
+.saved-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.saved-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.saved-header h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+}
+
+.saved-desc {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.saved-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saved-price {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+.saved-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #fff3e0;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ff6b35;
+  border: 1px solid #ffe0b2;
 }
 
 /* Premium Lock Screen */
@@ -279,6 +751,7 @@
   background: #e0e0e0;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .budget-slider input[type="range"]::-webkit-slider-thumb {
