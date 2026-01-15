@@ -17,7 +17,6 @@ const AIMealBuilder: React.FC = () => {
   const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
   const [occasion, setOccasion] = useState('');
   const [aiResponse, setAiResponse] = useState<AIMealGenerationResponse | null>(null);
-  const [savedMeals, setSavedMeals] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [customMealName, setCustomMealName] = useState('');
@@ -39,7 +38,6 @@ const AIMealBuilder: React.FC = () => {
 
   useEffect(() => {
     checkSubscription();
-    loadSavedMeals();
   }, []);
 
   const checkSubscription = async () => {
@@ -52,17 +50,6 @@ const AIMealBuilder: React.FC = () => {
       setHasSubscription(false);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadSavedMeals = async () => {
-    try {
-      const meals = await customMealApi.getMyCustomMeals();
-      console.log('Loaded saved meals:', meals);
-      setSavedMeals(meals);
-    } catch (error) {
-      console.error('Failed to load saved meals:', error);
-      setSavedMeals([]);
     }
   };
 
@@ -131,7 +118,6 @@ const AIMealBuilder: React.FC = () => {
       alert('Meal saved! Find it in Favourites → Saved Meals.');
       setShowSaveDialog(false);
       setCustomMealName('');
-      loadSavedMeals();
     } catch (error) {
       alert('Failed to save meal. Please try again.');
     } finally {
@@ -384,49 +370,7 @@ const AIMealBuilder: React.FC = () => {
           </div>
         )}
 
-        {/* Saved Meals */}
-        <div className="section">
-          <div className="section-title">
-            <Sparkles size={18} />
-            <span>Your Saved Meals</span>
-            {savedMeals.length > 0 && (
-              <span className="count-badge">({savedMeals.length})</span>
-            )}
-          </div>
-
-          {savedMeals.length === 0 ? (
-            <div className="empty-state">
-              <p>No saved meals yet</p>
-              <p className="empty-subtitle">Generate and save your first AI meal!</p>
-            </div>
-          ) : (
-            <div className="saved-grid">
-              {savedMeals.map((meal) => (
-                <div key={meal.id} className="saved-card">
-                  <div className="saved-header">
-                    <h4>{meal.name}</h4>
-                    {meal.aiGenerated && (
-                      <span className="ai-badge">
-                        <Sparkles size={12} />
-                        AI
-                      </span>
-                    )}
-                  </div>
-                  <p className="saved-desc">{meal.description}</p>
-                  <div className="saved-footer">
-                    <span className="saved-price">₹{meal.totalPrice}</span>
-                    {meal.nutritionalScore && (
-                      <span className="saved-score">
-                        <Star size={12} />
-                        {meal.nutritionalScore}/10
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* End of AI Meal Builder */}
       </div>
 
       {/* Save Dialog */}
