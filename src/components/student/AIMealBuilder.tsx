@@ -196,8 +196,8 @@ const AIMealBuilder: React.FC = () => {
     <div className="ai-meal-builder">
       {/* Header */}
       <div className="page-header">
-        <Sparkles size={24} />
-        <h1>AI Meal Builder</h1>
+        <img src="/best.png" alt="PlatePal" className="logo" />
+        <h1>PlatePal</h1>
       </div>
 
       {/* Main Container */}

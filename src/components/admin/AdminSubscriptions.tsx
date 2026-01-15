@@ -227,8 +227,8 @@ const AdminSubscriptions: React.FC = () => {
     <div className="admin-subscriptions">
       {/* Header */}
       <div className="page-header">
-        <Crown size={24} />
-        <h1>Subscription Management</h1>
+        <img src="/best.png" alt="PlatePal" className="logo" />
+        <h1>PlatePal</h1>
       </div>
 
       {/* Main Container */}

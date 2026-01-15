@@ -233,8 +233,8 @@ const SubscriptionPage: React.FC = () => {
     <div className="subscription-page">
       {/* Header */}
       <div className="page-header">
-        <Crown size={24} />
-        <h1>Gold Subscription</h1>
+        <img src="/best.png" alt="PlatePal" className="logo" />
+        <h1>PlatePal</h1>
       </div>
 
       {/* Main Container */}
