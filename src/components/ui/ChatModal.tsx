@@ -27,6 +27,25 @@ declare global {
   }
 }
 
+// Utility function to format timestamp in IST
+const formatTimeInIST = (dateString: string): string => {
+  if (!dateString) return 'Just now';
+  
+  try {
+    const date = new Date(dateString);
+    // Format in IST timezone (Asia/Kolkata)
+    return date.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (error) {
+    console.error('Error formatting time:', error);
+    return 'Just now';
+  }
+};
+
 export const ChatModal: React.FC<ChatModalProps> = ({
   orderId,
   orderStatus,
@@ -441,10 +460,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({
                           <p className="text-sm">{msg.message}</p>
                           <div className="text-xs opacity-70 mt-1 flex items-center">
                             <Clock className="w-3 h-3 mr-1" />
-                            {msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            }) : 'Just now'}
+                            {formatTimeInIST(msg.sentAt)}
                           </div>
                         </div>
                       </div>
