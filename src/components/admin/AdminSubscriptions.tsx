@@ -326,12 +326,6 @@ const AdminSubscriptions: React.FC = () => {
 
   return (
     <div className="admin-subscriptions">
-      {/* Header */}
-      <div className="page-header">
-        <img src="/best.png" alt="PlatePal" className="logo" />
-        <h1>PlatePal</h1>
-      </div>
-
       {/* Main Container */}
       <div className="main-container">
         
