@@ -1,0 +1,356 @@
+import React, { useState, useEffect } from 'react';
+import { customMealApi, AIMealGenerationRequest, AIMealGenerationResponse, CustomMealItemRequest } from '../../services/customMealApi';
+import { subscriptionApi } from '../../services/subscriptionApi';
+import './AIMealBuilder.css';
+
+const AIMealBuilder: React.FC = () => {
+  const [hasSubscription, setHasSubscription] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  const [budget, setBudget] = useState<number>(300);
+  const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
+  const [occasion, setOccasion] = useState('');
+  const [aiResponse, setAiResponse] = useState<AIMealGenerationResponse | null>(null);
+  const [savedMeals, setSavedMeals] = useState<any[]>([]);
+  const [error, setError] = useState('');
+
+  const occasions = [
+    'Post-workout',
+    'Exam Preparation',
+    'Late Night Study',
+    'Sunday Brunch',
+    'Party',
+    'Quick Lunch',
+    'Healthy Dinner',
+  ];
+
+  const dietaryOptions = ['Vegetarian', 'Vegan', 'Non-Veg', 'Eggetarian', 'Jain'];
+
+  const quickPrompts = [
+    'I want something healthy for post-workout',
+    'Create a meal for late night study session under ₹200',
+    'Suggest a high protein meal',
+    'I need energy boosting food',
+    'Light dinner for better sleep',
+    'Brain food for studying',
+  ];
+
+  useEffect(() => {
+    checkSubscription();
+    loadSavedMeals();
+  }, []);
+
+  const checkSubscription = async () => {
+    setLoading(true);
+    try {
+      const subscription = await subscriptionApi.getActiveSubscription();
+      setHasSubscription(subscription !== null);
+    } catch (error) {
+      console.error('Failed to check subscription:', error);
+      setHasSubscription(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSavedMeals = async () => {
+    try {
+      const meals = await customMealApi.getMyCustomMeals();
+      setSavedMeals(meals);
+    } catch (error) {
+      console.error('Failed to load saved meals:', error);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!userInput.trim()) {
+      setError('Please enter what you want');
+      return;
+    }
+
+    setGenerating(true);
+    setError('');
+    setAiResponse(null);
+
+    try {
+      const request: AIMealGenerationRequest = {
+        userInput,
+        budget,
+        dietaryPreferences,
+        occasion: occasion || undefined,
+      };
+
+      const response = await customMealApi.generateAIMeal(request);
+      setAiResponse(response);
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        setError('AI Meal Builder is a premium feature. Please subscribe to Gold Plan to access this feature.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to generate meal. Please try again.');
+      }
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSaveMeal = async () => {
+    if (!aiResponse) return;
+
+    try {
+      const items: CustomMealItemRequest[] = aiResponse.items.map(item => ({
+        menuItemId: item.menuItemId,
+        quantity: item.quantity,
+        aiReason: item.reason,
+      }));
+
+      await customMealApi.createCustomMeal({
+        name: aiResponse.mealName,
+        description: aiResponse.description,
+        aiGenerated: true,
+        aiPrompt: userInput,
+        items,
+      });
+
+      alert('Meal saved successfully! You can order it anytime from your saved meals.');
+      loadSavedMeals();
+    } catch (error) {
+      alert('Failed to save meal. Please try again.');
+    }
+  };
+
+  const handleQuickPrompt = (prompt: string) => {
+    setUserInput(prompt);
+  };
+
+  const toggleDietaryPreference = (pref: string) => {
+    setDietaryPreferences(prev =>
+      prev.includes(pref) ? prev.filter(p => p !== pref) : [...prev, pref]
+    );
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!hasSubscription) {
+    return (
+      <div className="ai-meal-builder">
+        <div className="premium-required">
+          <div className="lock-icon">🔒</div>
+          <h2>Premium Feature</h2>
+          <p>AI Meal Builder is available exclusively for Gold Plan subscribers.</p>
+          <div className="benefits">
+            <h3>With AI Meal Builder, you get:</h3>
+            <ul>
+              <li>🤖 Natural language meal creation</li>
+              <li>💡 Smart recommendations</li>
+              <li>📊 Nutritional analysis</li>
+              <li>⚡ Smart optimization</li>
+              <li>🎯 Occasion-based meals</li>
+            </ul>
+          </div>
+          <button
+            className="upgrade-btn"
+            onClick={() => window.location.href = '/student/subscription'}
+          >
+            🚀 Upgrade to Gold Plan
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="ai-meal-builder">
+      <div className="builder-header">
+        <h1>🤖 AI Meal Builder</h1>
+        <p>Tell me what you want, and I'll create the perfect meal for you!</p>
+      </div>
+
+      <div className="builder-content">
+        {/* Input Section */}
+        <div className="input-section">
+          <div className="main-input">
+            <label>What are you craving?</label>
+            <textarea
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder="E.g., I want something healthy for post-workout..."
+              rows={4}
+            />
+          </div>
+
+          <div className="quick-prompts">
+            <label>⚡ Quick Prompts:</label>
+            <div className="prompt-buttons">
+              {quickPrompts.map((prompt, index) => (
+                <button
+                  key={index}
+                  className="prompt-btn"
+                  onClick={() => handleQuickPrompt(prompt)}
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filters">
+            <div className="filter-group">
+              <label>Budget: ₹{budget}</label>
+              <input
+                type="range"
+                min="100"
+                max="500"
+                step="50"
+                value={budget}
+                onChange={(e) => setBudget(Number(e.target.value))}
+              />
+            </div>
+
+            <div className="filter-group">
+              <label>Dietary Preferences:</label>
+              <div className="checkbox-group">
+                {dietaryOptions.map((option) => (
+                  <label key={option} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={dietaryPreferences.includes(option)}
+                      onChange={() => toggleDietaryPreference(option)}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <label>Occasion:</label>
+              <select value={occasion} onChange={(e) => setOccasion(e.target.value)}>
+                <option value="">Select occasion (optional)</option>
+                {occasions.map((occ) => (
+                  <option key={occ} value={occ}>
+                    {occ}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <button
+            className="generate-btn"
+            onClick={handleGenerate}
+            disabled={generating || !userInput.trim()}
+          >
+            {generating ? '✨ Generating...' : '✨ Generate Meal'}
+          </button>
+
+          {error && <div className="error-message">{error}</div>}
+        </div>
+
+        {/* AI Response Section */}
+        {aiResponse && (
+          <div className="ai-response">
+            <div className="response-header">
+              <h2>✨ {aiResponse.mealName}</h2>
+              <div className="nutritional-score">
+                Score: {aiResponse.nutritionalScore}/10 ⭐
+              </div>
+            </div>
+
+            <p className="meal-description">{aiResponse.description}</p>
+
+            <div className="meal-items">
+              <h3>🍽️ Your Meal:</h3>
+              {aiResponse.items.map((item, index) => (
+                <div key={index} className="meal-item">
+                  <div className="item-info">
+                    <h4>{item.name}</h4>
+                    <p className="item-reason">💡 {item.reason}</p>
+                    <p className="item-chef">👨‍🍳 Chef: {item.chefName}</p>
+                  </div>
+                  <div className="item-price">
+                    <span className="quantity">×{item.quantity}</span>
+                    <span className="price">₹{item.price}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="nutritional-info">
+              <h3>📊 Nutritional Information:</h3>
+              <div className="nutrition-grid">
+                <div className="nutrition-item">
+                  <span className="label">Calories</span>
+                  <span className="value">{aiResponse.nutritionalInfo.calories} kcal</span>
+                </div>
+                <div className="nutrition-item">
+                  <span className="label">Protein</span>
+                  <span className="value">{aiResponse.nutritionalInfo.protein}g</span>
+                </div>
+                <div className="nutrition-item">
+                  <span className="label">Carbs</span>
+                  <span className="value">{aiResponse.nutritionalInfo.carbs}g</span>
+                </div>
+                <div className="nutrition-item">
+                  <span className="label">Fat</span>
+                  <span className="value">{aiResponse.nutritionalInfo.fat}g</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="meal-tags">
+              {aiResponse.tags.map((tag, index) => (
+                <span key={index} className="tag">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+
+            <div className="total-price">
+              <span>Total Price:</span>
+              <span className="price">₹{aiResponse.totalPrice.toFixed(2)}</span>
+            </div>
+
+            <div className="action-buttons">
+              <button className="save-btn" onClick={handleSaveMeal}>
+                💾 Save Meal
+              </button>
+              <button className="regenerate-btn" onClick={handleGenerate}>
+                🔄 Regenerate
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Saved Meals Section */}
+        {savedMeals.length > 0 && (
+          <div className="saved-meals">
+            <h2>📚 Your Saved Meals</h2>
+            <div className="meals-grid">
+              {savedMeals.map((meal) => (
+                <div key={meal.id} className="saved-meal-card">
+                  <div className="meal-header">
+                    <h3>{meal.name}</h3>
+                    {meal.aiGenerated && <span className="ai-badge">🤖 AI</span>}
+                  </div>
+                  <p className="meal-desc">{meal.description}</p>
+                  <div className="meal-stats">
+                    <span>₹{meal.totalPrice}</span>
+                    <span>Ordered {meal.timesOrdered} times</span>
+                  </div>
+                  {meal.nutritionalScore && (
+                    <div className="score">Score: {meal.nutritionalScore}/10 ⭐</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AIMealBuilder;
