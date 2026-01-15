@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { subscriptionApi, SubscriptionPlan, SubscriptionResponse } from '../../services/subscriptionApi';
+import { 
+  Crown, Check, TrendingDown, Calendar, Clock, 
+  CreditCard, Building2, Wallet, X, AlertCircle,
+  Sparkles, Shield, Zap, Gift
+} from 'lucide-react';
 import './SubscriptionPage.css';
 
 interface SubscribeModalProps {
@@ -40,82 +45,112 @@ const SubscribeModal: React.FC<SubscribeModalProps> = ({ plan, onClose, onSucces
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="subscribe-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Subscribe to {plan.name} Plan</h2>
+          <h2>Subscribe to {plan.name}</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
         <div className="modal-body">
-          <div className="payment-instructions">
-            <h3>💳 Payment Instructions</h3>
-            <p>Please make payment of <strong>₹{plan.price}</strong> using any of the following methods:</p>
+          {/* Payment Instructions */}
+          <div className="section">
+            <div className="section-title">
+              <CreditCard size={18} />
+              <span>Payment Instructions</span>
+            </div>
+            <p className="payment-amount">
+              Please pay <strong>₹{plan.price}</strong> using any method below:
+            </p>
 
-            <div className="payment-methods">
-              <div className="payment-method">
-                <h4>📱 UPI</h4>
-                <p>UPI ID: <strong>platepal@upi</strong></p>
-                <p>Scan QR code or use UPI ID</p>
+            <div className="payment-options">
+              <div className="payment-option">
+                <div className="option-icon">
+                  <Wallet size={20} />
+                </div>
+                <div className="option-details">
+                  <h4>UPI</h4>
+                  <p>UPI ID: <strong>platepal@upi</strong></p>
+                </div>
               </div>
 
-              <div className="payment-method">
-                <h4>🏦 Bank Transfer</h4>
-                <p>Account: <strong>1234567890</strong></p>
-                <p>IFSC: <strong>SBIN0001234</strong></p>
-                <p>Name: <strong>PlatePal Services</strong></p>
+              <div className="payment-option">
+                <div className="option-icon">
+                  <Building2 size={20} />
+                </div>
+                <div className="option-details">
+                  <h4>Bank Transfer</h4>
+                  <p>Acc: <strong>1234567890</strong> • IFSC: <strong>SBIN0001234</strong></p>
+                </div>
               </div>
 
-              <div className="payment-method">
-                <h4>💵 Cash</h4>
-                <p>Contact admin for cash payment</p>
-                <p>Email: admin@platepal.com</p>
+              <div className="payment-option">
+                <div className="option-icon">
+                  <CreditCard size={20} />
+                </div>
+                <div className="option-details">
+                  <h4>Cash</h4>
+                  <p>Contact: <strong>admin@platepal.com</strong></p>
+                </div>
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="subscription-form">
-            <div className="form-group">
-              <label>Payment Method *</label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                required
-              >
-                <option value="UPI">UPI</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="Cash">Cash</option>
-              </select>
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <div className="section">
+              <div className="section-title">
+                <Check size={18} />
+                <span>Payment Details</span>
+              </div>
+
+              <div className="form-field">
+                <label>Payment Method</label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  required
+                >
+                  <option value="UPI">UPI</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Cash">Cash</option>
+                </select>
+              </div>
+
+              <div className="form-field">
+                <label>Transaction Reference / UTR</label>
+                <input
+                  type="text"
+                  value={transactionReference}
+                  onChange={(e) => setTransactionReference(e.target.value)}
+                  placeholder="Enter transaction ID"
+                  required
+                />
+              </div>
+
+              <div className="form-field">
+                <label>Payment Screenshot URL (Optional)</label>
+                <input
+                  type="url"
+                  value={invoiceUrl}
+                  onChange={(e) => setInvoiceUrl(e.target.value)}
+                  placeholder="https://example.com/screenshot.jpg"
+                />
+                <small>Upload to image hosting and paste URL</small>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Transaction Reference / UTR Number *</label>
-              <input
-                type="text"
-                value={transactionReference}
-                onChange={(e) => setTransactionReference(e.target.value)}
-                placeholder="Enter transaction ID"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Payment Screenshot URL (Optional)</label>
-              <input
-                type="url"
-                value={invoiceUrl}
-                onChange={(e) => setInvoiceUrl(e.target.value)}
-                placeholder="https://example.com/screenshot.jpg"
-              />
-              <small>Upload screenshot to any image hosting service and paste URL here</small>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
+            {error && (
+              <div className="error-banner">
+                <AlertCircle size={16} />
+                {error}
+              </div>
+            )}
 
             <div className="modal-actions">
-              <button type="button" onClick={onClose} className="btn-secondary">
+              <button type="button" onClick={onClose} className="btn-cancel">
                 Cancel
               </button>
-              <button type="submit" disabled={loading} className="btn-primary">
+              <button type="submit" disabled={loading} className="btn-submit">
                 {loading ? 'Submitting...' : 'Submit Request'}
               </button>
             </div>
@@ -157,20 +192,16 @@ const SubscriptionPage: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const badges: Record<string, { color: string; text: string }> = {
-      PENDING: { color: '#FFA500', text: '⏳ Pending Approval' },
-      ACTIVE: { color: '#4CAF50', text: '✅ Active' },
-      EXPIRED: { color: '#9E9E9E', text: '⏰ Expired' },
-      CANCELLED: { color: '#F44336', text: '❌ Cancelled' },
-      REJECTED: { color: '#F44336', text: '❌ Rejected' },
+    const badges: Record<string, { className: string; text: string }> = {
+      PENDING: { className: 'status-pending', text: 'Pending' },
+      ACTIVE: { className: 'status-active', text: 'Active' },
+      EXPIRED: { className: 'status-expired', text: 'Expired' },
+      CANCELLED: { className: 'status-cancelled', text: 'Cancelled' },
+      REJECTED: { className: 'status-rejected', text: 'Rejected' },
     };
 
-    const badge = badges[status] || { color: '#9E9E9E', text: status };
-    return (
-      <span className="status-badge" style={{ backgroundColor: badge.color }}>
-        {badge.text}
-      </span>
-    );
+    const badge = badges[status] || { className: 'status-expired', text: status };
+    return <span className={`status-badge ${badge.className}`}>{badge.text}</span>;
   };
 
   const formatDate = (dateString: string) => {
@@ -189,139 +220,209 @@ const SubscriptionPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading subscription details...</div>;
+    return <div className="loading-state">Loading...</div>;
   }
 
   if (!goldPlan) {
-    return <div className="error">Failed to load subscription plan</div>;
+    return <div className="error-state">Failed to load subscription plan</div>;
   }
 
   const features = goldPlan.features?.split('|') || [];
 
   return (
     <div className="subscription-page">
+      {/* Header */}
       <div className="page-header">
-        <h1>💎 Gold Subscription</h1>
-        <p>Unlock premium features and save on every order!</p>
+        <Crown size={24} />
+        <h1>Gold Subscription</h1>
       </div>
 
-      {/* Active Subscription Card */}
-      {activeSubscription && (
-        <div className="active-subscription-card">
-          <div className="card-header">
-            <h2>Your Active Subscription</h2>
-            {getStatusBadge(activeSubscription.status)}
-          </div>
-          <div className="subscription-details">
-            <div className="detail-item">
-              <span className="label">Plan:</span>
-              <span className="value">{activeSubscription.planName}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Valid Until:</span>
-              <span className="value">{formatDate(activeSubscription.endDate)}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Days Remaining:</span>
-              <span className="value highlight">{getDaysRemaining(activeSubscription.endDate)} days</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Benefits:</span>
-              <span className="value">
-                {activeSubscription.discountPercentage}% discount + 
-                {activeSubscription.platformFeeWaived ? ' ₹8 fee waived' : ''}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Gold Plan Card */}
-      <div className="gold-plan-card">
-        <div className="plan-badge">⭐ MOST POPULAR</div>
-        <div className="plan-header">
-          <h2>💎 {goldPlan.name} Plan</h2>
-          <div className="plan-price">
-            <span className="price">₹{goldPlan.price}</span>
-            <span className="duration">/month</span>
-          </div>
-        </div>
-
-        <div className="plan-features">
-          <h3>✨ What You Get:</h3>
-          <ul>
-            {features.map((feature, index) => (
-              <li key={index}>
-                <span className="check-icon">✓</span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="savings-example">
-          <h3>💰 Savings Example:</h3>
-          <div className="comparison">
-            <div className="comparison-item">
-              <h4>Without Gold</h4>
-              <p>Order: ₹200</p>
-              <p>Platform Fee: ₹8</p>
-              <p>Tax: ₹4.16</p>
-              <p className="total">Total: ₹212.16</p>
-            </div>
-            <div className="comparison-arrow">→</div>
-            <div className="comparison-item highlight">
-              <h4>With Gold</h4>
-              <p>Order: ₹200</p>
-              <p>Discount (5%): -₹10</p>
-              <p>Platform Fee: ₹0</p>
-              <p>Tax: ₹3.80</p>
-              <p className="total">Total: ₹193.80</p>
-            </div>
-          </div>
-          <p className="savings-text">💸 You save ₹18.36 per order!</p>
-        </div>
-
-        {!activeSubscription && (
-          <button
-            className="subscribe-btn"
-            onClick={() => setShowModal(true)}
-          >
-            🚀 Subscribe Now
-          </button>
-        )}
-
-        {activeSubscription && activeSubscription.status === 'ACTIVE' && (
-          <div className="already-subscribed">
-            ✅ You're already subscribed to Gold Plan!
-          </div>
-        )}
-      </div>
-
-      {/* Subscription History */}
-      {subscriptions.length > 0 && (
-        <div className="subscription-history">
-          <h2>📜 Subscription History</h2>
-          <div className="history-list">
-            {subscriptions.map((sub) => (
-              <div key={sub.id} className="history-item">
-                <div className="history-header">
-                  <span className="plan-name">{sub.planName}</span>
-                  {getStatusBadge(sub.status)}
-                </div>
-                <div className="history-details">
-                  <p>Requested: {formatDate(sub.createdAt)}</p>
-                  {sub.startDate && <p>Started: {formatDate(sub.startDate)}</p>}
-                  {sub.endDate && <p>Ends: {formatDate(sub.endDate)}</p>}
-                  {sub.rejectionReason && (
-                    <p className="rejection-reason">Reason: {sub.rejectionReason}</p>
-                  )}
-                </div>
+      {/* Main Container */}
+      <div className="main-container">
+        
+        {/* Active Subscription */}
+        {activeSubscription && (
+          <div className="section active-sub">
+            <div className="active-header">
+              <div className="active-title">
+                <Shield size={20} />
+                <span>Your Active Subscription</span>
               </div>
-            ))}
+              {getStatusBadge(activeSubscription.status)}
+            </div>
+
+            <div className="active-details">
+              <div className="detail-row">
+                <span className="detail-label">Plan</span>
+                <span className="detail-value">{activeSubscription.planName}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Valid Until</span>
+                <span className="detail-value">{formatDate(activeSubscription.endDate)}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Days Remaining</span>
+                <span className="detail-value highlight">{getDaysRemaining(activeSubscription.endDate)} days</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Benefits</span>
+                <span className="detail-value">
+                  {activeSubscription.discountPercentage}% off + ₹8 fee waived
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Gold Plan */}
+        <div className="section gold-plan">
+          <div className="plan-badge">MOST POPULAR</div>
+          
+          <div className="plan-header">
+            <div className="plan-icon">
+              <Crown size={32} />
+            </div>
+            <h2>{goldPlan.name} Plan</h2>
+            <div className="plan-price">
+              <span className="price">₹{goldPlan.price}</span>
+              <span className="duration">/month</span>
+            </div>
+          </div>
+
+          <div className="plan-features">
+            <h3>What You Get</h3>
+            <div className="features-list">
+              {features.map((feature, index) => (
+                <div key={index} className="feature-item">
+                  <Check size={16} />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {!activeSubscription && (
+            <button className="subscribe-btn" onClick={() => setShowModal(true)}>
+              <Sparkles size={20} />
+              Subscribe Now
+            </button>
+          )}
+
+          {activeSubscription && activeSubscription.status === 'ACTIVE' && (
+            <div className="already-active">
+              <Check size={20} />
+              You're subscribed to Gold Plan
+            </div>
+          )}
+        </div>
+
+        {/* Savings Example */}
+        <div className="section">
+          <div className="section-title">
+            <TrendingDown size={18} />
+            <span>Savings Example</span>
+          </div>
+
+          <div className="savings-comparison">
+            <div className="comparison-card">
+              <h4>Without Gold</h4>
+              <div className="calc-row">
+                <span>Order</span>
+                <span>₹200.00</span>
+              </div>
+              <div className="calc-row">
+                <span>Platform Fee</span>
+                <span>₹8.00</span>
+              </div>
+              <div className="calc-row">
+                <span>Tax (2%)</span>
+                <span>₹4.16</span>
+              </div>
+              <div className="calc-total">
+                <span>Total</span>
+                <span>₹212.16</span>
+              </div>
+            </div>
+
+            <div className="comparison-arrow">→</div>
+
+            <div className="comparison-card highlight">
+              <h4>With Gold</h4>
+              <div className="calc-row">
+                <span>Order</span>
+                <span>₹200.00</span>
+              </div>
+              <div className="calc-row discount">
+                <span>Discount (5%)</span>
+                <span>-₹10.00</span>
+              </div>
+              <div className="calc-row">
+                <span>Platform Fee</span>
+                <span>₹0.00</span>
+              </div>
+              <div className="calc-row">
+                <span>Tax (2%)</span>
+                <span>₹3.80</span>
+              </div>
+              <div className="calc-total">
+                <span>Total</span>
+                <span>₹193.80</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="savings-result">
+            <Gift size={18} />
+            <span>You save ₹18.36 per order!</span>
           </div>
         </div>
-      )}
+
+        {/* Subscription History */}
+        {subscriptions.length > 0 && (
+          <div className="section">
+            <div className="section-title">
+              <Calendar size={18} />
+              <span>Subscription History</span>
+              <span className="count-badge">({subscriptions.length})</span>
+            </div>
+
+            <div className="history-list">
+              {subscriptions.map((sub) => (
+                <div key={sub.id} className="history-item">
+                  <div className="history-header">
+                    <span className="history-plan">{sub.planName}</span>
+                    {getStatusBadge(sub.status)}
+                  </div>
+                  <div className="history-details">
+                    <div className="history-row">
+                      <Clock size={14} />
+                      <span>Requested: {formatDate(sub.createdAt)}</span>
+                    </div>
+                    {sub.startDate && (
+                      <div className="history-row">
+                        <Calendar size={14} />
+                        <span>Started: {formatDate(sub.startDate)}</span>
+                      </div>
+                    )}
+                    {sub.endDate && (
+                      <div className="history-row">
+                        <Calendar size={14} />
+                        <span>Ends: {formatDate(sub.endDate)}</span>
+                      </div>
+                    )}
+                    {sub.rejectionReason && (
+                      <div className="rejection-reason">
+                        <AlertCircle size={14} />
+                        <span>{sub.rejectionReason}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {showModal && goldPlan && (
         <SubscribeModal
