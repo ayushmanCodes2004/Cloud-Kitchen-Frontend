@@ -197,14 +197,20 @@ const AIMealBuilder: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <img src="/best.png" alt="PlatePal" className="logo" />
-        <div className="header-content">
-          <h1>PlatePal</h1>
-          <p className="header-description">AI-powered meal recommendations tailored to your preferences, budget, and dietary needs</p>
-        </div>
+        <h1>PlatePal</h1>
       </div>
 
       {/* Main Container */}
       <div className="main-container">
+        
+        {/* Welcome Banner */}
+        <div className="welcome-banner">
+          <Sparkles size={32} />
+          <div className="welcome-content">
+            <h2>AI-Powered Meal Recommendations</h2>
+            <p>Tell us what you're craving, your budget, and dietary preferences. Our AI will create the perfect meal combination just for you!</p>
+          </div>
+        </div>
         
         {/* Input Section */}
         <div className="section">
