@@ -196,7 +196,7 @@ const AdminSubscriptions: React.FC = () => {
           </div>
           <div className="info-row">
             <span className="info-label">Price</span>
-            <span className="info-value">₹{sub.planPrice}</span>
+            <span className="info-value">₹{sub.planPrice.toFixed(2)}</span>
           </div>
         </div>
 
@@ -381,7 +381,7 @@ const AdminSubscriptions: React.FC = () => {
               <DollarSign size={24} />
             </div>
             <div className="stat-content">
-              <div className="stat-value">₹{monthlyRevenue}</div>
+              <div className="stat-value">₹{monthlyRevenue.toFixed(2)}</div>
               <div className="stat-label">Monthly Revenue</div>
             </div>
           </div>

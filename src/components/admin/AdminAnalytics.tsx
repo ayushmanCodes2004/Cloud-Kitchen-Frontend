@@ -167,7 +167,7 @@ export const AdminAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-                <p className="text-3xl font-bold text-gray-900">₹{analytics.totalRevenue.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">₹{analytics.totalRevenue.toFixed(2)}</p>
               </div>
               <TrendingUp className="w-10 h-10 text-green-500" />
             </div>

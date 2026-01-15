@@ -238,7 +238,7 @@ export const ChefAnalytics = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">₹{analytics.totalRevenue.toFixed(0)}</div>
+            <div className="text-3xl font-bold">₹{analytics.totalRevenue.toFixed(2)}</div>
             <p className="text-green-100 text-xs mt-1">From delivered orders</p>
           </CardContent>
         </Card>
@@ -278,7 +278,7 @@ export const ChefAnalytics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              ₹{analytics.deliveredOrders > 0 ? (analytics.totalRevenue / analytics.deliveredOrders).toFixed(0) : 0}
+              ₹{analytics.deliveredOrders > 0 ? (analytics.totalRevenue / analytics.deliveredOrders).toFixed(2) : 0}
             </div>
             <p className="text-orange-100 text-xs mt-1">Per order</p>
           </CardContent>
@@ -434,7 +434,7 @@ export const ChefAnalytics = () => {
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">Last 7 Days</p>
-              <p className="text-2xl font-bold text-gray-900">₹{analytics.lastWeekRevenue.toFixed(0)}</p>
+              <p className="text-2xl font-bold text-gray-900">₹{analytics.lastWeekRevenue.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mt-1">
                 {analytics.lastWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {analytics.lastWeekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </p>
@@ -447,7 +447,7 @@ export const ChefAnalytics = () => {
                     {parseFloat(analytics.revenueGrowth) >= 0 ? '+' : ''}{analytics.revenueGrowth}%
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Previous: ₹{analytics.previousWeekRevenue.toFixed(0)} ({analytics.previousWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {analytics.previousWeekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})
+                    Previous: ₹{analytics.previousWeekRevenue.toFixed(2)} ({analytics.previousWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {analytics.previousWeekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})
                   </p>
                 </>
               ) : (
@@ -536,7 +536,7 @@ export const ChefAnalytics = () => {
               <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">
                 <p className="text-xs text-gray-600 mb-1 font-medium">🏆 Best Seller</p>
                 <p className="text-base font-bold text-gray-900 truncate">{analytics.topItems[0]?.name}</p>
-                <p className="text-sm text-orange-600 font-semibold">₹{analytics.topItems[0]?.revenue.toFixed(0)} revenue</p>
+                <p className="text-sm text-orange-600 font-semibold">₹{analytics.topItems[0]?.revenue.toFixed(2)} revenue</p>
               </div>
             )}
             
@@ -553,7 +553,7 @@ export const ChefAnalytics = () => {
             <div className="p-4 bg-green-50 rounded-lg border border-green-100">
               <p className="text-xs text-gray-600 mb-1 font-medium">💰 Avg Order Value</p>
               <p className="text-2xl font-bold text-green-600">
-                ₹{analytics.deliveredOrders > 0 ? (analytics.totalRevenue / analytics.deliveredOrders).toFixed(0) : 0}
+                ₹{analytics.deliveredOrders > 0 ? (analytics.totalRevenue / analytics.deliveredOrders).toFixed(2) : 0}
               </p>
               <p className="text-xs text-gray-500">Per delivered order</p>
             </div>

@@ -20,18 +20,33 @@ const SubscribeModal: React.FC<SubscribeModalProps> = ({ plan, onClose, onSucces
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Clear transaction reference and invoice URL when switching to Cash
+  useEffect(() => {
+    if (paymentMethod === 'Cash') {
+      setTransactionReference('');
+      setInvoiceUrl('');
+    }
+  }, [paymentMethod]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      await subscriptionApi.createSubscriptionRequest({
+      // For Cash payment, don't send transaction reference or invoice URL
+      const requestData: any = {
         planId: plan.id,
-        paymentInvoiceUrl: invoiceUrl,
         paymentMethod,
-        transactionReference,
-      });
+      };
+
+      // Only include transaction reference and invoice URL for UPI and Bank Transfer
+      if (paymentMethod === 'UPI' || paymentMethod === 'Bank Transfer') {
+        requestData.transactionReference = transactionReference;
+        requestData.paymentInvoiceUrl = invoiceUrl;
+      }
+
+      await subscriptionApi.createSubscriptionRequest(requestData);
 
       alert('Subscription request submitted successfully! Waiting for admin approval.');
       onSuccess();
@@ -116,27 +131,32 @@ const SubscribeModal: React.FC<SubscribeModalProps> = ({ plan, onClose, onSucces
                 </select>
               </div>
 
-              <div className="form-field">
-                <label>Transaction Reference / UTR</label>
-                <input
-                  type="text"
-                  value={transactionReference}
-                  onChange={(e) => setTransactionReference(e.target.value)}
-                  placeholder="Enter transaction ID"
-                  required
-                />
-              </div>
+              {/* Only show transaction reference and screenshot for UPI and Bank Transfer */}
+              {(paymentMethod === 'UPI' || paymentMethod === 'Bank Transfer') && (
+                <>
+                  <div className="form-field">
+                    <label>Transaction Reference / UTR</label>
+                    <input
+                      type="text"
+                      value={transactionReference}
+                      onChange={(e) => setTransactionReference(e.target.value)}
+                      placeholder="Enter transaction ID"
+                      required
+                    />
+                  </div>
 
-              <div className="form-field">
-                <label>Payment Screenshot URL (Optional)</label>
-                <input
-                  type="url"
-                  value={invoiceUrl}
-                  onChange={(e) => setInvoiceUrl(e.target.value)}
-                  placeholder="https://example.com/screenshot.jpg"
-                />
-                <small>Upload to image hosting and paste URL</small>
-              </div>
+                  <div className="form-field">
+                    <label>Payment Screenshot URL (Optional)</label>
+                    <input
+                      type="url"
+                      value={invoiceUrl}
+                      onChange={(e) => setInvoiceUrl(e.target.value)}
+                      placeholder="https://example.com/screenshot.jpg"
+                    />
+                    <small>Upload to image hosting and paste URL</small>
+                  </div>
+                </>
+              )}
             </div>
 
             {error && (

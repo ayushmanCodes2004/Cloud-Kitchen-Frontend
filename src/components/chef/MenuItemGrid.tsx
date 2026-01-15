@@ -59,7 +59,7 @@ export const MenuItemGrid = ({ menuItems, loading, onToggleAvailability, onEdit,
                 </div>
                 <p className="text-muted-foreground text-sm mb-3 line-clamp-3">{item.description}</p>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xl font-bold text-primary">₹{item.price}</span>
+                  <span className="text-xl font-bold text-primary">₹{item.price.toFixed(2)}</span>
                   <span className="text-sm text-muted-foreground">{item.preparationTime} mins</span>
                 </div>
                 {/* Ratings Display */}
@@ -153,7 +153,7 @@ export const MenuItemGrid = ({ menuItems, loading, onToggleAvailability, onEdit,
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Price</p>
-                  <p className="text-2xl font-bold text-orange-600">₹{selectedItem.price}</p>
+                  <p className="text-2xl font-bold text-orange-600">₹{selectedItem.price.toFixed(2)}</p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Preparation Time</p>

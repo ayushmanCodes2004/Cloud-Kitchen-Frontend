@@ -327,7 +327,7 @@ export const ChefOrderManagement = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">₹{stats.totalRevenue}</div>
+            <div className="text-2xl font-bold text-blue-600">₹{stats.totalRevenue.toFixed(2)}</div>
             <p className="text-xs text-gray-500 mt-1">{stats.delivered} delivered</p>
           </CardContent>
         </Card>
@@ -408,7 +408,7 @@ export const ChefOrderManagement = () => {
                           ) : (
                             <NonVegIcon size="sm" />
                           )}
-                          <span>• {item.menuItemName} x{item.quantity} - ₹{item.subtotal}</span>
+                          <span>• {item.menuItemName} x{item.quantity} - ₹{item.subtotal.toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
@@ -433,7 +433,7 @@ export const ChefOrderManagement = () => {
                       <p className="text-xl font-bold text-orange-600">₹{chefItemsTotal.toFixed(2)}</p>
                       {isMultiChefOrder && (
                         <p className="text-xs text-gray-500 mt-1">
-                          (Full order: ₹{order.totalAmount})
+                          (Full order: ₹{order.totalAmount.toFixed(2)})
                         </p>
                       )}
                     </div>

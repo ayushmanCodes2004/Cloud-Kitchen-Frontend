@@ -487,7 +487,7 @@ export const ChefDashboard = () => {
                           <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                           
                           <div className="flex items-center justify-between mb-3 pb-3 border-b">
-                            <span className="text-2xl font-bold text-gray-900">₹{item.price}</span>
+                            <span className="text-2xl font-bold text-gray-900">₹{item.price.toFixed(2)}</span>
                             <span className="text-sm text-gray-500">{item.preparationTime} min</span>
                           </div>
 
@@ -574,7 +574,7 @@ export const ChefDashboard = () => {
                           <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                           
                           <div className="flex items-center justify-between mb-3 pb-3 border-b">
-                            <span className="text-2xl font-bold text-gray-900">₹{item.price}</span>
+                            <span className="text-2xl font-bold text-gray-900">₹{item.price.toFixed(2)}</span>
                             <span className="text-sm text-gray-500">{item.preparationTime} min</span>
                           </div>
                           
@@ -730,7 +730,7 @@ export const ChefDashboard = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Price</p>
-                  <p className="text-2xl font-bold text-gray-900">₹{expandedItem.price}</p>
+                  <p className="text-2xl font-bold text-gray-900">₹{expandedItem.price.toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Preparation Time</p>
