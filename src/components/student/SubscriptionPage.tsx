@@ -240,6 +240,15 @@ const SubscriptionPage: React.FC = () => {
       {/* Main Container */}
       <div className="main-container">
         
+        {/* Welcome Banner */}
+        <div className="welcome-banner">
+          <Crown size={32} />
+          <div className="welcome-content">
+            <h2>Unlock Premium Benefits with Gold Plan</h2>
+            <p>Get 5% discount on every order, waive ₹8 platform fee, and access exclusive AI-powered meal recommendations. Save more with every meal!</p>
+          </div>
+        </div>
+        
         {/* Active Subscription */}
         {activeSubscription && (
           <div className="section active-sub">
