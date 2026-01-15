@@ -20,13 +20,25 @@
   width: 32px;
   height: 32px;
   object-fit: contain;
+  flex-shrink: 0;
+}
+
+.page-header .header-content {
+  flex: 1;
 }
 
 .page-header h1 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #2c3e50;
+  margin: 0 0 4px 0;
+}
+
+.page-header .header-description {
+  font-size: 0.875rem;
+  color: #7f8c8d;
   margin: 0;
+  line-height: 1.4;
 }
 
 /* Main Container */
