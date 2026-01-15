@@ -60,6 +60,7 @@ const AIMealBuilder: React.FC = () => {
   const loadSavedMeals = async () => {
     try {
       const meals = await customMealApi.getMyCustomMeals();
+      console.log('Loaded saved meals:', meals);
       setSavedMeals(meals);
     } catch (error) {
       console.error('Failed to load saved meals:', error);
@@ -345,9 +346,9 @@ const AIMealBuilder: React.FC = () => {
           </div>
         )}
 
-        {/* Saved Meals Section */}
-        <div className="saved-meals">
-          <h2>📚 Your Saved Meals</h2>
+        {/* Saved Meals Section - Always Visible */}
+        <div className="saved-meals" style={{ marginTop: '40px', padding: '20px', background: '#f9f9f9', borderRadius: '10px' }}>
+          <h2 style={{ marginBottom: '20px' }}>📚 Your Saved Meals ({savedMeals.length})</h2>
           {savedMeals.length > 0 ? (
             <div className="meals-grid">
               {savedMeals.map((meal) => (
@@ -368,9 +369,9 @@ const AIMealBuilder: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="empty-saved-meals">
-              <p>No Saved Meals Yet</p>
-              <p className="empty-subtitle">Create your first AI-powered meal and save it for quick ordering!</p>
+            <div className="empty-saved-meals" style={{ padding: '40px', textAlign: 'center', background: 'white', borderRadius: '10px' }}>
+              <p style={{ fontSize: '1.2rem', color: '#666', margin: '0 0 10px 0' }}>No Saved Meals Yet</p>
+              <p className="empty-subtitle" style={{ fontSize: '1rem', color: '#999' }}>Create your first AI-powered meal and save it for quick ordering!</p>
             </div>
           )}
         </div>
