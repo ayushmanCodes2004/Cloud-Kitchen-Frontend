@@ -9,6 +9,9 @@ import { StudentDashboard } from "./components/student/StudentDashboard";
 import { ChefDashboard } from "./components/chef/ChefDashboard";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import SubscriptionPage from "./components/student/SubscriptionPage";
+import AIMealBuilder from "./components/student/AIMealBuilder";
+import AdminSubscriptions from "./components/admin/AdminSubscriptions";
 
 const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode; allowedRole: 'STUDENT' | 'CHEF' | 'ADMIN' }) => {
   const { user } = useAuth();
@@ -51,6 +54,30 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRole="ADMIN">
             <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/student/subscription" 
+        element={
+          <ProtectedRoute allowedRole="STUDENT">
+            <SubscriptionPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/student/ai-meal-builder" 
+        element={
+          <ProtectedRoute allowedRole="STUDENT">
+            <AIMealBuilder />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/subscriptions" 
+        element={
+          <ProtectedRoute allowedRole="ADMIN">
+            <AdminSubscriptions />
           </ProtectedRoute>
         } 
       />

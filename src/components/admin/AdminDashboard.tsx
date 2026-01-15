@@ -14,11 +14,13 @@ import { RatingsDisplay } from '@/components/ui/RatingsDisplay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { RefreshCw, ShoppingBag, Users, ChefHat, Star, FileText, BarChart3, Menu } from 'lucide-react';
+import { RefreshCw, ShoppingBag, Users, ChefHat, Star, FileText, BarChart3, Menu, Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const AdminDashboard = () => {
   const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [chefs, setChefs] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -289,6 +291,13 @@ export const AdminDashboard = () => {
                 <BarChart3 className="w-4 h-4" />
                 Analytics
               </TabsTrigger>
+              <button
+                onClick={() => navigate('/admin/subscriptions')}
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 hover:from-yellow-600 hover:to-orange-600 shadow-md hover:shadow-lg"
+              >
+                <Crown className="w-4 h-4" />
+                Subscriptions
+              </button>
             </TabsList>
           </div>
           

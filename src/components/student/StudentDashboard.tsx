@@ -9,7 +9,9 @@ import {
   User,
   MessageCircle,
   X,
-  Heart
+  Heart,
+  Crown,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { orderApi } from '@/services/orderApi';
@@ -29,6 +31,7 @@ import { TestimonialForm } from '@/components/shared/TestimonialForm';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Favourites } from './Favourites';
+import { useNavigate } from 'react-router-dom';
 
 export interface CartItem extends MenuItemResponse {
   quantity: number;
@@ -37,6 +40,7 @@ export interface CartItem extends MenuItemResponse {
 export const StudentDashboard = () => {
   const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [showCart, setShowCart] = useState(false);
@@ -216,6 +220,18 @@ export const StudentDashboard = () => {
               label="My Orders" 
               active={activeTab === 'orders'}
               onClick={() => setActiveTab('orders')}
+            />
+            <NavItemIcon 
+              icon={Crown}
+              label="Gold Plan" 
+              active={false}
+              onClick={() => navigate('/student/subscription')}
+            />
+            <NavItemIcon 
+              icon={Sparkles}
+              label="AI Meal Builder" 
+              active={false}
+              onClick={() => navigate('/student/ai-meal-builder')}
             />
             <NavItemIcon 
               icon={MessageCircle}
