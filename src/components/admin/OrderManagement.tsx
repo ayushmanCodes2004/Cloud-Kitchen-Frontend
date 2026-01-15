@@ -97,7 +97,8 @@ export const OrderManagement = () => {
     // Only count platform fees from DELIVERED orders
     const totalPlatformFees = orders.reduce((sum, order) => {
       if (order.status !== OrderStatus.DELIVERED) return sum;
-      const fee = (order as any).platformFee || 8;
+      // Use ?? instead of || to properly handle platformFee = 0 for Gold plan users
+      const fee = (order as any).platformFee ?? 8;
       return sum + fee;
     }, 0);
 
