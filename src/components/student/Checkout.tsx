@@ -14,10 +14,20 @@ export const Checkout = ({ cart, onClose, onConfirmOrder }: CheckoutProps) => {
 
   // Calculate totals
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Check if user has active subscription (Gold Plan)
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const hasGoldPlan = user.subscriptionStatus === 'ACTIVE';
+  
+  // Gold Plan benefits
+  const discountPercentage = hasGoldPlan ? 5 : 0;
+  const discountAmount = hasGoldPlan ? subtotal * 0.05 : 0;
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  
   const taxRate = 0.02; // 2% student discount rate
-  const taxAmount = subtotal * taxRate;
-  const platformFee = 8; // ₹8 flat rate
-  const total = subtotal + taxAmount + platformFee;
+  const taxAmount = subtotalAfterDiscount * taxRate;
+  const platformFee = hasGoldPlan ? 0 : 8; // ₹8 flat rate (waived for Gold subscribers)
+  const total = subtotalAfterDiscount + taxAmount + platformFee;
 
   // Group items by chef
   const itemsByChef = cart.reduce((acc, item) => {
@@ -92,14 +102,41 @@ export const Checkout = ({ cart, onClose, onConfirmOrder }: CheckoutProps) => {
                 <span className="text-gray-600">Subtotal</span>
                 <span className="text-gray-900 font-medium">₹{subtotal.toFixed(2)}</span>
               </div>
+              
+              {hasGoldPlan && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-600 flex items-center gap-1">
+                    <span className="text-xs">👑</span>
+                    Gold Plan Discount (5%)
+                  </span>
+                  <span className="text-green-600 font-medium">-₹{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tax (2% - Student Rate)</span>
                 <span className="text-gray-900 font-medium">₹{taxAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Platform Fee</span>
-                <span className="text-gray-900 font-medium">₹{platformFee.toFixed(2)}</span>
+                {hasGoldPlan ? (
+                  <span className="text-green-600 font-medium flex items-center gap-1">
+                    <span className="line-through text-gray-400">₹8.00</span>
+                    <span className="text-xs">👑 FREE</span>
+                  </span>
+                ) : (
+                  <span className="text-gray-900 font-medium">₹{platformFee.toFixed(2)}</span>
+                )}
               </div>
+              
+              {hasGoldPlan && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-green-700 font-medium text-center">
+                    🎉 You saved ₹{(discountAmount + 8).toFixed(2)} with Gold Plan!
+                  </p>
+                </div>
+              )}
+              
               <div className="border-t border-gray-300 pt-2 mt-2">
                 <div className="flex justify-between">
                   <span className="font-bold text-gray-900">Total Amount</span>

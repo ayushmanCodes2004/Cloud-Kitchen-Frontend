@@ -434,8 +434,44 @@
   background: #e53935;
 }
 
+.btn-disable,
+.btn-delete {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-disable {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-disable:hover:not(:disabled) {
+  background: #f57c00;
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
 .btn-approve:disabled,
-.btn-reject:disabled {
+.btn-reject:disabled,
+.btn-disable:disabled,
+.btn-delete:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

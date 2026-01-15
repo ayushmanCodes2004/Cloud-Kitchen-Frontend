@@ -3,7 +3,8 @@ import { subscriptionApi, SubscriptionResponse } from '../../services/subscripti
 import { 
   Crown, Check, X, Clock, Calendar, User, Mail, 
   CreditCard, FileText, AlertCircle, TrendingUp,
-  Users, DollarSign, Activity, Eye, CheckCircle, XCircle
+  Users, DollarSign, Activity, Eye, CheckCircle, XCircle,
+  Ban, Trash2
 } from 'lucide-react';
 import './AdminSubscriptions.css';
 
@@ -69,6 +70,46 @@ const AdminSubscriptions: React.FC = () => {
       loadSubscriptions();
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to reject subscription');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleDisable = async (subscriptionId: number) => {
+    const reason = prompt('Enter reason for disabling this subscription:');
+    if (!reason) {
+      return;
+    }
+
+    if (!confirm('Are you sure you want to disable this active subscription? The student will lose all Gold Plan benefits immediately.')) {
+      return;
+    }
+
+    setProcessingId(subscriptionId);
+    try {
+      const adminId = Number(localStorage.getItem('userId'));
+      await subscriptionApi.disableSubscription(subscriptionId, reason, adminId);
+      alert('Subscription disabled successfully! Student has lost Gold Plan benefits.');
+      loadSubscriptions();
+    } catch (error: any) {
+      alert(error.message || 'Failed to disable subscription');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleDelete = async (subscriptionId: number) => {
+    if (!confirm('Are you sure you want to permanently delete this subscription? This action cannot be undone.')) {
+      return;
+    }
+
+    setProcessingId(subscriptionId);
+    try {
+      await subscriptionApi.deleteSubscription(subscriptionId);
+      alert('Subscription deleted successfully!');
+      loadSubscriptions();
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete subscription');
     } finally {
       setProcessingId(null);
     }
@@ -207,6 +248,40 @@ const AdminSubscriptions: React.FC = () => {
             >
               <XCircle size={16} />
               {processingId === sub.id ? 'Processing...' : 'Reject'}
+            </button>
+          </div>
+        )}
+
+        {sub.status === 'ACTIVE' && (
+          <div className="action-row">
+            <button
+              className="btn-disable"
+              onClick={() => handleDisable(sub.id)}
+              disabled={processingId === sub.id}
+            >
+              <Ban size={16} />
+              {processingId === sub.id ? 'Processing...' : 'Disable'}
+            </button>
+            <button
+              className="btn-delete"
+              onClick={() => handleDelete(sub.id)}
+              disabled={processingId === sub.id}
+            >
+              <Trash2 size={16} />
+              {processingId === sub.id ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        )}
+
+        {(sub.status === 'REJECTED' || sub.status === 'CANCELLED' || sub.status === 'EXPIRED') && (
+          <div className="action-row">
+            <button
+              className="btn-delete"
+              onClick={() => handleDelete(sub.id)}
+              disabled={processingId === sub.id}
+            >
+              <Trash2 size={16} />
+              {processingId === sub.id ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         )}

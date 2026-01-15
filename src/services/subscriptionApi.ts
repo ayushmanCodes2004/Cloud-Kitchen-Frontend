@@ -180,4 +180,34 @@ export const subscriptionApi = {
     }
     return response.json();
   },
+
+  // Disable subscription (Admin)
+  disableSubscription: async (subscriptionId: number, reason: string, adminId: number): Promise<SubscriptionResponse> => {
+    const response = await fetch(
+      `${API_URL}/subscriptions/${subscriptionId}/disable?reason=${encodeURIComponent(reason)}&adminId=${adminId}`,
+      {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      }
+    );
+    if (!response.ok) {
+      if (response.status === 401) handle401();
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to disable subscription');
+    }
+    return response.json();
+  },
+
+  // Delete subscription (Admin)
+  deleteSubscription: async (subscriptionId: number): Promise<void> => {
+    const response = await fetch(`${API_URL}/subscriptions/${subscriptionId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      if (response.status === 401) handle401();
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to delete subscription');
+    }
+  },
 };
