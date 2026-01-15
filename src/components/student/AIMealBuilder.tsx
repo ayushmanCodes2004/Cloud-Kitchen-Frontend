@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { customMealApi, AIMealGenerationRequest, AIMealGenerationResponse, CustomMealItemRequest } from '../../services/customMealApi';
 import { subscriptionApi } from '../../services/subscriptionApi';
+import { 
+  Sparkles, 
+  Send, 
+  RefreshCw, 
+  Save, 
+  Lock, 
+  Crown, 
+  TrendingUp,
+  Zap,
+  Target,
+  Brain,
+  ChefHat,
+  Clock,
+  DollarSign,
+  Star,
+  Flame,
+  Leaf,
+  X
+} from 'lucide-react';
 import './AIMealBuilder.css';
 
 const AIMealBuilder: React.FC = () => {
@@ -64,6 +83,8 @@ const AIMealBuilder: React.FC = () => {
       setSavedMeals(meals);
     } catch (error) {
       console.error('Failed to load saved meals:', error);
+      // Set empty array so the section still shows with empty state
+      setSavedMeals([]);
     }
   };
 
@@ -158,26 +179,41 @@ const AIMealBuilder: React.FC = () => {
   if (!hasSubscription) {
     return (
       <div className="ai-meal-builder">
-        <div className="premium-required">
-          <div className="lock-icon">🔒</div>
-          <h2>Premium Feature</h2>
-          <p>AI Meal Builder is available exclusively for Gold Plan subscribers.</p>
-          <div className="benefits">
-            <h3>With AI Meal Builder, you get:</h3>
-            <ul>
-              <li>🤖 Natural language meal creation</li>
-              <li>💡 Smart recommendations</li>
-              <li>📊 Nutritional analysis</li>
-              <li>⚡ Smart optimization</li>
-              <li>🎯 Occasion-based meals</li>
-            </ul>
+        <div className="premium-lock">
+          <div className="lock-content">
+            <div className="lock-icon-wrapper">
+              <Lock className="lock-icon" size={48} />
+            </div>
+            <h2>Premium Feature</h2>
+            <p>AI Meal Builder is exclusive to Gold Plan members</p>
+            
+            <div className="premium-features">
+              <div className="feature-item">
+                <Brain size={20} />
+                <span>AI-Powered Recommendations</span>
+              </div>
+              <div className="feature-item">
+                <Target size={20} />
+                <span>Personalized Nutrition</span>
+              </div>
+              <div className="feature-item">
+                <Zap size={20} />
+                <span>Smart Meal Optimization</span>
+              </div>
+              <div className="feature-item">
+                <TrendingUp size={20} />
+                <span>Occasion-Based Meals</span>
+              </div>
+            </div>
+
+            <button
+              className="upgrade-button"
+              onClick={() => window.location.href = '/student/subscription'}
+            >
+              <Crown size={20} />
+              Upgrade to Gold Plan
+            </button>
           </div>
-          <button
-            className="upgrade-btn"
-            onClick={() => window.location.href = '/student/subscription'}
-          >
-            🚀 Upgrade to Gold Plan
-          </button>
         </div>
       </div>
     );
