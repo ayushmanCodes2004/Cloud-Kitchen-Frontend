@@ -346,9 +346,9 @@ const AIMealBuilder: React.FC = () => {
         )}
 
         {/* Saved Meals Section */}
-        {savedMeals.length > 0 && (
-          <div className="saved-meals">
-            <h2>📚 Your Saved Meals</h2>
+        <div className="saved-meals">
+          <h2>📚 Your Saved Meals</h2>
+          {savedMeals.length > 0 ? (
             <div className="meals-grid">
               {savedMeals.map((meal) => (
                 <div key={meal.id} className="saved-meal-card">
@@ -367,8 +367,13 @@ const AIMealBuilder: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="empty-saved-meals">
+              <p>No Saved Meals Yet</p>
+              <p className="empty-subtitle">Create your first AI-powered meal and save it for quick ordering!</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Save Meal Dialog */}
