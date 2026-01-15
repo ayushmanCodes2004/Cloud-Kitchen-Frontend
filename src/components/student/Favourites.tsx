@@ -261,7 +261,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                 <p className="text-gray-500 mb-4">Create your first AI-powered meal and save it for quick ordering!</p>
                 <Button
                   onClick={() => window.location.href = '/student/ai-meal-builder'}
-                  className="bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800"
+                  className="bg-orange-500 hover:bg-orange-600"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   Create AI Meal
@@ -277,7 +277,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                       <div className="flex-1">
                         <h3 className="font-bold text-base mb-2 line-clamp-1">{meal.name}</h3>
                         {meal.aiGenerated && (
-                          <Badge className="bg-gradient-to-r from-purple-500 to-purple-700 text-xs">
+                          <Badge className="bg-orange-500 text-white text-xs">
                             <Sparkles className="w-3 h-3 mr-1" />
                             AI Generated
                           </Badge>
@@ -294,7 +294,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{meal.description}</p>
 
                     {meal.aiPrompt && (
-                      <div className="bg-purple-50 border-l-2 border-purple-500 p-2 mb-3 rounded">
+                      <div className="bg-orange-50 border-l-2 border-orange-500 p-2 mb-3 rounded">
                         <p className="text-xs text-gray-600 italic line-clamp-2">
                           💡 {meal.aiPrompt}
                         </p>
@@ -310,7 +310,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                           <li key={item.id}>• {item.menuItemName} × {item.quantity}</li>
                         ))}
                         {meal.items.length > 2 && (
-                          <li className="text-purple-600 font-medium">
+                          <li className="text-orange-600 font-medium">
                             +{meal.items.length - 2} more items
                           </li>
                         )}
@@ -322,7 +322,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                         <Clock className="w-3 h-3" />
                         Ordered {meal.timesOrdered} times
                       </span>
-                      <span className="text-lg font-bold text-purple-600">
+                      <span className="text-lg font-bold text-orange-600">
                         ₹{meal.totalPrice.toFixed(2)}
                       </span>
                     </div>
@@ -331,7 +331,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                       <Button
                         onClick={() => handleAddMealToCart(meal)}
                         size="sm"
-                        className="flex-1 bg-purple-500 hover:bg-purple-600 text-xs h-8"
+                        className="flex-1 bg-orange-500 hover:bg-orange-600 text-xs h-8"
                       >
                         <ShoppingCart className="w-3 h-3 mr-1" />
                         Add to Cart
@@ -392,7 +392,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
               <p className="text-gray-600 mb-4">{selectedMeal.description}</p>
 
               {selectedMeal.aiPrompt && (
-                <div className="bg-purple-50 border-l-4 border-purple-500 p-4 mb-4 rounded">
+                <div className="bg-orange-50 border-l-4 border-orange-500 p-4 mb-4 rounded">
                   <p className="font-semibold text-sm mb-1">💡 AI Prompt:</p>
                   <p className="text-sm text-gray-700 italic">{selectedMeal.aiPrompt}</p>
                 </div>
@@ -412,14 +412,14 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                       </div>
                       <div className="text-right ml-4">
                         <p className="text-sm text-gray-600">× {item.quantity}</p>
-                        <p className="font-bold text-purple-600">₹{item.menuItemPrice}</p>
+                        <p className="font-bold text-orange-600">₹{item.menuItemPrice}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-purple-500 to-purple-700 text-white p-4 rounded-lg mb-4">
+              <div className="bg-orange-500 text-white p-4 rounded-lg mb-4">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total Price:</span>
                   <span className="text-2xl font-bold">₹{selectedMeal.totalPrice.toFixed(2)}</span>
@@ -431,7 +431,7 @@ export const Favourites = ({ onAddToCart, onAddMealToCart }: FavouritesProps) =>
                   handleAddMealToCart(selectedMeal);
                   setSelectedMeal(null);
                 }}
-                className="w-full bg-purple-500 hover:bg-purple-600"
+                className="w-full bg-orange-500 hover:bg-orange-600"
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Add to Cart
