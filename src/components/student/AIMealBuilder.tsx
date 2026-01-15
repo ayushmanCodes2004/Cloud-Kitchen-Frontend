@@ -14,6 +14,9 @@ const AIMealBuilder: React.FC = () => {
   const [aiResponse, setAiResponse] = useState<AIMealGenerationResponse | null>(null);
   const [savedMeals, setSavedMeals] = useState<any[]>([]);
   const [error, setError] = useState('');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [customMealName, setCustomMealName] = useState('');
+  const [savingMeal, setSavingMeal] = useState(false);
 
   const occasions = [
     'Post-workout',
@@ -83,6 +86,7 @@ const AIMealBuilder: React.FC = () => {
 
       const response = await customMealApi.generateAIMeal(request);
       setAiResponse(response);
+      setCustomMealName(response.mealName); // Pre-fill with AI-generated name
     } catch (err: any) {
       if (err.response?.status === 403) {
         setError('AI Meal Builder is a premium feature. Please subscribe to Gold Plan to access this feature.');
@@ -97,7 +101,13 @@ const AIMealBuilder: React.FC = () => {
   const handleSaveMeal = async () => {
     if (!aiResponse) return;
 
+    if (!customMealName.trim()) {
+      alert('Please enter a name for your meal');
+      return;
+    }
+
     try {
+      setSavingMeal(true);
       const items: CustomMealItemRequest[] = aiResponse.items.map(item => ({
         menuItemId: item.menuItemId,
         quantity: item.quantity,
@@ -105,17 +115,28 @@ const AIMealBuilder: React.FC = () => {
       }));
 
       await customMealApi.createCustomMeal({
-        name: aiResponse.mealName,
+        name: customMealName.trim(),
         description: aiResponse.description,
         aiGenerated: true,
         aiPrompt: userInput,
         items,
       });
 
-      alert('Meal saved successfully! You can order it anytime from your saved meals.');
+      alert('Meal saved successfully! You can order it anytime from Favourites → Saved Meals.');
+      setShowSaveDialog(false);
+      setCustomMealName('');
       loadSavedMeals();
     } catch (error) {
       alert('Failed to save meal. Please try again.');
+    } finally {
+      setSavingMeal(false);
+    }
+  };
+
+  const handleOpenSaveDialog = () => {
+    if (aiResponse) {
+      setCustomMealName(aiResponse.mealName); // Pre-fill with AI name
+      setShowSaveDialog(true);
     }
   };
 
@@ -314,7 +335,7 @@ const AIMealBuilder: React.FC = () => {
             </div>
 
             <div className="action-buttons">
-              <button className="save-btn" onClick={handleSaveMeal}>
+              <button className="save-btn" onClick={handleOpenSaveDialog}>
                 💾 Save Meal
               </button>
               <button className="regenerate-btn" onClick={handleGenerate}>
@@ -349,6 +370,72 @@ const AIMealBuilder: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Save Meal Dialog */}
+      {showSaveDialog && (
+        <div className="modal-overlay" onClick={() => setShowSaveDialog(false)}>
+          <div className="save-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h2>💾 Save Your Meal</h2>
+              <button
+                className="close-dialog-btn"
+                onClick={() => setShowSaveDialog(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="dialog-content">
+              <p className="dialog-description">
+                Give your meal a custom name to easily find it later in Favourites → Saved Meals
+              </p>
+              
+              <div className="input-group">
+                <label htmlFor="meal-name">Meal Name</label>
+                <input
+                  id="meal-name"
+                  type="text"
+                  value={customMealName}
+                  onChange={(e) => setCustomMealName(e.target.value)}
+                  placeholder="e.g., My Post-Workout Power Meal"
+                  maxLength={100}
+                  autoFocus
+                />
+                <span className="char-count">{customMealName.length}/100</span>
+              </div>
+
+              {aiResponse && (
+                <div className="meal-preview">
+                  <h4>📋 Meal Preview:</h4>
+                  <p className="preview-description">{aiResponse.description}</p>
+                  <div className="preview-items">
+                    <strong>{aiResponse.items.length} items</strong> • 
+                    <strong> ₹{aiResponse.totalPrice.toFixed(2)}</strong> • 
+                    <strong> {aiResponse.nutritionalScore}/10 ⭐</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="dialog-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setShowSaveDialog(false)}
+                disabled={savingMeal}
+              >
+                Cancel
+              </button>
+              <button
+                className="confirm-save-btn"
+                onClick={handleSaveMeal}
+                disabled={savingMeal || !customMealName.trim()}
+              >
+                {savingMeal ? '💾 Saving...' : '💾 Save Meal'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
