@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { subscriptionApi, SubscriptionPlan, SubscriptionResponse } from '../../services/subscriptionApi';
 import { 
   Crown, Check, TrendingDown, Calendar, Clock, 
-  CreditCard, Building2, Wallet, X, AlertCircle,
-  Sparkles, Shield, Zap, Gift
+  CreditCard, Building2, Wallet, AlertCircle,
+  Sparkles, Gift
 } from 'lucide-react';
 import './SubscriptionPage.css';
 
@@ -248,40 +248,6 @@ const SubscriptionPage: React.FC = () => {
             <p>Get 5% discount on every order, waive ₹8 platform fee, and access exclusive AI-powered meal recommendations. Save more with every meal!</p>
           </div>
         </div>
-        
-        {/* Active Subscription */}
-        {activeSubscription && (
-          <div className="section active-sub">
-            <div className="active-header">
-              <div className="active-title">
-                <Shield size={20} />
-                <span>Your Active Subscription</span>
-              </div>
-              {getStatusBadge(activeSubscription.status)}
-            </div>
-
-            <div className="active-details">
-              <div className="detail-row">
-                <span className="detail-label">Plan</span>
-                <span className="detail-value">{activeSubscription.planName}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Valid Until</span>
-                <span className="detail-value">{formatDate(activeSubscription.endDate)}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Days Remaining</span>
-                <span className="detail-value highlight">{getDaysRemaining(activeSubscription.endDate)} days</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Benefits</span>
-                <span className="detail-value">
-                  {activeSubscription.discountPercentage}% off + ₹8 fee waived
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Gold Plan */}
         <div className="section gold-plan">
