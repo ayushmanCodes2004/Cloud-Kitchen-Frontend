@@ -17,8 +17,7 @@ const AdminSubscriptions: React.FC = () => {
 
   useEffect(() => {
     loadSubscriptions();
-    const interval = setInterval(loadSubscriptions, 30000);
-    return () => clearInterval(interval);
+    // Auto-refresh removed per user request
   }, []);
 
   const loadSubscriptions = async () => {

@@ -41,13 +41,7 @@ export const OrderManagement = () => {
   useEffect(() => {
     if (token) {
       loadOrders();
-      
-      // Auto-refresh orders every 10 seconds
-      const intervalId = setInterval(() => {
-        loadOrders();
-      }, 10000);
-
-      return () => clearInterval(intervalId);
+      // Auto-refresh removed per user request
     }
   }, [token, filterStatus]);
 
@@ -240,24 +234,47 @@ export const OrderManagement = () => {
                     {order.status === OrderStatus.DELIVERED ? (
                       <div className="space-y-1">
                         {(() => {
-                          const platformFee = (order as any).platformFee || 8;
-                          const taxAmount = (order as any).taxAmount || 0;
-                          const subtotal = order.totalAmount - platformFee - taxAmount;
+                          const platformFee = (order as any).platformFee ?? 8;
+                          const taxAmount = (order as any).taxAmount ?? 0;
+                          // Calculate subtotal from order items
+                          const itemsSubtotal = order.orderItems.reduce((sum, item) => 
+                            sum + (item.price * item.quantity), 0
+                          );
+                          
+                          // Check if Gold Plan discount was applied
+                          const hasGoldDiscount = platformFee === 0;
+                          const discountAmount = hasGoldDiscount ? itemsSubtotal * 0.05 : 0;
+                          const subtotalAfterDiscount = itemsSubtotal - discountAmount;
                           
                           return (
                             <>
                               <div className="text-xs text-gray-600">
                                 <span>Subtotal: </span>
-                                <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+                                <span className="font-medium">₹{itemsSubtotal.toFixed(2)}</span>
                               </div>
+                              {hasGoldDiscount && (
+                                <div className="text-xs text-green-600">
+                                  <span>👑 Gold Discount (5%): </span>
+                                  <span className="font-medium">-₹{discountAmount.toFixed(2)}</span>
+                                </div>
+                              )}
                               <div className="text-xs text-gray-600">
                                 <span>Tax (2%): </span>
                                 <span className="font-medium">₹{taxAmount.toFixed(2)}</span>
                               </div>
                               <div className="text-xs text-gray-600">
                                 <span>Platform Fee: </span>
-                                <span className="font-medium text-green-600">₹{platformFee.toFixed(2)}</span>
+                                {hasGoldDiscount ? (
+                                  <span className="font-medium text-green-600">₹0.00 (👑 Waived)</span>
+                                ) : (
+                                  <span className="font-medium text-green-600">₹{platformFee.toFixed(2)}</span>
+                                )}
                               </div>
+                              {hasGoldDiscount && (
+                                <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded mt-1">
+                                  💰 Gold Savings: ₹{(discountAmount + 8).toFixed(2)}
+                                </div>
+                              )}
                               <div className="border-t border-gray-200 pt-1 mt-1">
                                 <div className="text-sm font-bold text-orange-600">
                                   Total: ₹{order.totalAmount.toFixed(2)}
