@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 export interface CustomMealItemRequest {
   menuItemId: number;
@@ -99,7 +99,7 @@ const handle401 = () => {
 export const customMealApi = {
   // Generate AI meal (Premium feature)
   generateAIMeal: async (request: AIMealGenerationRequest): Promise<AIMealGenerationResponse> => {
-    const response = await fetch(`${API_URL}/api/custom-meals/ai/generate`, {
+    const response = await fetch(`${API_URL}/custom-meals/ai/generate`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(request),
@@ -117,7 +117,7 @@ export const customMealApi = {
 
   // Get smart recommendations (Premium feature)
   getSmartRecommendations: async (currentItemIds: number[]): Promise<AIMealItem[]> => {
-    const response = await fetch(`${API_URL}/api/custom-meals/ai/recommendations`, {
+    const response = await fetch(`${API_URL}/custom-meals/ai/recommendations`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(currentItemIds),
@@ -134,7 +134,7 @@ export const customMealApi = {
 
   // Analyze meal (Premium feature)
   analyzeMeal: async (mealName: string, itemIds: number[]): Promise<MealAnalysis> => {
-    const response = await fetch(`${API_URL}/api/custom-meals/ai/analyze`, {
+    const response = await fetch(`${API_URL}/custom-meals/ai/analyze`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ mealName, itemIds }),
@@ -151,7 +151,7 @@ export const customMealApi = {
 
   // Create custom meal
   createCustomMeal: async (request: CustomMealRequest): Promise<CustomMealResponse> => {
-    const response = await fetch(`${API_URL}/api/custom-meals`, {
+    const response = await fetch(`${API_URL}/custom-meals`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(request),
@@ -165,7 +165,7 @@ export const customMealApi = {
 
   // Get my custom meals
   getMyCustomMeals: async (): Promise<CustomMealResponse[]> => {
-    const response = await fetch(`${API_URL}/api/custom-meals`, {
+    const response = await fetch(`${API_URL}/custom-meals`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -177,7 +177,7 @@ export const customMealApi = {
 
   // Get custom meal by ID
   getCustomMealById: async (id: number): Promise<CustomMealResponse> => {
-    const response = await fetch(`${API_URL}/api/custom-meals/${id}`, {
+    const response = await fetch(`${API_URL}/custom-meals/${id}`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -189,7 +189,7 @@ export const customMealApi = {
 
   // Delete custom meal
   deleteCustomMeal: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_URL}/api/custom-meals/${id}`, {
+    const response = await fetch(`${API_URL}/custom-meals/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
@@ -201,7 +201,7 @@ export const customMealApi = {
 
   // Increment times ordered
   incrementTimesOrdered: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_URL}/api/custom-meals/${id}/order`, {
+    const response = await fetch(`${API_URL}/custom-meals/${id}/order`, {
       method: 'POST',
       headers: getAuthHeaders(),
     });

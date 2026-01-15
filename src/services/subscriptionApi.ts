@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 export interface SubscriptionPlan {
   id: number;
@@ -59,7 +59,7 @@ const handle401 = () => {
 export const subscriptionApi = {
   // Get all active plans
   getAllPlans: async (): Promise<SubscriptionPlan[]> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/plans`, {
+    const response = await fetch(`${API_URL}/subscriptions/plans`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -71,7 +71,7 @@ export const subscriptionApi = {
 
   // Get Gold plan
   getGoldPlan: async (): Promise<SubscriptionPlan> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/plans/gold`, {
+    const response = await fetch(`${API_URL}/subscriptions/plans/gold`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -83,7 +83,7 @@ export const subscriptionApi = {
 
   // Create subscription request
   createSubscriptionRequest: async (request: SubscriptionRequest): Promise<SubscriptionResponse> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/request`, {
+    const response = await fetch(`${API_URL}/subscriptions/request`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(request),
@@ -98,7 +98,7 @@ export const subscriptionApi = {
 
   // Get my subscriptions
   getMySubscriptions: async (): Promise<SubscriptionResponse[]> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/my-subscriptions`, {
+    const response = await fetch(`${API_URL}/subscriptions/my-subscriptions`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -110,7 +110,7 @@ export const subscriptionApi = {
 
   // Get active subscription
   getActiveSubscription: async (): Promise<SubscriptionResponse | null> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/active`, {
+    const response = await fetch(`${API_URL}/subscriptions/active`, {
       headers: getAuthHeaders(),
     });
     if (response.status === 204) {
@@ -125,7 +125,7 @@ export const subscriptionApi = {
 
   // Get pending subscriptions (Admin)
   getPendingSubscriptions: async (): Promise<SubscriptionResponse[]> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/pending`, {
+    const response = await fetch(`${API_URL}/subscriptions/pending`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -137,7 +137,7 @@ export const subscriptionApi = {
 
   // Get all subscriptions (Admin)
   getAllSubscriptions: async (): Promise<SubscriptionResponse[]> => {
-    const response = await fetch(`${API_URL}/api/subscriptions/all`, {
+    const response = await fetch(`${API_URL}/subscriptions/all`, {
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -150,7 +150,7 @@ export const subscriptionApi = {
   // Approve subscription (Admin)
   approveSubscription: async (subscriptionId: number, adminId: number): Promise<SubscriptionResponse> => {
     const response = await fetch(
-      `${API_URL}/api/subscriptions/${subscriptionId}/approve?adminId=${adminId}`,
+      `${API_URL}/subscriptions/${subscriptionId}/approve?adminId=${adminId}`,
       {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -167,7 +167,7 @@ export const subscriptionApi = {
   // Reject subscription (Admin)
   rejectSubscription: async (subscriptionId: number, reason: string, adminId: number): Promise<SubscriptionResponse> => {
     const response = await fetch(
-      `${API_URL}/api/subscriptions/${subscriptionId}/reject?reason=${encodeURIComponent(reason)}&adminId=${adminId}`,
+      `${API_URL}/subscriptions/${subscriptionId}/reject?reason=${encodeURIComponent(reason)}&adminId=${adminId}`,
       {
         method: 'POST',
         headers: getAuthHeaders(),
