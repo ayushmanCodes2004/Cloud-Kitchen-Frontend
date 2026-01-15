@@ -231,22 +231,27 @@ export const OrderManagement = () => {
 
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Bill Details</p>
-                    {order.status === OrderStatus.DELIVERED ? (
-                      <div className="space-y-1">
-                        {(() => {
-                          const platformFee = (order as any).platformFee ?? 8;
-                          const taxAmount = (order as any).taxAmount ?? 0;
-                          // Calculate subtotal from order items
-                          const itemsSubtotal = order.orderItems.reduce((sum, item) => 
-                            sum + (item.price * item.quantity), 0
-                          );
-                          
-                          // Check if Gold Plan discount was applied
-                          const hasGoldDiscount = platformFee === 0;
-                          const discountAmount = hasGoldDiscount ? itemsSubtotal * 0.05 : 0;
-                          const subtotalAfterDiscount = itemsSubtotal - discountAmount;
-                          
-                          return (
+                    {(() => {
+                      const platformFee = (order as any).platformFee ?? 8;
+                      const taxAmount = (order as any).taxAmount ?? 0;
+                      // Calculate subtotal from order items
+                      const itemsSubtotal = order.orderItems.reduce((sum, item) => 
+                        sum + (item.price * item.quantity), 0
+                      );
+                      
+                      // Check if Gold Plan discount was applied
+                      const hasGoldDiscount = platformFee === 0;
+                      const discountAmount = hasGoldDiscount ? itemsSubtotal * 0.05 : 0;
+                      const subtotalAfterDiscount = itemsSubtotal - discountAmount;
+                      
+                      return (
+                        <div className="space-y-1">
+                          {order.status === OrderStatus.CANCELLED ? (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded">
+                              <p className="text-sm font-semibold text-red-700">Order Cancelled</p>
+                              <p className="text-xs text-red-600 mt-1">No charges applied</p>
+                            </div>
+                          ) : (
                             <>
                               <div className="text-xs text-gray-600">
                                 <span>Subtotal: </span>
@@ -280,24 +285,16 @@ export const OrderManagement = () => {
                                   Total: ₹{order.totalAmount.toFixed(2)}
                                 </div>
                               </div>
+                              {order.status !== OrderStatus.DELIVERED && (
+                                <div className="text-xs text-blue-600 mt-1">
+                                  Status: {order.status}
+                                </div>
+                              )}
                             </>
-                          );
-                        })()}
-                      </div>
-                    ) : order.status === OrderStatus.CANCELLED ? (
-                      <div className="p-3 bg-red-50 border border-red-200 rounded">
-                        <p className="text-sm font-semibold text-red-700">Order Cancelled</p>
-                        <p className="text-xs text-red-600 mt-1">No charges applied</p>
-                      </div>
-                    ) : (
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded">
-                        <p className="text-sm font-semibold text-blue-700">Order {order.status}</p>
-                        <p className="text-xs text-blue-600 mt-1">Bill finalized on delivery</p>
-                        <p className="text-sm font-medium text-gray-700 mt-2">
-                          Expected: ₹{order.totalAmount.toFixed(2)}
-                        </p>
-                      </div>
-                    )}
+                          )}
+                        </div>
+                      );
+                    })()}
                     <p className="text-xs text-gray-500 mt-2">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </p>
