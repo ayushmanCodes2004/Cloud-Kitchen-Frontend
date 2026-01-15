@@ -9,18 +9,17 @@ import { UserList } from './UserList';
 import { OrderManagement } from './OrderManagement';
 import { TestimonialManagement } from './TestimonialManagement';
 import { AdminAnalytics } from './AdminAnalytics';
+import AdminSubscriptions from './AdminSubscriptions';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { RatingsDisplay } from '@/components/ui/RatingsDisplay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { RefreshCw, ShoppingBag, Users, ChefHat, Star, FileText, BarChart3, Menu, Crown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 export const AdminDashboard = () => {
   const { user, token, logout, refreshUser } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [chefs, setChefs] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -293,8 +292,7 @@ export const AdminDashboard = () => {
               </TabsTrigger>
               <TabsTrigger 
                 value="subscriptions"
-                onClick={() => navigate('/admin/subscriptions')}
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-gray-600 hover:text-gray-900"
               >
                 <Crown className="w-4 h-4" />
                 Subscriptions
@@ -339,6 +337,10 @@ export const AdminDashboard = () => {
           
           <TabsContent value="analytics" className="p-6 mt-0">
             <AdminAnalytics />
+          </TabsContent>
+          
+          <TabsContent value="subscriptions" className="p-6 mt-0">
+            <AdminSubscriptions />
           </TabsContent>
         </Tabs>
       </Card>
