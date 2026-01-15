@@ -326,7 +326,38 @@ export const StudentDashboard = () => {
             </TabsContent>
 
             <TabsContent value="favourites" className="mt-0">
-              <Favourites onAddToCart={addToCart} />
+              <Favourites 
+                onAddToCart={addToCart}
+                onAddMealToCart={(meal) => {
+                  // Convert saved meal items to cart items and add them
+                  meal.items.forEach(item => {
+                    const cartItem: CartItem = {
+                      id: item.menuItemId,
+                      name: item.menuItemName,
+                      price: item.menuItemPrice,
+                      vegetarian: false,
+                      chefId: item.chefId || 0,
+                      chefName: item.chefName || 'Unknown',
+                      category: '',
+                      description: '',
+                      available: true,
+                      imageUrl: item.menuItemImage || undefined,
+                      preparationTime: 15,
+                      quantity: item.quantity
+                    };
+                    
+                    // Add to cart
+                    const existing = cart.find(i => i.id === cartItem.id);
+                    if (existing) {
+                      setCart(cart.map(i => 
+                        i.id === cartItem.id ? { ...i, quantity: i.quantity + cartItem.quantity } : i
+                      ));
+                    } else {
+                      setCart(prev => [...prev, cartItem]);
+                    }
+                  });
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="orders" className="mt-0">
