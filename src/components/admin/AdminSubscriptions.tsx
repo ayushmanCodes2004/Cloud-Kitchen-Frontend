@@ -144,6 +144,21 @@ const AdminSubscriptions: React.FC = () => {
     }
   };
 
+  const formatDateOnly = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'N/A';
+    }
+  };
+
   const getDaysRemaining = (endDate: string) => {
     if (!endDate) return 0;
     const end = new Date(endDate);
@@ -209,7 +224,7 @@ const AdminSubscriptions: React.FC = () => {
           </div>
           <div className="info-row">
             <span className="info-label">Requested</span>
-            <span className="info-value">{formatDate(sub.createdAt)}</span>
+            <span className="info-value">{formatDateOnly(sub.createdAt)}</span>
           </div>
           {sub.startDate && (
             <div className="info-row">
