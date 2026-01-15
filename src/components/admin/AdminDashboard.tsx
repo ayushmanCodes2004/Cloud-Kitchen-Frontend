@@ -291,13 +291,14 @@ export const AdminDashboard = () => {
                 <BarChart3 className="w-4 h-4" />
                 Analytics
               </TabsTrigger>
-              <button
+              <TabsTrigger 
+                value="subscriptions"
                 onClick={() => navigate('/admin/subscriptions')}
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 hover:from-yellow-600 hover:to-orange-600 shadow-md hover:shadow-lg"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
               >
                 <Crown className="w-4 h-4" />
                 Subscriptions
-              </button>
+              </TabsTrigger>
             </TabsList>
           </div>
           
