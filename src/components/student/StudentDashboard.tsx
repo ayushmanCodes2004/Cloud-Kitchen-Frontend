@@ -500,14 +500,16 @@ export const StudentDashboard = () => {
           </Tabs>
         </motion.div>
 
-        {showCart && (
-          <Cart
-            cart={cart}
-            setCart={setCart}
-            onClose={() => setShowCart(false)}
-            onPlaceOrder={proceedToCheckout}
-          />
-        )}
+        <AnimatePresence>
+          {showCart && (
+            <Cart
+              cart={cart}
+              setCart={setCart}
+              onClose={() => setShowCart(false)}
+              onPlaceOrder={proceedToCheckout}
+            />
+          )}
+        </AnimatePresence>
 
         {showCheckout && (
           <Checkout
