@@ -211,119 +211,97 @@ export const StudentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex relative overflow-hidden">
-      {/* Food Background Image with Blur */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-60"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
-            filter: "blur(4px)",
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 via-slate-900/40 to-slate-950/60" />
-      </div>
-
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
-
-      {/* Sidebar Navigation */}
+    <div className="min-h-screen bg-[#faf8f5] flex relative">
+      {/* Sidebar Navigation - Minimal */}
       <motion.div
-        initial={{ x: -300, opacity: 0 }}
+        initial={{ x: -80, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="w-64 bg-slate-900/60 backdrop-blur-xl border-r border-slate-700/50 shadow-xl fixed left-0 top-0 h-screen overflow-y-auto flex flex-col z-40"
+        className="w-20 bg-white border-r border-gray-200 fixed left-0 top-0 h-screen flex flex-col items-center py-6 z-40 shadow-sm"
       >
         {/* Logo */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="flex items-center gap-3 mb-8 p-6"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
         >
           <motion.div
             whileHover={{ scale: 1.1, rotate: 360 }}
-            transition={{ duration: 0.6, type: "spring" }}
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20 overflow-hidden"
+            transition={{ duration: 0.6 }}
+            className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg"
           >
-            <img src="/best.png" alt="PlatePal" className="w-7 h-7 object-contain" />
+            <img src="/best.png" alt="PlatePal" className="w-8 h-8 object-contain" />
           </motion.div>
-          <span className="text-xl font-bold text-white">PlatePal</span>
         </motion.div>
 
-        {/* Navigation Menu */}
-        <nav className="space-y-2 flex-1 p-4 flex flex-col">
-          <div className="space-y-2">
-            {[
-              { icon: UtensilsCrossed, label: 'Menu', tab: 'menu', onClick: () => setActiveTab('menu') },
-              { icon: Heart, label: 'Favourites', tab: 'favourites', onClick: () => setActiveTab('favourites') },
-              { icon: PackageSearch, label: 'My Orders', tab: 'orders', onClick: () => setActiveTab('orders') },
-              { icon: Crown, label: 'Gold Plan', tab: null, onClick: () => navigate('/student/subscription') },
-              { icon: Sparkles, label: 'AI Meal Builder', tab: null, onClick: () => navigate('/student/ai-meal-builder') },
-              { icon: MessageCircle, label: 'Testimonial', tab: 'testimonial', onClick: () => setActiveTab('testimonial') }
-            ].map((item, index) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + index * 0.05, type: "spring", stiffness: 200 }}
-              >
-                <NavItemIcon 
-                  icon={item.icon}
-                  label={item.label} 
-                  active={activeTab === item.tab}
-                  onClick={item.onClick}
+        {/* Navigation Icons */}
+        <nav className="flex-1 flex flex-col gap-2 w-full px-2">
+          {[
+            { icon: UtensilsCrossed, label: 'Menu', tab: 'menu', onClick: () => setActiveTab('menu') },
+            { icon: Heart, label: 'Favourites', tab: 'favourites', onClick: () => setActiveTab('favourites') },
+            { icon: PackageSearch, label: 'Orders', tab: 'orders', onClick: () => setActiveTab('orders') },
+            { icon: Crown, label: 'Gold', tab: null, onClick: () => navigate('/student/subscription') },
+            { icon: Sparkles, label: 'AI', tab: null, onClick: () => navigate('/student/ai-meal-builder') },
+            { icon: MessageCircle, label: 'Feedback', tab: 'testimonial', onClick: () => setActiveTab('testimonial') }
+          ].map((item, index) => (
+            <motion.button
+              key={item.label}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + index * 0.05 }}
+              whileHover={{ scale: 1.1, x: 4 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={item.onClick}
+              className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all relative group ${
+                activeTab === item.tab
+                  ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/30'
+                  : 'text-gray-400 hover:text-orange-500 hover:bg-orange-50'
+              }`}
+              title={item.label}
+            >
+              <item.icon className="w-5 h-5" />
+              {activeTab === item.tab && (
+                <motion.div
+                  layoutId="activeIndicator"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  style={{ zIndex: -1 }}
                 />
-              </motion.div>
-            ))}
-          </div>
+              )}
+            </motion.button>
+          ))}
         </nav>
 
-        {/* Logout Button - Bottom of Sidebar */}
-        <motion.div
+        {/* Logout */}
+        <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-          className="p-4"
+          transition={{ delay: 0.6 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={logout}
+          className="w-14 h-14 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+          title="Logout"
         >
-          <NavItemIcon 
-            icon={LogOut}
-            label="Logout" 
-            active={false}
-            onClick={logout}
-          />
-        </motion.div>
+          <LogOut className="w-5 h-5" />
+        </motion.button>
       </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-64 relative z-10">
+      <div className="flex-1 ml-20">
         {/* Top Header */}
         <motion.div
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", damping: 25, stiffness: 200, delay: 0.2 }}
-          className="bg-slate-900/60 backdrop-blur-xl border-b border-slate-700/50 sticky top-0 z-40"
+          className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm"
         >
           <div className="px-8 py-4 flex items-center justify-between">
-            {/* Search Bar - Only show in menu tab */}
-            <div className="flex-1 max-w-2xl">
+            {/* Logo Text & Search */}
+            <div className="flex items-center gap-6 flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">PlatePal</h1>
+              
               <AnimatePresence mode="wait">
                 {activeTab === 'menu' && (
                   <motion.div
@@ -331,15 +309,15 @@ export const StudentDashboard = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="relative"
+                    className="relative flex-1 max-w-md"
                   >
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
                       type="text"
                       placeholder="Search menu items..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 text-base bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
                     />
                   </motion.div>
                 )}
@@ -347,13 +325,13 @@ export const StudentDashboard = () => {
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-4 ml-8">
+            <div className="flex items-center gap-4">
               {/* Cart */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowCart(true)}
-                className="relative p-2 text-slate-300 hover:bg-slate-800/50 rounded-lg transition"
+                className="relative p-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition"
               >
                 <ShoppingCart className="w-5 h-5" />
                 <AnimatePresence>
@@ -362,7 +340,7 @@ export const StudentDashboard = () => {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
-                      className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg shadow-orange-500/50"
+                      className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg"
                     >
                       {cart.reduce((sum, item) => sum + item.quantity, 0)}
                     </motion.span>
@@ -373,18 +351,43 @@ export const StudentDashboard = () => {
               {/* User Profile */}
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className="flex items-center gap-3 pl-4 border-l border-slate-700/50"
+                className="flex items-center gap-3 pl-4 border-l border-gray-200"
               >
                 <div className="text-right">
-                  <p className="text-sm font-medium text-white">{user?.name}</p>
-                  <p className="text-xs font-semibold text-slate-400">Student</p>
+                  <p className="text-sm font-semibold text-gray-900">{user?.name || 'John Doe'}</p>
+                  <p className="text-xs text-gray-500">student</p>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20">
-                  <User className="w-5 h-5 text-orange-400" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white font-semibold shadow-lg">
+                  {(user?.name || 'J')[0].toUpperCase()}
                 </div>
               </motion.div>
             </div>
           </div>
+
+          {/* Stats Banner - Only show on menu tab */}
+          {activeTab === 'menu' && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="px-8 py-3 bg-gradient-to-r from-orange-50 to-amber-50 border-t border-orange-100"
+            >
+              <div className="flex items-center gap-8 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-gray-600">
+                    <span className="font-bold text-orange-600">92%</span> accuracy
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-orange-500" />
+                  <span className="text-gray-600">
+                    <span className="font-bold text-orange-600">1000+</span> meals analyzed
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Page Content */}
