@@ -172,11 +172,15 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
             transition={{ delay: 0.2 }}
           >
             <motion.div 
-              className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20"
+              className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20 overflow-hidden"
               whileHover={{ scale: 1.1, rotate: 360 }}
               transition={{ duration: 0.6 }}
             >
-              <UtensilsCrossed className="w-7 h-7 text-orange-400" />
+              <img 
+                src="/best.png" 
+                alt="PlatePal Logo" 
+                className="w-8 h-8 object-contain"
+              />
             </motion.div>
             <span className="text-2xl font-bold text-white">PlatePal</span>
           </motion.div>
