@@ -273,32 +273,42 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full" onClick={() => setSelectedItem(item)}>
-              <div className="w-full h-56 bg-gray-200 relative flex-shrink-0">
+            <Card 
+              key={item.id} 
+              className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer bg-white border border-gray-200 rounded-2xl group"
+              onClick={() => setSelectedItem(item)}
+            >
+              {/* Large Food Image */}
+              <div className="relative h-56 overflow-hidden bg-gray-100">
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                  />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-12 h-12 text-gray-400" />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-100 to-amber-100">
+                    <Package className="w-16 h-16 text-orange-300" />
                   </div>
                 )}
-                {item.vegetarian ? (
-                  <Badge className="absolute top-2 left-2 bg-green-500">
-                    🌱 Veg
-                  </Badge>
-                ) : (
-                  <Badge className="absolute top-2 left-2 bg-red-500">
-                    🥩 Non-Veg
-                  </Badge>
+                
+                {/* Popular Badge - Top Right */}
+                {item.menuItemAverageRating && item.menuItemAverageRating >= 4.5 && (
+                  <div className="absolute top-3 right-3">
+                    <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                      🔥 Popular
+                    </span>
+                  </div>
                 )}
+
+                {/* Favourite Heart - Top Left */}
                 {userRole === 'student' && (
                   <button
                     onClick={(e) => toggleFavourite(item.id, e)}
                     disabled={togglingFavourite === item.id}
-                    className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition disabled:opacity-50"
-                    title={favouriteIds.has(item.id) ? 'Remove from favourites' : 'Add to favourites'}
+                    className="absolute top-3 left-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition disabled:opacity-50"
                   >
                     {togglingFavourite === item.id ? (
                       <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
@@ -313,85 +323,84 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                     )}
                   </button>
                 )}
+
+                {/* Unavailable Overlay */}
                 {!item.available && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="secondary" className="text-lg">Unavailable</Badge>
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                    <span className="bg-white text-gray-900 px-4 py-2 rounded-full font-semibold text-sm">
+                      Unavailable
+                    </span>
                   </div>
                 )}
               </div>
               
-              <CardContent className="p-4 flex flex-col h-full">
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-base line-clamp-1">{item.name}</h3>
-                    <Badge variant="outline" className="ml-2 shrink-0 text-xs">
-                      {item.category.replace('_', ' ')}
-                    </Badge>
-                  </div>
+              {/* Card Content */}
+              <CardContent className="p-4">
+                {/* Title */}
+                <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1">
+                  {item.name}
+                </h3>
+                
+                {/* Description */}
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">
+                  {item.description}
+                </p>
+                
+                {/* Rating & Prep Time */}
+                <div className="flex items-center gap-4 mb-3 text-sm">
+                  {/* Rating */}
+                  {item.menuItemAverageRating && item.menuItemAverageRating > 0 ? (
+                    <div className="flex items-center gap-1 text-orange-600">
+                      <Star className="w-4 h-4 fill-orange-500 text-orange-500" />
+                      <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 text-gray-400">
+                      <Star className="w-4 h-4" />
+                      <span className="text-xs">No ratings</span>
+                    </div>
+                  )}
                   
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
-                  
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1 text-xs text-gray-600">
-                      <User className="w-3 h-3" />
-                      <span className="line-clamp-1">Chef {item.chefName}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-600">
-                      <Clock className="w-3 h-3" />
-                      <span>{item.preparationTime} min</span>
-                    </div>
-                    
-                    {/* Ratings Section */}
-                    <div className="space-y-1 pt-2 border-t border-gray-100">
-                      {/* Chef Rating */}
-                      {item.chefAverageRating !== undefined && item.chefAverageRating > 0 && (
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500 font-medium">Chef Rating:</span>
-                          <div className="flex items-center gap-1 text-yellow-600">
-                            <Star className="w-3 h-3 fill-current" />
-                            <span className="font-semibold">{item.chefAverageRating.toFixed(1)}</span>
-                            <span className="text-gray-500">({item.chefTotalRatings})</span>
-                            {item.chefVerified && (
-                              <span title="Verified Chef">
-                                <BadgeCheck className="w-4 h-4 text-green-600 ml-0.5" />
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Food Rating */}
-                      {item.menuItemAverageRating !== undefined && item.menuItemAverageRating > 0 && (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-500 font-medium">Food Rating:</span>
-                            <div className="flex items-center gap-1 text-orange-600">
-                              <Star className="w-3 h-3 fill-current" />
-                              <span className="font-semibold">{item.menuItemAverageRating.toFixed(1)}</span>
-                              <span className="text-gray-500">({item.menuItemTotalRatings})</span>
-                            </div>
-                          </div>
-                          {userRole === 'student' && (
-                            <button
-                              onClick={() => setReviewsModal({
-                                isOpen: true,
-                                menuItemId: item.id,
-                                menuItemName: item.name
-                              })}
-                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline"
-                            >
-                              <MessageSquare className="w-3 h-3" />
-                              View Reviews
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                  {/* Prep Time */}
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <Clock className="w-4 h-4" />
+                    <span>{item.preparationTime} min</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
-                  <span className="text-xl font-bold text-orange-600">₹{item.price}</span>
+                {/* Dietary Badges */}
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {item.vegetarian ? (
+                    <span className="bg-green-100 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full border border-green-200">
+                      Vegetarian
+                    </span>
+                  ) : (
+                    <span className="bg-red-100 text-red-700 text-xs font-medium px-2.5 py-1 rounded-full border border-red-200">
+                      Non-Veg
+                    </span>
+                  )}
+                  
+                  {/* High Protein badge for non-veg */}
+                  {!item.vegetarian && (
+                    <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">
+                      High Protein
+                    </span>
+                  )}
+                  
+                  {/* Low Calorie badge for salads/healthy items */}
+                  {(item.category === 'STARTER' || item.name.toLowerCase().includes('salad')) && (
+                    <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-full border border-purple-200">
+                      Low Calorie
+                    </span>
+                  )}
+                </div>
+
+                {/* Price & Add Button */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <span className="text-2xl font-bold text-orange-600">
+                    ${item.price.toFixed(2)}
+                  </span>
+                  
                   {showOrderButton && item.available && onOrderClick && (
                     <Button 
                       onClick={(e) => {
@@ -399,10 +408,9 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                         onOrderClick(item);
                       }}
                       size="sm"
-                      className="bg-orange-500 hover:bg-orange-600 text-xs h-7 px-2"
+                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all"
                     >
-                      <ShoppingCart className="w-3 h-3 mr-0.5" />
-                      Order
+                      + Add
                     </Button>
                   )}
                 </div>
