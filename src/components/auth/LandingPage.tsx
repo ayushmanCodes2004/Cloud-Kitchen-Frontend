@@ -9,11 +9,23 @@ interface LandingPageProps {
   onSignIn: () => void;
 }
 
-// Animation configurations
+// Animation configurations - Professional Figma-style easing
 const springConfig = {
   type: "spring" as const,
-  damping: 25,
-  stiffness: 120,
+  damping: 30,
+  stiffness: 200,
+  mass: 0.8
+};
+
+const smoothEase = {
+  ease: [0.25, 0.1, 0.25, 1] as const, // Figma's ease-in-out
+  duration: 0.8
+};
+
+const elasticEase = {
+  type: "spring" as const,
+  damping: 15,
+  stiffness: 300,
   mass: 0.5
 };
 
@@ -26,8 +38,19 @@ const fadeInUp = {
 const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.1
+      staggerChildren: 0.1,
+      delayChildren: 0.2
     }
+  }
+};
+
+// Professional reveal animation
+const revealAnimation = {
+  initial: { opacity: 0, y: 40, scale: 0.95 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  transition: {
+    duration: 0.7,
+    ease: [0.25, 0.1, 0.25, 1]
   }
 };
 
@@ -367,38 +390,90 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
           >
             {/* Logo Badge */}
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ ...springConfig, delay: 0.2 }}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ 
+                type: "spring",
+                damping: 20,
+                stiffness: 300,
+                delay: 0.2
+              }}
               className="mb-8"
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-amber-500 rounded-3xl blur-xl opacity-50" />
-                <div className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl">
+              <motion.div 
+                className="relative"
+                whileHover={{ scale: 1.1 }}
+                transition={elasticEase}
+              >
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-br from-orange-500 to-amber-500 rounded-3xl blur-xl opacity-50"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 0.7, 0.5]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <motion.div 
+                  className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl"
+                  whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                  transition={{ duration: 0.5 }}
+                >
                   <ChefHat className="w-10 h-10 text-white" />
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </motion.div>
 
             {/* Main Heading with Gradient */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springConfig, delay: 0.3 }}
+              initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ 
+                duration: 1,
+                ease: [0.25, 0.1, 0.25, 1],
+                delay: 0.3
+              }}
               className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
             >
-              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 text-transparent bg-clip-text">
+              <motion.span 
+                className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 text-transparent bg-clip-text inline-block"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{
+                  backgroundSize: "200% 200%"
+                }}
+              >
                 Welcome to
-              </span>
+              </motion.span>
               <br />
-              <span className="text-white">PlatePal</span>
+              <motion.span 
+                className="text-white inline-block"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              >
+                PlatePal
+              </motion.span>
             </motion.h1>
 
             {/* Tagline */}
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                delay: 0.7,
+                duration: 0.8,
+                ease: [0.25, 0.1, 0.25, 1]
+              }}
               className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl font-light"
             >
               Your kitchen, just a tap away. Delicious meals from talented chefs, delivered straight to your hostel room.
@@ -408,31 +483,64 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
               className="flex flex-col sm:flex-row gap-4 mb-20"
             >
               <motion.button
                 onClick={onOrderNow}
                 className="group relative bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-10 py-6 text-lg rounded-2xl shadow-2xl border-0 overflow-hidden font-semibold"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(249, 115, 22, 0.4)"
+                }}
                 whileTap={{ scale: 0.95 }}
+                transition={elasticEase}
               >
-                <span className="relative z-10 flex items-center justify-center">
+                <motion.span 
+                  className="relative z-10 flex items-center justify-center"
+                  whileHover={{ x: -5 }}
+                  transition={{ duration: 0.3 }}
+                >
                   Order Now
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </motion.div>
+                </motion.span>
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: 0 }}
+                  transition={{ duration: 0.3 }}
+                />
               </motion.button>
               
               <motion.button
                 onClick={onBecomeChef}
-                className="px-10 py-6 text-lg rounded-2xl border-2 border-slate-700 hover:border-orange-500/50 transition-all bg-slate-900/60 backdrop-blur-xl text-white font-semibold"
-                whileHover={{ scale: 1.05 }}
+                className="group px-10 py-6 text-lg rounded-2xl border-2 border-slate-700 hover:border-orange-500/50 transition-all bg-slate-900/60 backdrop-blur-xl text-white font-semibold relative overflow-hidden"
+                whileHover={{ 
+                  scale: 1.05,
+                  borderColor: "rgba(249, 115, 22, 0.5)"
+                }}
                 whileTap={{ scale: 0.95 }}
+                transition={elasticEase}
               >
-                <span className="flex items-center justify-center">
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-amber-500/10"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <span className="relative z-10 flex items-center justify-center">
                   Become a Chef
-                  <ChefHat className="ml-2 w-5 h-5" />
+                  <motion.div
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <ChefHat className="ml-2 w-5 h-5" />
+                  </motion.div>
                 </span>
               </motion.button>
             </motion.div>
@@ -441,21 +549,38 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.9 }}
+              transition={{ delay: 1.1, duration: 0.8 }}
               className="flex flex-wrap justify-center gap-8 text-slate-400 text-sm"
             >
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span>100% Safe & Hygienic</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-orange-500" />
-                <span>Lightning Fast Delivery</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-amber-500" />
-                <span>10,000+ Orders Delivered</span>
-              </div>
+              {[
+                { icon: Shield, text: "100% Safe & Hygienic", color: "text-green-500" },
+                { icon: Zap, text: "Lightning Fast Delivery", color: "text-orange-500" },
+                { icon: TrendingUp, text: "10,000+ Orders Delivered", color: "text-amber-500" }
+              ].map((badge, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-center gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 + index * 0.1 }}
+                  whileHover={{ scale: 1.1, y: -2 }}
+                >
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: index * 0.3
+                    }}
+                  >
+                    <badge.icon className={`w-4 h-4 ${badge.color}`} />
+                  </motion.div>
+                  <span>{badge.text}</span>
+                </motion.div>
+              ))}
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -500,32 +625,92 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* For Students Card */}
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -50, rotateY: -15 }}
+              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
               viewport={{ once: true }}
-              transition={{ ...springConfig, delay: 0.1 }}
-              whileHover={{ y: -8 }}
+              transition={{ 
+                duration: 0.8,
+                ease: [0.25, 0.1, 0.25, 1],
+                delay: 0.1
+              }}
+              whileHover={{ 
+                y: -12,
+                rotateY: 5,
+                transition: { duration: 0.3 }
+              }}
               className="group"
+              style={{ perspective: "1000px" }}
             >
-              <div className="rounded-3xl p-8 h-full border border-slate-800 hover:border-orange-500/30 transition-all duration-300 relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
-                {/* Card Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="rounded-3xl p-8 h-full border border-slate-800 hover:border-orange-500/30 transition-all duration-500 relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Animated gradient background */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  animate={{
+                    backgroundPosition: ["0% 0%", "100% 100%"]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                />
+                
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                  initial={{ x: "-100%" }}
+                  whileHover={{
+                    x: "100%",
+                    transition: { duration: 1.5, ease: "easeInOut" }
+                  }}
+                  style={{
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
+                  }}
+                />
                 
                 <div className="relative z-10">
                   {/* Icon */}
-                  <div className="mb-6 inline-block">
+                  <motion.div 
+                    className="mb-6 inline-block"
+                    whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 0.5 }}
+                  >
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/30 to-amber-500/30 rounded-2xl blur-xl" />
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-orange-500/30 to-amber-500/30 rounded-2xl blur-xl"
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 0.8, 0.5]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity
+                        }}
+                      />
                       <div className="relative w-16 h-16 bg-gradient-to-br from-orange-500/20 to-amber-500/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-orange-500/20">
                         <UtensilsCrossed className="w-8 h-8 text-orange-400" />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <h3 className="text-3xl font-bold text-white mb-3">For Students</h3>
-                  <p className="text-slate-400 mb-8 text-lg">
+                  <motion.h3 
+                    className="text-3xl font-bold text-white mb-3"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    For Students
+                  </motion.h3>
+                  <motion.p 
+                    className="text-slate-400 mb-8 text-lg"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 }}
+                  >
                     Browse delicious meals, place orders, and get food delivered right to your hostel
-                  </p>
+                  </motion.p>
 
                   {/* Features List */}
                   <ul className="space-y-4">
@@ -541,15 +726,27 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-start group/item"
+                        transition={{ 
+                          delay: 0.4 + index * 0.1,
+                          duration: 0.5,
+                          ease: [0.25, 0.1, 0.25, 1]
+                        }}
+                        whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                        className="flex items-start group/item cursor-default"
                       >
-                        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 shadow-lg">
+                        <motion.div 
+                          className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 shadow-lg"
+                          whileHover={{ 
+                            scale: 1.2,
+                            rotate: 360,
+                            transition: { duration: 0.5 }
+                          }}
+                        >
                           <svg className="w-3.5 h-3.5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M5 13l4 4L19 7"></path>
                           </svg>
-                        </div>
-                        <span className="text-slate-300 group-hover/item:text-white transition-colors">
+                        </motion.div>
+                        <span className="text-slate-300 group-hover/item:text-white transition-colors duration-300">
                           {feature}
                         </span>
                       </motion.li>
@@ -561,32 +758,93 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
 
             {/* For Chefs Card */}
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: 50, rotateY: 15 }}
+              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
               viewport={{ once: true }}
-              transition={{ ...springConfig, delay: 0.2 }}
-              whileHover={{ y: -8 }}
+              transition={{ 
+                duration: 0.8,
+                ease: [0.25, 0.1, 0.25, 1],
+                delay: 0.2
+              }}
+              whileHover={{ 
+                y: -12,
+                rotateY: -5,
+                transition: { duration: 0.3 }
+              }}
               className="group"
+              style={{ perspective: "1000px" }}
             >
-              <div className="rounded-3xl p-8 h-full border border-slate-800 hover:border-amber-500/30 transition-all duration-300 relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
-                {/* Card Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="rounded-3xl p-8 h-full border border-slate-800 hover:border-amber-500/30 transition-all duration-500 relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Animated gradient background */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  animate={{
+                    backgroundPosition: ["0% 0%", "100% 100%"]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                />
+                
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                  initial={{ x: "-100%" }}
+                  whileHover={{
+                    x: "100%",
+                    transition: { duration: 1.5, ease: "easeInOut" }
+                  }}
+                  style={{
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
+                  }}
+                />
                 
                 <div className="relative z-10">
                   {/* Icon */}
-                  <div className="mb-6 inline-block">
+                  <motion.div 
+                    className="mb-6 inline-block"
+                    whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 0.5 }}
+                  >
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/30 to-orange-500/30 rounded-2xl blur-xl" />
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-amber-500/30 to-orange-500/30 rounded-2xl blur-xl"
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 0.8, 0.5]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: 0.5
+                        }}
+                      />
                       <div className="relative w-16 h-16 bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-amber-500/20">
                         <ChefHat className="w-8 h-8 text-amber-400" />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <h3 className="text-3xl font-bold text-white mb-3">For Chefs</h3>
-                  <p className="text-slate-400 mb-8 text-lg">
+                  <motion.h3 
+                    className="text-3xl font-bold text-white mb-3"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    For Chefs
+                  </motion.h3>
+                  <motion.p 
+                    className="text-slate-400 mb-8 text-lg"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 }}
+                  >
                     Create and manage your menu, receive orders, and showcase your culinary skills
-                  </p>
+                  </motion.p>
 
                   {/* Features List */}
                   <ul className="space-y-4">
@@ -602,15 +860,27 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-start group/item"
+                        transition={{ 
+                          delay: 0.4 + index * 0.1,
+                          duration: 0.5,
+                          ease: [0.25, 0.1, 0.25, 1]
+                        }}
+                        whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                        className="flex items-start group/item cursor-default"
                       >
-                        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 shadow-lg">
+                        <motion.div 
+                          className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 shadow-lg"
+                          whileHover={{ 
+                            scale: 1.2,
+                            rotate: 360,
+                            transition: { duration: 0.5 }
+                          }}
+                        >
                           <svg className="w-3.5 h-3.5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M5 13l4 4L19 7"></path>
                           </svg>
-                        </div>
-                        <span className="text-slate-300 group-hover/item:text-white transition-colors">
+                        </motion.div>
+                        <span className="text-slate-300 group-hover/item:text-white transition-colors duration-300">
                           {feature}
                         </span>
                       </motion.li>
