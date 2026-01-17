@@ -111,6 +111,19 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-12 px-4 relative overflow-hidden">
+      {/* Food Background Image with Blur */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
+            filter: "blur(8px)",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/30 via-slate-900/80 to-slate-950/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
+      </div>
+
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
