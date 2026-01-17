@@ -418,11 +418,15 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
                   }}
                 />
                 <motion.div 
-                  className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl"
+                  className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl overflow-hidden"
                   whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                   transition={{ duration: 0.5 }}
                 >
-                  <ChefHat className="w-10 h-10 text-white" />
+                  <img 
+                    src="/best.png" 
+                    alt="PlatePal Logo" 
+                    className="w-12 h-12 object-contain"
+                  />
                 </motion.div>
               </motion.div>
             </motion.div>
