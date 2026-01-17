@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { UtensilsCrossed, Mail, Lock, Sparkles, Star, ArrowRight } from 'lucide-react';
+import { UtensilsCrossed, Mail, Lock, Sparkles, Star, ArrowRight, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
 import { useNavigate } from 'react-router-dom';
@@ -69,9 +69,9 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Food Background Image with Blur */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Food Background Image with Blur - FULL SCREEN */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-60"
           style={{
@@ -84,7 +84,7 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
       </div>
 
       {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <motion.div
           className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl"
           animate={{
@@ -119,14 +119,101 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
         </motion.div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Header Card */}
-        <motion.div 
-          {...fadeInUp}
-          className="bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 mb-6 border border-slate-800"
+      {/* Left Side - Branding Panel */}
+      <div className="hidden lg:flex lg:w-2/5 xl:w-1/2 relative z-10 p-12 flex-col justify-between">
+        {/* Content */}
+        <div>
+          {/* Logo */}
+          <motion.div 
+            className="flex items-center gap-3 mb-12"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <motion.div 
+              className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20"
+              whileHover={{ scale: 1.1, rotate: 360 }}
+              transition={{ duration: 0.6 }}
+            >
+              <UtensilsCrossed className="w-7 h-7 text-orange-400" />
+            </motion.div>
+            <span className="text-2xl font-bold text-white">PlatePal</span>
+          </motion.div>
+
+          {/* Hero Content */}
+          <motion.div 
+            className="space-y-6 max-w-md"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight">
+              Welcome Back!
+            </h1>
+            <p className="text-lg text-slate-300 leading-relaxed">
+              Sign in to continue your culinary journey. Access your orders, favorites, and connect with amazing chefs.
+            </p>
+
+            {/* Features */}
+            <motion.div 
+              className="space-y-4 pt-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              {[
+                'Order from local chefs near you',
+                'Track your orders in real-time',
+                'Support local culinary talent'
+              ].map((feature, index) => (
+                <motion.div 
+                  key={index}
+                  className="flex items-center gap-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500/20 to-amber-500/20 backdrop-blur-xl flex items-center justify-center flex-shrink-0 border border-orange-500/20">
+                    <Check className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <p className="text-slate-300">{feature}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Bottom Stats */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
         >
-          <div className="text-center">
-            {/* Logo Badge */}
+          <div className="grid grid-cols-3 gap-6">
+            <div className="space-y-1">
+              <div className="text-3xl font-bold text-white">500+</div>
+              <div className="text-sm text-slate-400">Chefs</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl font-bold text-white">2K+</div>
+              <div className="text-sm text-slate-400">Students</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl font-bold text-white">4.9★</div>
+              <div className="text-sm text-slate-400">Rating</div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Right Side - Login Form */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 relative z-10">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo (only visible on mobile) */}
+          <motion.div 
+            className="lg:hidden text-center mb-8"
+            {...fadeInUp}
+          >
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -156,53 +243,38 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
                   }}
                 />
                 <motion.div 
-                  className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl"
+                  className="relative w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl"
                   whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                   transition={{ duration: 0.5 }}
                 >
                   <img 
                     src="/best.png" 
                     alt="PlatePal Logo" 
-                    className="w-12 h-12 object-contain"
+                    className="w-10 h-10 object-contain"
                   />
                 </motion.div>
               </motion.div>
             </motion.div>
+            <h2 className="text-2xl font-bold text-white">Welcome Back!</h2>
+            <p className="text-slate-400 mt-1">Sign in to continue to PlatePal</p>
+          </motion.div>
 
-            {/* Title with Gradient */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ 
-                duration: 0.8,
-                ease: [0.25, 0.1, 0.25, 1],
-                delay: 0.3
-              }}
-              className="text-4xl md:text-5xl font-bold mb-3"
-            >
-              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 text-transparent bg-clip-text">
-                Welcome Back!
-              </span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
+          {/* Form Card */}
+          <motion.div 
+            {...scaleIn}
+            transition={{ delay: 0.2 }}
+            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-10 border border-slate-800"
+          >
+            {/* Desktop Header */}
+            <motion.div 
+              className="hidden lg:block mb-8"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-slate-400 text-lg"
+              transition={{ delay: 0.3 }}
             >
-              Sign in to continue to PlatePal
-            </motion.p>
-          </div>
-        </motion.div>
-
-        {/* Main Login Card */}
-        <motion.div 
-          {...scaleIn}
-          transition={{ delay: 0.2 }}
-          className="bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-slate-800"
-        >
+              <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
+              <p className="text-slate-400">Welcome back! Please enter your details</p>
+            </motion.div>
           {alert && (
             <motion.div
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -303,7 +375,7 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Sign Up
+                Create Account
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-400 to-amber-400"
                   initial={{ scaleX: 0 }}
@@ -314,7 +386,18 @@ export const Login = ({ onSwitchToRegister }: LoginProps) => {
             </p>
           </motion.div>
         </motion.div>
+
+        {/* Footer Note */}
+        <motion.p 
+          className="text-center text-sm text-slate-500 mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          Secure login powered by PlatePal
+        </motion.p>
       </div>
+    </div>
     </div>
   );
 };
