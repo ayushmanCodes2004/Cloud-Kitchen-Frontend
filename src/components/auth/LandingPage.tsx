@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, Clock, UtensilsCrossed, Star, ChefHat } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, Clock, UtensilsCrossed, Star, ChefHat, Sparkles, Zap, Shield, TrendingUp } from 'lucide-react';
 import { testimonialApi, TestimonialResponse } from '@/services/testimonialApi';
 
 interface LandingPageProps {
@@ -10,6 +10,13 @@ interface LandingPageProps {
 }
 
 // Animation configurations
+const springConfig = {
+  type: "spring" as const,
+  damping: 25,
+  stiffness: 120,
+  mass: 0.5
+};
+
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
   animate: { opacity: 1, y: 0 },
@@ -26,6 +33,9 @@ const staggerContainer = {
 
 export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageProps) => {
   const [realTestimonials, setRealTestimonials] = useState<TestimonialResponse[]>([]);
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.95]);
 
   useEffect(() => {
     loadTestimonials();
@@ -36,7 +46,6 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       const testimonials = await testimonialApi.getApprovedTestimonials();
       console.log('Fetched approved testimonials:', testimonials);
       
-      // Sort by newest first (redundant safety check in case backend isn't updated yet)
       const sortedTestimonials = (testimonials || []).sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
@@ -46,6 +55,20 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       console.error('Failed to load testimonials:', error);
       setRealTestimonials([]);
     }
+  };
+
+  const getAvatarColor = (index: number) => {
+    const colors = [
+      "from-orange-500 to-rose-600",
+      "from-green-500 to-emerald-600",
+      "from-blue-500 to-cyan-600",
+      "from-purple-500 to-pink-600",
+      "from-amber-500 to-yellow-600",
+      "from-red-500 to-orange-600",
+      "from-indigo-500 to-blue-600",
+      "from-teal-500 to-green-600"
+    ];
+    return colors[index % colors.length];
   };
 
   // Static fallback testimonials
@@ -280,107 +303,178 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
   const allTestimonials = [...realTestimonials, ...staticTestimonials];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 10, repeat: Infinity }}
+        />
+      </div>
+
       {/* Hero Section */}
-      <section className="relative h-screen flex flex-col items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-orange-400 via-red-400 to-red-500">
-        {/* Background Image with Blur and Overlay */}
-        <motion.div 
-          className="absolute inset-0"
-          initial={{ scale: 1.2, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        >
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
+      <motion.section 
+        style={{ opacity: heroOpacity, scale: heroScale }}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      >
+        {/* Hero Background with Gradient Overlay */}
+        <div className="absolute inset-0">
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-30"
             style={{
               backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
-              filter: 'blur(2px)',
-              transform: 'scale(1.1)'
             }}
-          ></div>
-          {/* Orange/Red Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-400/95 via-red-400/95 to-red-500/95"></div>
-        </motion.div>
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto flex-1 flex flex-col items-center justify-center">
-          {/* Chef Hat Icon */}
-          <motion.div 
-            className="mb-8"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 260,
-              damping: 20,
-              delay: 0.2
-            }}
-          >
-            <img 
-              src="/best.png" 
-              alt="Chef Hat" 
-              className="w-24 h-24 md:w-32 md:h-32 mx-auto drop-shadow-2xl"
-            />
-          </motion.div>
-          
-          <motion.h1 
-            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            Welcome to PlatePal
-          </motion.h1>
-          
-          <motion.p 
-            className="text-xl md:text-2xl text-white/90 mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            Your kitchen, just a tap away
-          </motion.p>
-          
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-          >
-            <motion.button
-              onClick={onOrderNow}
-              className="group px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Order Now
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.button>
-            <motion.button
-              onClick={onBecomeChef}
-              className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Become a Chef
-            </motion.button>
-          </motion.div>
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-600/40 via-amber-600/30 to-rose-600/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
         </div>
 
-        {/* Scroll indicator - Animated Mouse */}
-        <motion.div 
-          className="relative z-10 pb-8"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        {/* Floating Elements */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 text-orange-400/20"
+          animate={{ y: [-20, 20, -20], rotate: [0, 10, 0] }}
+          transition={{ duration: 5, repeat: Infinity }}
         >
-          <div className="w-8 h-12 mx-auto border-2 border-white/60 rounded-full flex items-start justify-center p-2">
-            <motion.div 
-              className="w-1.5 h-2.5 bg-white/80 rounded-full"
-              animate={{ y: [0, 12, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-            />
-          </div>
+          <Sparkles size={60} />
         </motion.div>
-      </section>
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 text-amber-400/20"
+          animate={{ y: [20, -20, 20], rotate: [0, -10, 0] }}
+          transition={{ duration: 6, repeat: Infinity }}
+        >
+          <Star size={50} />
+        </motion.div>
+
+        {/* Content */}
+        <div className="container relative z-10 text-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={springConfig}
+            className="flex flex-col items-center max-w-5xl mx-auto"
+          >
+            {/* Logo Badge */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ ...springConfig, delay: 0.2 }}
+              className="mb-8"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-amber-500 rounded-3xl blur-xl opacity-50" />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                  <ChefHat className="w-10 h-10 text-white" />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Main Heading with Gradient */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springConfig, delay: 0.3 }}
+              className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
+            >
+              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 text-transparent bg-clip-text">
+                Welcome to
+              </span>
+              <br />
+              <span className="text-white">PlatePal</span>
+            </motion.h1>
+
+            {/* Tagline */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl font-light"
+            >
+              Your kitchen, just a tap away. Delicious meals from talented chefs, delivered straight to your hostel room.
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="flex flex-col sm:flex-row gap-4 mb-20"
+            >
+              <motion.button
+                onClick={onOrderNow}
+                className="group relative bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-10 py-6 text-lg rounded-2xl shadow-2xl border-0 overflow-hidden font-semibold"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="relative z-10 flex items-center justify-center">
+                  Order Now
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </motion.button>
+              
+              <motion.button
+                onClick={onBecomeChef}
+                className="px-10 py-6 text-lg rounded-2xl border-2 border-slate-700 hover:border-orange-500/50 transition-all bg-slate-900/60 backdrop-blur-xl text-white font-semibold"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="flex items-center justify-center">
+                  Become a Chef
+                  <ChefHat className="ml-2 w-5 h-5" />
+                </span>
+              </motion.button>
+            </motion.div>
+
+            {/* Trust Badges */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="flex flex-wrap justify-center gap-8 text-slate-400 text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-green-500" />
+                <span>100% Safe & Hygienic</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-orange-500" />
+                <span>Lightning Fast Delivery</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-amber-500" />
+                <span>10,000+ Orders Delivered</span>
+              </div>
+            </motion.div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              className="absolute bottom-10"
+              animate={{ y: [0, 12, 0] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            >
+              <div className="w-6 h-10 border-2 border-slate-600 rounded-full flex justify-center pt-2">
+                <motion.div
+                  className="w-1.5 h-2 bg-gradient-to-b from-orange-500 to-amber-500 rounded-full"
+                  animate={{ y: [0, 16, 0], opacity: [1, 0.3, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.section>
 
       {/* Join Our Platform Section */}
       <section className="py-20 px-4 bg-white">
