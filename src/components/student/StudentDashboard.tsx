@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingCart, 
   PackageSearch, 
@@ -184,127 +185,215 @@ export const StudentDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"
+          />
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-slate-300"
+          >
+            Loading your dashboard...
+          </motion.p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex relative overflow-hidden">
+      {/* Food Background Image with Blur */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-60"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
+            filter: "blur(4px)",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 via-slate-900/40 to-slate-950/60" />
+      </div>
+
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div
+          className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
       {/* Sidebar Navigation */}
-      <div className="w-64 bg-white border-r border-gray-200 shadow-sm fixed left-0 top-0 h-screen overflow-y-auto flex flex-col">
+      <motion.div
+        initial={{ x: -300, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="w-64 bg-slate-900/60 backdrop-blur-xl border-r border-slate-700/50 shadow-xl fixed left-0 top-0 h-screen overflow-y-auto flex flex-col z-40"
+      >
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-8 p-6">
-          <img src="/best.png" alt="PlatePal" className="w-8 h-8 object-contain" />
-          <span className="text-xl font-bold text-gray-900">PlatePal</span>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          className="flex items-center gap-3 mb-8 p-6"
+        >
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 360 }}
+            transition={{ duration: 0.6, type: "spring" }}
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20 overflow-hidden"
+          >
+            <img src="/best.png" alt="PlatePal" className="w-7 h-7 object-contain" />
+          </motion.div>
+          <span className="text-xl font-bold text-white">PlatePal</span>
+        </motion.div>
 
         {/* Navigation Menu */}
         <nav className="space-y-2 flex-1 p-4 flex flex-col">
           <div className="space-y-2">
-            <NavItemIcon 
-              icon={UtensilsCrossed}
-              label="Menu" 
-              active={activeTab === 'menu'}
-              onClick={() => setActiveTab('menu')}
-            />
-            <NavItemIcon 
-              icon={Heart}
-              label="Favourites" 
-              active={activeTab === 'favourites'}
-              onClick={() => setActiveTab('favourites')}
-            />
-            <NavItemIcon 
-              icon={PackageSearch}
-              label="My Orders" 
-              active={activeTab === 'orders'}
-              onClick={() => setActiveTab('orders')}
-            />
-            <NavItemIcon 
-              icon={Crown}
-              label="Gold Plan" 
-              active={false}
-              onClick={() => navigate('/student/subscription')}
-            />
-            <NavItemIcon 
-              icon={Sparkles}
-              label="AI Meal Builder" 
-              active={false}
-              onClick={() => navigate('/student/ai-meal-builder')}
-            />
-            <NavItemIcon 
-              icon={MessageCircle}
-              label="Testimonial" 
-              active={activeTab === 'testimonial'}
-              onClick={() => setActiveTab('testimonial')}
-            />
+            {[
+              { icon: UtensilsCrossed, label: 'Menu', tab: 'menu', onClick: () => setActiveTab('menu') },
+              { icon: Heart, label: 'Favourites', tab: 'favourites', onClick: () => setActiveTab('favourites') },
+              { icon: PackageSearch, label: 'My Orders', tab: 'orders', onClick: () => setActiveTab('orders') },
+              { icon: Crown, label: 'Gold Plan', tab: null, onClick: () => navigate('/student/subscription') },
+              { icon: Sparkles, label: 'AI Meal Builder', tab: null, onClick: () => navigate('/student/ai-meal-builder') },
+              { icon: MessageCircle, label: 'Testimonial', tab: 'testimonial', onClick: () => setActiveTab('testimonial') }
+            ].map((item, index) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + index * 0.05, type: "spring", stiffness: 200 }}
+              >
+                <NavItemIcon 
+                  icon={item.icon}
+                  label={item.label} 
+                  active={activeTab === item.tab}
+                  onClick={item.onClick}
+                />
+              </motion.div>
+            ))}
           </div>
         </nav>
 
         {/* Logout Button - Bottom of Sidebar */}
-        <div className="p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+          className="p-4"
+        >
           <NavItemIcon 
             icon={LogOut}
             label="Logout" 
             active={false}
             onClick={logout}
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-64">
+      <div className="flex-1 ml-64 relative z-10">
         {/* Top Header */}
-        <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", damping: 25, stiffness: 200, delay: 0.2 }}
+          className="bg-slate-900/60 backdrop-blur-xl border-b border-slate-700/50 sticky top-0 z-40"
+        >
           <div className="px-8 py-4 flex items-center justify-between">
             {/* Search Bar - Only show in menu tab */}
             <div className="flex-1 max-w-2xl">
-              {activeTab === 'menu' && (
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search menu items..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-base bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
-              )}
+              <AnimatePresence mode="wait">
+                {activeTab === 'menu' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="relative"
+                  >
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder="Search menu items..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 text-base bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Right Actions */}
             <div className="flex items-center gap-4 ml-8">
               {/* Cart */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setShowCart(true)}
-                className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                className="relative p-2 text-slate-300 hover:bg-slate-800/50 rounded-lg transition"
               >
                 <ShoppingCart className="w-5 h-5" />
-                {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
-                  </span>
-                )}
-              </button>
+                <AnimatePresence>
+                  {cart.length > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg shadow-orange-500/50"
+                    >
+                      {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
 
               {/* User Profile */}
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="flex items-center gap-3 pl-4 border-l border-slate-700/50"
+              >
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs font-semibold text-gray-700">Student</p>
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <p className="text-xs font-semibold text-slate-400">Student</p>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                  <User className="w-5 h-5 text-orange-600" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500/30 to-amber-500/30 backdrop-blur-xl flex items-center justify-center border border-orange-500/20">
+                  <User className="w-5 h-5 text-orange-400" />
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Page Content */}
-        <div className="p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="p-8"
+        >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="hidden">
               <TabsList className="bg-transparent border-0 h-auto">
@@ -362,16 +451,16 @@ export const StudentDashboard = () => {
 
             <TabsContent value="orders" className="mt-0">
               <Tabs defaultValue="active" className="w-full">
-                <TabsList className="bg-transparent border-0 h-auto mb-4">
+                <TabsList className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 h-auto mb-4 p-1">
                   <TabsTrigger
                     value="active"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-5 py-2.5 rounded-md text-sm md:text-base"
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/30 text-slate-300 font-medium px-5 py-2.5 rounded-md text-sm md:text-base transition-all"
                   >
                     Active Orders
                   </TabsTrigger>
                   <TabsTrigger
                     value="all"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-5 py-2.5 rounded-md text-sm md:text-base"
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/30 text-slate-300 font-medium px-5 py-2.5 rounded-md text-sm md:text-base transition-all"
                   >
                     Order History
                   </TabsTrigger>
@@ -396,20 +485,20 @@ export const StudentDashboard = () => {
             <TabsContent value="testimonial" className="p-6 mt-0">
               <div className="max-w-2xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold">Share Your Experience</h2>
+                  <h2 className="text-2xl font-bold text-white">Share Your Experience</h2>
                   <button 
                     onClick={() => setActiveTab('menu')}
-                    className="p-2 hover:bg-gray-100 rounded-full"
+                    className="p-2 hover:bg-slate-800/50 rounded-full transition"
                     title="Back to menu"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-slate-400" />
                   </button>
                 </div>
                 <TestimonialForm />
               </div>
             </TabsContent>
           </Tabs>
-        </div>
+        </motion.div>
 
         {showCart && (
           <Cart
@@ -440,15 +529,24 @@ interface NavItemIconProps {
 }
 
 const NavItemIcon = ({ icon: Icon, label, active, onClick }: NavItemIconProps) => (
-  <button
+  <motion.button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+    whileHover={{ x: 4, scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative overflow-hidden ${
       active
-        ? 'bg-orange-100 text-orange-600'
-        : 'text-gray-600 hover:bg-gray-100'
+        ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/20'
+        : 'text-slate-300 hover:bg-slate-800/50 hover:text-white border border-transparent'
     }`}
   >
-    <Icon className="w-5 h-5" />
-    <span className="font-medium text-sm">{label}</span>
-  </button>
+    {active && (
+      <motion.div
+        layoutId="activeIndicator"
+        className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-amber-500/10"
+        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+      />
+    )}
+    <Icon className={`w-5 h-5 relative z-10 ${active ? 'text-orange-400' : ''}`} />
+    <span className="font-medium text-sm relative z-10">{label}</span>
+  </motion.button>
 );
