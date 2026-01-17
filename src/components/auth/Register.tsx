@@ -114,14 +114,14 @@ export const Register = ({ onSwitchToLogin, chefOnly = false, studentOnly = fals
       {/* Food Background Image with Blur */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
+          className="absolute inset-0 bg-cover bg-center opacity-60"
           style={{
             backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
-            filter: "blur(8px)",
+            filter: "blur(4px)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/30 via-slate-900/80 to-slate-950/90" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 via-slate-900/40 to-slate-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
       </div>
 
       {/* Animated Background Elements */}
