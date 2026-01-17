@@ -477,136 +477,166 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       </motion.section>
 
       {/* Join Our Platform Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2 
-            className="text-4xl font-bold text-center text-gray-900 mb-16"
-            {...fadeInUp}
-            viewport={{ once: true, margin: "-100px" }}
-            whileInView="animate"
-            initial="initial"
+      <section className="relative py-32 px-6">
+        <div className="container max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={springConfig}
+            className="text-center mb-16"
           >
-            Join Our Platform
-          </motion.h2>
+            <span className="inline-block px-4 py-2 bg-orange-500/10 text-orange-400 rounded-full text-sm font-semibold mb-4 border border-orange-500/20">
+              Choose Your Path
+            </span>
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
+              Join Our Platform
+            </h2>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              Whether you're hungry or a culinary artist, we've got you covered
+            </p>
+          </motion.div>
 
-          <motion.div 
-            className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: "-100px" }}
-          >
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* For Students Card */}
-            <motion.div 
-              variants={fadeInUp}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300"
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...springConfig, delay: 0.1 }}
+              whileHover={{ y: -8 }}
+              className="group"
             >
-              <motion.div 
-                className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-6"
-                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
-              >
-                <UtensilsCrossed className="w-8 h-8 text-orange-500" />
-              </motion.div>
-              
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                For Students
-              </h3>
-              
-              <p className="text-gray-600 mb-6">
-                Browse delicious meals, place orders, and get food delivered right to your hostel
-              </p>
-
-              <div className="space-y-3">
-                {[
-                  "Quick delivery to hostel",
-                  "Wide variety of cuisines",
-                  "Affordable student-friendly pricing",
-                  "Real-time order tracking",
-                  "24/7 customer support"
-                ].map((feature, index) => (
-                  <motion.div 
-                    key={index}
-                    className="flex items-center gap-2 text-sm text-gray-700"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                        <path d="M5 13l4 4L19 7"></path>
-                      </svg>
+              <div className="rounded-3xl p-8 h-full border border-slate-800 hover:border-orange-500/30 transition-all duration-300 relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Card Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="mb-6 inline-block">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/30 to-amber-500/30 rounded-2xl blur-xl" />
+                      <div className="relative w-16 h-16 bg-gradient-to-br from-orange-500/20 to-amber-500/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-orange-500/20">
+                        <UtensilsCrossed className="w-8 h-8 text-orange-400" />
+                      </div>
                     </div>
-                    <span>{feature}</span>
-                  </motion.div>
-                ))}
+                  </div>
+
+                  <h3 className="text-3xl font-bold text-white mb-3">For Students</h3>
+                  <p className="text-slate-400 mb-8 text-lg">
+                    Browse delicious meals, place orders, and get food delivered right to your hostel
+                  </p>
+
+                  {/* Features List */}
+                  <ul className="space-y-4">
+                    {[
+                      "Quick delivery to hostel",
+                      "Wide variety of cuisines",
+                      "Affordable student-friendly pricing",
+                      "Real-time order tracking",
+                      "24/7 customer support"
+                    ].map((feature, index) => (
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-start group/item"
+                      >
+                        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 shadow-lg">
+                          <svg className="w-3.5 h-3.5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M5 13l4 4L19 7"></path>
+                          </svg>
+                        </div>
+                        <span className="text-slate-300 group-hover/item:text-white transition-colors">
+                          {feature}
+                        </span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </motion.div>
 
             {/* For Chefs Card */}
-            <motion.div 
-              variants={fadeInUp}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300"
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...springConfig, delay: 0.2 }}
+              whileHover={{ y: -8 }}
+              className="group"
             >
-              <motion.div 
-                className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-6"
-                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
-              >
-                <ChefHat className="w-8 h-8 text-orange-500" />
-              </motion.div>
-              
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                For Chefs
-              </h3>
-              
-              <p className="text-gray-600 mb-6">
-                Create and manage your menu, receive orders, and showcase your culinary skills
-              </p>
-
-              <div className="space-y-3">
-                {[
-                  "Manage your menu easily",
-                  "Reach more customers",
-                  "Flexible working hours",
-                  "Real-time order management",
-                  "Build your culinary brand"
-                ].map((feature, index) => (
-                  <motion.div 
-                    key={index}
-                    className="flex items-center gap-2 text-sm text-gray-700"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                        <path d="M5 13l4 4L19 7"></path>
-                      </svg>
+              <div className="rounded-3xl p-8 h-full border border-slate-800 hover:border-amber-500/30 transition-all duration-300 relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Card Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="mb-6 inline-block">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/30 to-orange-500/30 rounded-2xl blur-xl" />
+                      <div className="relative w-16 h-16 bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-amber-500/20">
+                        <ChefHat className="w-8 h-8 text-amber-400" />
+                      </div>
                     </div>
-                    <span>{feature}</span>
-                  </motion.div>
-                ))}
+                  </div>
+
+                  <h3 className="text-3xl font-bold text-white mb-3">For Chefs</h3>
+                  <p className="text-slate-400 mb-8 text-lg">
+                    Create and manage your menu, receive orders, and showcase your culinary skills
+                  </p>
+
+                  {/* Features List */}
+                  <ul className="space-y-4">
+                    {[
+                      "Manage your menu easily",
+                      "Reach more customers",
+                      "Flexible working hours",
+                      "Real-time order management",
+                      "Build your culinary brand"
+                    ].map((feature, index) => (
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-start group/item"
+                      >
+                        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 shadow-lg">
+                          <svg className="w-3.5 h-3.5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M5 13l4 4L19 7"></path>
+                          </svg>
+                        </div>
+                        <span className="text-slate-300 group-hover/item:text-white transition-colors">
+                          {feature}
+                        </span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="text-center mt-8"
+          {/* Sign In Link */}
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
+            className="text-center mt-12"
           >
-            <p className="text-gray-600">
-              Already have an account?{' '}
+            <p className="text-slate-400 text-lg">
+              Already have an account?{" "}
               <button
                 onClick={onSignIn}
-                className="text-orange-500 font-semibold hover:text-orange-600 transition-colors"
+                className="text-orange-400 font-semibold hover:text-orange-300 transition-colors inline-flex items-center group"
               >
                 Sign In
+                <ArrowRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </p>
           </motion.div>
@@ -614,170 +644,202 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2 
-            className="text-4xl font-bold text-center text-gray-900 mb-16"
-            {...fadeInUp}
-            viewport={{ once: true, margin: "-100px" }}
-            whileInView="animate"
-            initial="initial"
+      <section className="relative py-32 px-6">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-transparent" />
+        
+        <div className="container max-w-7xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={springConfig}
+            className="text-center mb-16"
           >
-            Why Choose Us?
-          </motion.h2>
+            <span className="inline-block px-4 py-2 bg-amber-500/10 text-amber-400 rounded-full text-sm font-semibold mb-4 border border-amber-500/20">
+              Why PlatePal?
+            </span>
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
+              Built for Your Success
+            </h2>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              Experience the difference with our premium features
+            </p>
+          </motion.div>
 
-          <motion.div 
-            className="grid md:grid-cols-3 gap-12"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: "-100px" }}
-          >
+          <div className="grid md:grid-cols-3 gap-8">
             {/* Fast Delivery */}
-            <motion.div 
-              className="text-center"
-              variants={fadeInUp}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...springConfig, delay: 0.1 }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group"
             >
-              <motion.div 
-                className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"
-                whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
-              >
-                <Clock className="w-10 h-10 text-orange-500" />
-              </motion.div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Fast Delivery
-              </h3>
-              <p className="text-gray-600">
-                Quick delivery to your hostel room within minutes
-              </p>
+              <div className="rounded-3xl p-8 text-center border border-slate-800 hover:border-blue-500/30 transition-all duration-300 h-full relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Gradient Orb */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  <div className="mb-6 inline-block">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full blur-2xl animate-pulse" />
+                      <div className="relative w-20 h-20 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-blue-500/20 mx-auto">
+                        <Clock className="w-10 h-10 text-blue-400" />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Fast Delivery</h3>
+                  <p className="text-slate-400 leading-relaxed">
+                    Quick delivery to your hostel room within minutes. Hot food, happy you!
+                  </p>
+                </div>
+              </div>
             </motion.div>
 
             {/* Expert Chefs */}
-            <motion.div 
-              className="text-center"
-              variants={fadeInUp}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...springConfig, delay: 0.2 }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group"
             >
-              <motion.div 
-                className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"
-                whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
-              >
-                <ChefHat className="w-10 h-10 text-orange-500" />
-              </motion.div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Expert Chefs
-              </h3>
-              <p className="text-gray-600">
-                Meals prepared by experienced professional chefs
-              </p>
+              <div className="rounded-3xl p-8 text-center border border-slate-800 hover:border-orange-500/30 transition-all duration-300 h-full relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Gradient Orb */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/20 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  <div className="mb-6 inline-block">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/30 to-amber-500/30 rounded-full blur-2xl animate-pulse" />
+                      <div className="relative w-20 h-20 bg-gradient-to-br from-orange-500/20 to-amber-500/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-orange-500/20 mx-auto">
+                        <ChefHat className="w-10 h-10 text-orange-400" />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Expert Chefs</h3>
+                  <p className="text-slate-400 leading-relaxed">
+                    Meals prepared by experienced professional chefs who pour their heart into every dish
+                  </p>
+                </div>
+              </div>
             </motion.div>
 
             {/* Student Friendly */}
-            <motion.div 
-              className="text-center"
-              variants={fadeInUp}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...springConfig, delay: 0.3 }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="group"
             >
-              <motion.div 
-                className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"
-                whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
-              >
-                <Star className="w-10 h-10 text-orange-500" />
-              </motion.div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Student Friendly
-              </h3>
-              <p className="text-gray-600">
-                Affordable pricing perfect for student budgets
-              </p>
+              <div className="rounded-3xl p-8 text-center border border-slate-800 hover:border-green-500/30 transition-all duration-300 h-full relative overflow-hidden bg-slate-900/60 backdrop-blur-xl">
+                {/* Gradient Orb */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/20 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative z-10">
+                  <div className="mb-6 inline-block">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/30 to-emerald-500/30 rounded-full blur-2xl animate-pulse" />
+                      <div className="relative w-20 h-20 bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-green-500/20 mx-auto">
+                        <Star className="w-10 h-10 text-green-400" />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Student Friendly</h3>
+                  <p className="text-slate-400 leading-relaxed">
+                    Affordable pricing perfect for student budgets without compromising on quality
+                  </p>
+                </div>
+              </div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2 
-            className="text-4xl font-bold text-center text-gray-900 mb-4"
-            {...fadeInUp}
-            viewport={{ once: true, margin: "-100px" }}
-            whileInView="animate"
-            initial="initial"
-          >
-            What Our Users Say
-          </motion.h2>
-          <motion.p 
-            className="text-center text-gray-600 mb-8 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
+      <section className="relative py-32 px-6">
+        <div className="container max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            transition={springConfig}
+            className="text-center mb-16"
           >
-            Don't just take our word for it - hear from students and chefs who are already part of the PlatePal community
-          </motion.p>
-          <motion.p 
-            className="text-center text-orange-500 text-sm mb-8 font-medium"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            👈 Scroll to see more reviews 👉
-          </motion.p>
+            <span className="inline-block px-4 py-2 bg-purple-500/10 text-purple-400 rounded-full text-sm font-semibold mb-4 border border-purple-500/20">
+              Testimonials
+            </span>
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
+              What Our Users Say
+            </h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-6">
+              Don't just take our word for it - hear from students and chefs who are already part of the PlatePal community
+            </p>
+            <p className="text-slate-500 text-sm">
+              👈 Scroll to see more reviews 👉
+            </p>
+          </motion.div>
 
-          <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-            <motion.div 
-              className="flex gap-6 min-w-max"
+          {/* Horizontal Scrolling Testimonials */}
+          <div className="overflow-x-auto pb-4 hide-scrollbar">
+            <motion.div
+              className="flex gap-6 px-4"
+              style={{ width: "max-content" }}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-            {allTestimonials.map((testimonial, index) => (
-            <motion.div 
-              key={testimonial.id} 
-              className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 flex-shrink-0 w-80 h-64 flex flex-col"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: Math.min(index * 0.05, 0.5) }}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-            >
-              <p className="text-gray-700 mb-6 italic flex-grow">
-                "{testimonial.content}"
-              </p>
-              <div className="pt-4 border-t border-gray-100 mt-auto">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <motion.div 
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white font-bold"
-                      whileHover={{ scale: 1.1, rotate: 360, transition: { duration: 0.5 } }}
-                    >
-                      {testimonial.userName.charAt(0).toUpperCase()}
-                    </motion.div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{testimonial.userName}</p>
-                      <p className="text-xs text-gray-500">
-                        {testimonial.userRole === 'STUDENT' ? testimonial.institution || 'Student' : 'Chef'}
-                      </p>
+              {allTestimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: Math.min(index * 0.05, 0.5) }}
+                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                  className="flex-shrink-0 w-80"
+                >
+                  <div className="rounded-3xl p-6 border border-slate-800 hover:border-purple-500/30 transition-all duration-300 h-full flex flex-col bg-slate-900/60 backdrop-blur-xl">
+                    <p className="text-slate-300 mb-6 italic flex-grow leading-relaxed">
+                      "{testimonial.content}"
+                    </p>
+                    <div className="pt-4 border-t border-slate-800 mt-auto">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <motion.div
+                            className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(index)} flex items-center justify-center text-white font-bold shadow-lg`}
+                            whileHover={{ scale: 1.1, rotate: 360, transition: { duration: 0.5 } }}
+                          >
+                            {testimonial.userName.charAt(0).toUpperCase()}
+                          </motion.div>
+                          <div>
+                            <p className="font-semibold text-white">{testimonial.userName}</p>
+                            <p className="text-xs text-slate-500">
+                              {testimonial.userRole === 'STUDENT' ? testimonial.institution || 'Student' : 'Chef'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            ))}
+                </motion.div>
+              ))}
             </motion.div>
           </div>
 
           {/* Trust Stats */}
-          <motion.div 
+          <motion.div
             className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
             variants={staggerContainer}
             initial="initial"
@@ -790,27 +852,27 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
               { value: "10k+", label: "Orders Delivered" },
               { value: "4.8", label: "Average Rating" }
             ].map((stat, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 className="text-center"
                 variants={fadeInUp}
                 whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
               >
-                <motion.p 
-                  className="text-4xl font-bold text-orange-500 mb-2"
+                <motion.p
+                  className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-amber-500 text-transparent bg-clip-text mb-2"
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ 
+                  transition={{
                     type: "spring",
                     stiffness: 260,
                     damping: 20,
-                    delay: index * 0.1 
+                    delay: index * 0.1
                   }}
                 >
                   {stat.value}
                 </motion.p>
-                <p className="text-gray-600 text-sm">{stat.label}</p>
+                <p className="text-slate-400 text-sm">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -818,13 +880,28 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 bg-white border-t border-gray-200">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-gray-600 text-sm">
+      <footer className="py-12 px-6 border-t border-slate-800">
+        <div className="container max-w-7xl mx-auto text-center">
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-slate-500"
+          >
             © 2025 PlatePal. All rights reserved.
-          </p>
+          </motion.p>
         </div>
       </footer>
+
+      <style>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };
