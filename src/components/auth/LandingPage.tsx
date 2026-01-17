@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowRight, Clock, UtensilsCrossed, Star, ChefHat } from 'lucide-react';
 import { testimonialApi, TestimonialResponse } from '@/services/testimonialApi';
 
@@ -7,6 +8,21 @@ interface LandingPageProps {
   onBecomeChef: () => void;
   onSignIn: () => void;
 }
+
+// Animation configurations
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: "easeOut" as const }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageProps) => {
   const [realTestimonials, setRealTestimonials] = useState<TestimonialResponse[]>([]);
@@ -268,7 +284,12 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-orange-400 via-red-400 to-red-500">
         {/* Background Image with Blur and Overlay */}
-        <div className="absolute inset-0">
+        <motion.div 
+          className="absolute inset-0"
+          initial={{ scale: 1.2, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        >
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -279,63 +300,120 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
           ></div>
           {/* Orange/Red Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-orange-400/95 via-red-400/95 to-red-500/95"></div>
-        </div>
+        </motion.div>
         
         <div className="relative z-10 text-center max-w-4xl mx-auto flex-1 flex flex-col items-center justify-center">
           {/* Chef Hat Icon */}
-          <div className="mb-8">
+          <motion.div 
+            className="mb-8"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              delay: 0.2
+            }}
+          >
             <img 
               src="/best.png" 
               alt="Chef Hat" 
               className="w-24 h-24 md:w-32 md:h-32 mx-auto drop-shadow-2xl"
             />
-          </div>
+          </motion.div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <motion.h1 
+            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
             Welcome to PlatePal
-          </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-10">
-            Your kitchen, just a tap away
-          </p>
+          </motion.h1>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
+          <motion.p 
+            className="text-xl md:text-2xl text-white/90 mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          >
+            Your kitchen, just a tap away
+          </motion.p>
+          
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+          >
+            <motion.button
               onClick={onOrderNow}
               className="group px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Order Now
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={onBecomeChef}
               className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Become a Chef
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
 
         {/* Scroll indicator - Animated Mouse */}
-        <div className="relative z-10 pb-8 animate-bounce">
+        <motion.div 
+          className="relative z-10 pb-8"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        >
           <div className="w-8 h-12 mx-auto border-2 border-white/60 rounded-full flex items-start justify-center p-2">
-            <div className="w-1.5 h-2.5 bg-white/80 rounded-full"></div>
+            <motion.div 
+              className="w-1.5 h-2.5 bg-white/80 rounded-full"
+              animate={{ y: [0, 12, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            />
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Join Our Platform Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
+          <motion.h2 
+            className="text-4xl font-bold text-center text-gray-900 mb-16"
+            {...fadeInUp}
+            viewport={{ once: true, margin: "-100px" }}
+            whileInView="animate"
+            initial="initial"
+          >
             Join Our Platform
-          </h2>
+          </motion.h2>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <motion.div 
+            className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {/* For Students Card */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-6">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300"
+            >
+              <motion.div 
+                className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-6"
+                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+              >
                 <UtensilsCrossed className="w-8 h-8 text-orange-500" />
-              </div>
+              </motion.div>
               
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 For Students
@@ -346,54 +424,44 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
               </p>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Quick delivery to hostel</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Wide variety of cuisines</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Affordable student-friendly pricing</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Real-time order tracking</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>24/7 customer support</span>
-                </div>
+                {[
+                  "Quick delivery to hostel",
+                  "Wide variety of cuisines",
+                  "Affordable student-friendly pricing",
+                  "Real-time order tracking",
+                  "24/7 customer support"
+                ].map((feature, index) => (
+                  <motion.div 
+                    key={index}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </div>
+                    <span>{feature}</span>
+                  </motion.div>
+                ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* For Chefs Card */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-6">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300"
+            >
+              <motion.div 
+                className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-6"
+                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+              >
                 <ChefHat className="w-8 h-8 text-orange-500" />
-              </div>
+              </motion.div>
               
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 For Chefs
@@ -404,51 +472,40 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
               </p>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Manage your menu easily</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Reach more customers</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Flexible working hours</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Real-time order management</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span>Build your culinary brand</span>
-                </div>
+                {[
+                  "Manage your menu easily",
+                  "Reach more customers",
+                  "Flexible working hours",
+                  "Real-time order management",
+                  "Build your culinary brand"
+                ].map((feature, index) => (
+                  <motion.div 
+                    key={index}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </div>
+                    <span>{feature}</span>
+                  </motion.div>
+                ))}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="text-center mt-8">
+          <motion.div 
+            className="text-center mt-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+          >
             <p className="text-gray-600">
               Already have an account?{' '}
               <button
@@ -458,86 +515,154 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
                 Sign In
               </button>
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Why Choose Us Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
+          <motion.h2 
+            className="text-4xl font-bold text-center text-gray-900 mb-16"
+            {...fadeInUp}
+            viewport={{ once: true, margin: "-100px" }}
+            whileInView="animate"
+            initial="initial"
+          >
             Why Choose Us?
-          </h2>
+          </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-12">
+          <motion.div 
+            className="grid md:grid-cols-3 gap-12"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {/* Fast Delivery */}
-            <div className="text-center">
-              <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <motion.div 
+              className="text-center"
+              variants={fadeInUp}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            >
+              <motion.div 
+                className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"
+                whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
+              >
                 <Clock className="w-10 h-10 text-orange-500" />
-              </div>
+              </motion.div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Fast Delivery
               </h3>
               <p className="text-gray-600">
                 Quick delivery to your hostel room within minutes
               </p>
-            </div>
+            </motion.div>
 
             {/* Expert Chefs */}
-            <div className="text-center">
-              <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <motion.div 
+              className="text-center"
+              variants={fadeInUp}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            >
+              <motion.div 
+                className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"
+                whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
+              >
                 <ChefHat className="w-10 h-10 text-orange-500" />
-              </div>
+              </motion.div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Expert Chefs
               </h3>
               <p className="text-gray-600">
                 Meals prepared by experienced professional chefs
               </p>
-            </div>
+            </motion.div>
 
             {/* Student Friendly */}
-            <div className="text-center">
-              <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <motion.div 
+              className="text-center"
+              variants={fadeInUp}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            >
+              <motion.div 
+                className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"
+                whileHover={{ rotate: 360, scale: 1.1, transition: { duration: 0.6 } }}
+              >
                 <Star className="w-10 h-10 text-orange-500" />
-              </div>
+              </motion.div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Student Friendly
               </h3>
               <p className="text-gray-600">
                 Affordable pricing perfect for student budgets
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">
+          <motion.h2 
+            className="text-4xl font-bold text-center text-gray-900 mb-4"
+            {...fadeInUp}
+            viewport={{ once: true, margin: "-100px" }}
+            whileInView="animate"
+            initial="initial"
+          >
             What Our Users Say
-          </h2>
-          <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p 
+            className="text-center text-gray-600 mb-8 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
             Don't just take our word for it - hear from students and chefs who are already part of the PlatePal community
-          </p>
-          <p className="text-center text-orange-500 text-sm mb-8 font-medium">
+          </motion.p>
+          <motion.p 
+            className="text-center text-orange-500 text-sm mb-8 font-medium"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
             👈 Scroll to see more reviews 👉
-          </p>
+          </motion.p>
 
           <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-            <div className="flex gap-6 min-w-max">
-            {allTestimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 flex-shrink-0 w-80 h-64 flex flex-col">
+            <motion.div 
+              className="flex gap-6 min-w-max"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+            {allTestimonials.map((testimonial, index) => (
+            <motion.div 
+              key={testimonial.id} 
+              className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 flex-shrink-0 w-80 h-64 flex flex-col"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: Math.min(index * 0.05, 0.5) }}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            >
               <p className="text-gray-700 mb-6 italic flex-grow">
                 "{testimonial.content}"
               </p>
               <div className="pt-4 border-t border-gray-100 mt-auto">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white font-bold">
+                    <motion.div 
+                      className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white font-bold"
+                      whileHover={{ scale: 1.1, rotate: 360, transition: { duration: 0.5 } }}
+                    >
                       {testimonial.userName.charAt(0).toUpperCase()}
-                    </div>
+                    </motion.div>
                     <div>
                       <p className="font-semibold text-gray-900">{testimonial.userName}</p>
                       <p className="text-xs text-gray-500">
@@ -552,30 +677,49 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
             ))}
-            </div>
+            </motion.div>
           </div>
 
           {/* Trust Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <p className="text-4xl font-bold text-orange-500 mb-2">500+</p>
-              <p className="text-gray-600 text-sm">Happy Students</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-orange-500 mb-2">50+</p>
-              <p className="text-gray-600 text-sm">Verified Chefs</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-orange-500 mb-2">10k+</p>
-              <p className="text-gray-600 text-sm">Orders Delivered</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-orange-500 mb-2">4.8</p>
-              <p className="text-gray-600 text-sm">Average Rating</p>
-            </div>
-          </div>
+          <motion.div 
+            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            {[
+              { value: "500+", label: "Happy Students" },
+              { value: "50+", label: "Verified Chefs" },
+              { value: "10k+", label: "Orders Delivered" },
+              { value: "4.8", label: "Average Rating" }
+            ].map((stat, index) => (
+              <motion.div 
+                key={index}
+                className="text-center"
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
+              >
+                <motion.p 
+                  className="text-4xl font-bold text-orange-500 mb-2"
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20,
+                    delay: index * 0.1 
+                  }}
+                >
+                  {stat.value}
+                </motion.p>
+                <p className="text-gray-600 text-sm">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
