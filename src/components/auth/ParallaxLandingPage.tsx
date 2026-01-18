@@ -1,18 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { 
   ArrowRight, 
+  Play, 
+  Star, 
   ChefHat, 
   Clock, 
-  Star, 
-  UtensilsCrossed, 
-  Truck, 
   Shield, 
+  Zap, 
   Heart,
-  Play,
+  Users,
+  TrendingUp,
+  Award,
+  MapPin,
   Phone,
   Mail,
-  MapPin
+  Instagram,
+  Twitter,
+  Facebook
 } from 'lucide-react';
 
 interface ParallaxLandingPageProps {
@@ -21,123 +26,116 @@ interface ParallaxLandingPageProps {
   onSignIn: () => void;
 }
 
-export const ParallaxLandingPage: React.FC<ParallaxLandingPageProps> = ({
-  onOrderNow,
-  onBecomeChef,
-  onSignIn
-}) => {
+// Animation configurations
+const springConfig = {
+  type: "spring" as const,
+  damping: 30,
+  stiffness: 200,
+  mass: 0.8
+};
+
+const smoothEase = [0.25, 0.1, 0.25, 1] as const;
+
+export const ParallaxLandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: ParallaxLandingPageProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-
-  // Smooth spring animations
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-
-  // Parallax transforms for different layers
-  const backgroundY = useTransform(smoothProgress, [0, 1], ["0%", "50%"]);
-  const middleY = useTransform(smoothProgress, [0, 1], ["0%", "25%"]);
-  const foregroundY = useTransform(smoothProgress, [0, 1], ["0%", "15%"]);
+  const { scrollYProgress } = useScroll();
   
-  // Hero section transforms
-  const heroScale = useTransform(smoothProgress, [0, 0.5], [1, 1.2]);
-  const heroOpacity = useTransform(smoothProgress, [0, 0.3], [1, 0]);
-  const heroY = useTransform(smoothProgress, [0, 0.5], ["0%", "-50%"]);
-
-  // Section reveals
-  const section1Y = useTransform(smoothProgress, [0.1, 0.3], ["100%", "0%"]);
-  const section2Y = useTransform(smoothProgress, [0.3, 0.5], ["100%", "0%"]);
-  const section3Y = useTransform(smoothProgress, [0.5, 0.7], ["100%", "0%"]);
-  const section4Y = useTransform(smoothProgress, [0.7, 0.9], ["100%", "0%"]);
+  // Parallax transforms
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.95]);
+  
+  // Smooth spring animations
+  const smoothY = useSpring(heroY, { stiffness: 100, damping: 30 });
+  const smoothOpacity = useSpring(heroOpacity, { stiffness: 100, damping: 30 });
+  const smoothScale = useSpring(heroScale, { stiffness: 100, damping: 30 });
 
   // Mouse parallax effect
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      setMousePosition({ x, y });
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      
+      setMousePosition({
+        x: (clientX - innerWidth / 2) / innerWidth,
+        y: (clientY - innerHeight / 2) / innerHeight
+      });
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const testimonials = [
-    {
-      name: "Rahul Sharma",
-      role: "Student, IIT Delhi",
-      content: "PlatePal transformed my college experience. Fresh, homemade meals delivered right to my hostel!",
-      rating: 5,
-      image: "/api/placeholder/80/80"
-    },
-    {
-      name: "Priya Patel", 
-      role: "Home Chef",
-      content: "I've built my culinary business through PlatePal. Amazing platform for passionate cooks!",
-      rating: 5,
-      image: "/api/placeholder/80/80"
-    },
-    {
-      name: "Ananya Reddy",
-      role: "Student, NIT Mumbai", 
-      content: "The variety is incredible! From North Indian to Continental, all at student-friendly prices.",
-      rating: 5,
-      image: "/api/placeholder/80/80"
-    }
+  // Floating elements data
+  const floatingElements = [
+    { icon: '🍕', delay: 0, x: 10, y: 20 },
+    { icon: '🍔', delay: 1, x: 80, y: 15 },
+    { icon: '🍜', delay: 2, x: 20, y: 70 },
+    { icon: '🥗', delay: 3, x: 90, y: 60 },
+    { icon: '🍰', delay: 4, x: 60, y: 25 },
+    { icon: '🥘', delay: 5, x: 30, y: 80 }
   ];
 
   return (
-    <div ref={containerRef} className="relative overflow-hidden">
+    <div ref={containerRef} className="relative min-h-screen bg-slate-950 overflow-hidden">
       {/* Fixed Navigation */}
-      <motion.nav 
-        className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-xl border-b border-white/20"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+      <motion.nav
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: smoothEase }}
+        className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50"
       >
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
+            {/* Logo */}
             <motion.div 
-              className="flex items-center gap-2"
+              className="flex items-center space-x-3"
               whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                <img src="/best.png" alt="PlatePal" className="w-6 h-6 object-contain" />
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center">
+                <img src="/best.png" alt="PlatePal" className="w-6 h-6" />
               </div>
-              <span className="text-2xl font-black text-white">PlatePal</span>
+              <span className="text-2xl font-bold text-white">PlatePal</span>
             </motion.div>
 
-            <div className="hidden md:flex items-center gap-8">
-              <button className="text-white/80 hover:text-white font-medium transition-colors">
-                Menu
-              </button>
-              <button className="text-white/80 hover:text-white font-medium transition-colors">
-                About
-              </button>
-              <button className="text-white/80 hover:text-white font-medium transition-colors">
-                Contact
-              </button>
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center space-x-8">
+              {['Menu', 'About', 'Contact'].map((item, index) => (
+                <motion.a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="text-slate-300 hover:text-orange-400 transition-colors duration-300 font-medium"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index, duration: 0.5 }}
+                  whileHover={{ y: -2 }}
+                >
+                  {item}
+                </motion.a>
+              ))}
             </div>
 
-            <div className="flex items-center gap-4">
-              <button
+            {/* CTA Buttons */}
+            <div className="flex items-center space-x-4">
+              <motion.button
                 onClick={onSignIn}
-                className="text-white/80 hover:text-white font-medium transition-colors"
+                className="text-slate-300 hover:text-white transition-colors duration-300 font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Sign In
-              </button>
+              </motion.button>
               <motion.button
                 onClick={onOrderNow}
-                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-2.5 rounded-full font-bold shadow-lg transition-all"
-                whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(249, 115, 22, 0.4)" }}
+                className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(249, 115, 22, 0.3)"
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 Order Now
@@ -147,604 +145,512 @@ export const ParallaxLandingPage: React.FC<ParallaxLandingPageProps> = ({
         </div>
       </motion.nav>
 
-      {/* Hero Section with Parallax Background */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Parallax Background Layers */}
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ y: backgroundY }}
-        >
-          <div 
-            className="absolute inset-0 bg-cover bg-center scale-110"
+      {/* Hero Section with Multi-layer Parallax */}
+      <motion.section 
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        style={{ 
+          opacity: smoothOpacity,
+          scale: smoothScale,
+          y: smoothY
+        }}
+      >
+        {/* Background Layers */}
+        <div className="absolute inset-0">
+          {/* Base Background */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
             style={{
-              backgroundImage: "url('/8k.png')",
-              transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`
+              x: useTransform(scrollYProgress, [0, 1], ['0%', '10%'])
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-orange-900/40 to-red-900/60" />
-        </motion.div>
-
-        {/* Floating Food Elements */}
-        <motion.div 
-          className="absolute inset-0 z-10"
-          style={{ y: middleY }}
-        >
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-20 h-20 opacity-20"
-              style={{
-                left: `${20 + i * 15}%`,
-                top: `${30 + (i % 2) * 40}%`,
-                transform: `translate(${mousePosition.x * (0.05 + i * 0.01)}px, ${mousePosition.y * (0.03 + i * 0.005)}px)`
-              }}
-              animate={{
-                y: [0, -20, 0],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 4 + i,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <div className="text-6xl">
-                {['🍛', '🥘', '🍜', '🌮', '🍕', '🥗'][i]}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Hero Content */}
-        <motion.div 
-          className="relative z-20 text-center px-6 max-w-6xl mx-auto"
-          style={{ 
-            scale: heroScale, 
-            opacity: heroOpacity, 
-            y: heroY 
-          }}
-        >
-          <motion.h1
-            className="text-7xl md:text-8xl lg:text-9xl font-black mb-8 leading-none"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-          >
-            <span className="block text-white drop-shadow-2xl">
-              TASTE THE
-            </span>
-            <span className="block bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text drop-shadow-2xl">
-              EXTRAORDINARY
-            </span>
-          </motion.h1>
-
-          <motion.p
-            className="text-2xl md:text-3xl text-white/90 mb-12 font-light max-w-3xl mx-auto leading-relaxed"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            Experience culinary excellence delivered to your doorstep. 
-            Fresh, authentic meals from passionate local chefs.
-          </motion.p>
-
-          <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.1 }}
-          >
-            <motion.button
-              onClick={onOrderNow}
-              className="group relative bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-12 py-5 rounded-full font-bold text-xl shadow-2xl overflow-hidden"
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: "0 25px 50px rgba(249, 115, 22, 0.5)"
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="relative z-10 flex items-center gap-3">
-                Order Now
-                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-red-600 to-orange-600"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.button>
-
-            <motion.button
-              onClick={() => setIsVideoPlaying(true)}
-              className="group flex items-center gap-3 text-white hover:text-orange-300 transition-colors"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                <Play className="w-6 h-6 ml-1" />
-              </div>
-              <span className="text-lg font-medium">Watch Our Story</span>
-            </motion.button>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <motion.div
-              className="w-1 h-3 bg-white rounded-full mt-2"
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Features Section with Parallax */}
-      <motion.section 
-        className="relative py-32 bg-gradient-to-b from-slate-900 to-slate-800"
-        style={{ y: section1Y }}
-      >
-        <motion.div 
-          className="absolute inset-0 opacity-10"
-          style={{ y: foregroundY }}
-        >
-          <div className="absolute inset-0 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center" />
-        </motion.div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
-              Why Choose PlatePal?
-            </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              We're revolutionizing campus dining with fresh, authentic meals from passionate local chefs
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {[
-              {
-                icon: <ChefHat className="w-12 h-12" />,
-                title: "Expert Chefs",
-                description: "Verified local chefs with authentic recipes and years of culinary expertise",
-                color: "from-orange-500 to-red-500"
-              },
-              {
-                icon: <Clock className="w-12 h-12" />,
-                title: "Lightning Fast",
-                description: "Fresh meals delivered to your hostel in under 30 minutes with real-time tracking",
-                color: "from-blue-500 to-cyan-500"
-              },
-              {
-                icon: <Shield className="w-12 h-12" />,
-                title: "Quality Assured",
-                description: "Rigorous quality checks and hygiene standards for every meal we deliver",
-                color: "from-green-500 to-emerald-500"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                className="group relative"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                whileHover={{ y: -10 }}
-              >
-                <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 h-full">
-                  <motion.div 
-                    className={`w-20 h-20 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    {feature.icon}
-                  </motion.div>
-                  
-                  <h3 className="text-2xl font-bold text-white mb-4">
-                    {feature.title}
-                  </h3>
-                  
-                  <p className="text-slate-300 leading-relaxed">
-                    {feature.description}
-                  </p>
-
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-      {/* Menu Showcase with 3D Parallax */}
-      <motion.section 
-        className="relative py-32 bg-gradient-to-b from-slate-800 to-slate-900"
-        style={{ y: section2Y }}
-      >
-        <div className="container mx-auto px-6">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
-              Culinary Excellence
-            </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Discover authentic flavors from every corner of India, crafted with love by expert home chefs
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {[
-              {
-                name: "North Indian",
-                description: "Rich curries, fresh rotis, and aromatic biryanis",
-                image: "/api/placeholder/400/300",
-                color: "from-orange-400 to-red-500",
-                dishes: ["Butter Chicken", "Dal Makhani", "Naan"]
-              },
-              {
-                name: "South Indian", 
-                description: "Crispy dosas, fluffy idlis, and spicy sambar",
-                image: "/api/placeholder/400/300",
-                color: "from-green-400 to-emerald-500",
-                dishes: ["Masala Dosa", "Idli Sambar", "Coconut Chutney"]
-              },
-              {
-                name: "Street Food",
-                description: "Authentic chaat, momos, and regional specialties",
-                image: "/api/placeholder/400/300", 
-                color: "from-yellow-400 to-orange-500",
-                dishes: ["Pani Puri", "Veg Momos", "Bhel Puri"]
-              }
-            ].map((cuisine, index) => (
-              <motion.div
-                key={index}
-                className="group relative cursor-pointer"
-                initial={{ opacity: 0, y: 50, rotateY: -15 }}
-                whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                whileHover={{ 
-                  y: -20, 
-                  rotateY: 5,
-                  transition: { duration: 0.3 }
-                }}
-                style={{ 
-                  transformStyle: "preserve-3d",
-                  perspective: "1000px"
-                }}
-              >
-                <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 group-hover:border-white/40 transition-all duration-500">
-                  {/* Image with Parallax */}
-                  <div className="relative h-64 overflow-hidden">
-                    <motion.img
-                      src={cuisine.image}
-                      alt={cuisine.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${cuisine.color} opacity-60 group-hover:opacity-40 transition-opacity duration-300`} />
-                    
-                    {/* Floating Badge */}
-                    <motion.div
-                      className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2"
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ delay: 0.5 + index * 0.1 }}
-                    >
-                      <span className="text-white font-bold text-sm">Popular</span>
-                    </motion.div>
-                  </div>
-
-                  <div className="p-8">
-                    <h3 className="text-3xl font-black text-white mb-3">
-                      {cuisine.name}
-                    </h3>
-                    
-                    <p className="text-slate-300 mb-6 leading-relaxed">
-                      {cuisine.description}
-                    </p>
-
-                    {/* Dish List */}
-                    <div className="space-y-2 mb-6">
-                      {cuisine.dishes.map((dish, dishIndex) => (
-                        <motion.div
-                          key={dishIndex}
-                          className="flex items-center gap-2 text-slate-400"
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.8 + dishIndex * 0.1 }}
-                        >
-                          <div className="w-2 h-2 bg-orange-400 rounded-full" />
-                          <span>{dish}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    <motion.button
-                      className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white py-3 rounded-full font-bold transition-all"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Explore Menu
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Testimonials with Floating Cards */}
-      <motion.section 
-        className="relative py-32 bg-gradient-to-b from-slate-900 to-black overflow-hidden"
-        style={{ y: section3Y }}
-      >
-        {/* Animated Background Pattern */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-orange-400/20 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -100, 0],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
-              Student Stories
-            </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Hear from thousands of students who've made PlatePal their go-to dining solution
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                className="group relative"
-                initial={{ opacity: 0, y: 100, rotateX: -15 }}
-                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-                viewport={{ once: true }}
-                transition={{ 
-                  duration: 0.8, 
-                  delay: index * 0.2,
-                  type: "spring",
-                  stiffness: 100
-                }}
-                whileHover={{ 
-                  y: -15,
-                  rotateX: 5,
-                  transition: { duration: 0.3 }
-                }}
-                style={{ 
-                  transformStyle: "preserve-3d",
-                  perspective: "1000px"
-                }}
-              >
-                <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/20 group-hover:border-orange-400/50 transition-all duration-500 h-full">
-                  {/* Quote Icon */}
-                  <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    "
-                  </div>
-
-                  {/* Stars */}
-                  <div className="flex gap-1 mb-6">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ scale: 0, rotate: -180 }}
-                        whileInView={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: 0.5 + i * 0.1 }}
-                      >
-                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Content */}
-                  <p className="text-white text-lg leading-relaxed mb-8 flex-grow">
-                    {testimonial.content}
-                  </p>
-
-                  {/* Author */}
-                  <div className="flex items-center gap-4">
-                    <motion.div
-                      className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-400"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <img
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </motion.div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-slate-400 text-sm">
-                        {testimonial.role}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Hover Glow Effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* CTA Section with Immersive Background */}
-      <motion.section 
-        className="relative py-32 overflow-hidden"
-        style={{ y: section4Y }}
-      >
-        {/* Dynamic Background */}
-        <motion.div 
-          className="absolute inset-0"
-          style={{ y: backgroundY }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-red-600 to-orange-800" />
+          
+          {/* Food Background Image */}
           <motion.div
             className="absolute inset-0 opacity-30"
-            animate={{
-              background: [
-                "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)",
-                "radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)",
-                "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)"
-              ]
+            style={{
+              backgroundImage: "url('/8k.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              x: useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
             }}
-            transition={{ duration: 4, repeat: Infinity }}
           />
-        </motion.div>
-
-        <div className="container mx-auto px-6 relative z-10 text-center">
+          
+          {/* Gradient Overlay */}
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-6xl md:text-7xl font-black text-white mb-8 leading-tight">
-              Ready to Transform
-              <br />
-              Your Dining?
-            </h2>
-            
-            <p className="text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Join thousands of students who've discovered the joy of fresh, 
-              authentic meals delivered with love.
-            </p>
+            className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-amber-500/20"
+            style={{
+              x: useTransform(scrollYProgress, [0, 1], ['0%', '-10%'])
+            }}
+          />
+        </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+        {/* Floating Food Elements */}
+        {floatingElements.map((element, index) => (
+          <motion.div
+            key={index}
+            className="absolute text-6xl opacity-20 pointer-events-none"
+            style={{
+              left: `${element.x}%`,
+              top: `${element.y}%`,
+              x: mousePosition.x * (20 + index * 5),
+              y: mousePosition.y * (20 + index * 5)
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              rotate: [-5, 5, -5],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 4 + element.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: element.delay
+            }}
+          >
+            {element.icon}
+          </motion.div>
+        ))}
+
+        {/* Hero Content */}
+        <div className="container relative z-10 text-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: smoothEase }}
+            className="max-w-6xl mx-auto"
+          >
+            {/* Massive Typography */}
+            <motion.h1
+              className="text-8xl md:text-9xl lg:text-[12rem] font-black mb-8 leading-none"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, ease: smoothEase, delay: 0.2 }}
+            >
+              <motion.span 
+                className="block bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 text-transparent bg-clip-text"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{
+                  backgroundSize: "200% 200%"
+                }}
+              >
+                PLATE
+              </motion.span>
+              <motion.span 
+                className="block text-white"
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              >
+                PAL
+              </motion.span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p
+              className="text-2xl md:text-3xl text-slate-300 mb-12 max-w-3xl mx-auto font-light"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+            >
+              Experience culinary excellence delivered to your doorstep. 
+              <span className="text-orange-400 font-medium"> Where hunger meets happiness.</span>
+            </motion.p>
+
+            {/* Action Buttons */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
+            >
               <motion.button
                 onClick={onOrderNow}
-                className="group relative bg-white text-orange-600 px-12 py-5 rounded-full font-black text-xl shadow-2xl overflow-hidden"
+                className="group relative bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-12 py-6 text-xl rounded-2xl shadow-2xl font-bold overflow-hidden"
                 whileHover={{ 
                   scale: 1.05,
-                  boxShadow: "0 25px 50px rgba(0,0,0,0.3)"
+                  boxShadow: "0 25px 50px rgba(249, 115, 22, 0.4)"
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="relative z-10 flex items-center gap-3">
-                  Start Ordering
-                  <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                </span>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-orange-100 to-red-100"
+                <motion.span 
+                  className="relative z-10 flex items-center"
+                  whileHover={{ x: -5 }}
+                >
+                  Order Now
+                  <ArrowRight className="ml-3 w-6 h-6" />
+                </motion.span>
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500"
                   initial={{ x: "-100%" }}
                   whileHover={{ x: 0 }}
                   transition={{ duration: 0.3 }}
                 />
               </motion.button>
-
+              
               <motion.button
                 onClick={onBecomeChef}
-                className="group border-2 border-white text-white hover:bg-white hover:text-orange-600 px-12 py-5 rounded-full font-bold text-xl transition-all"
-                whileHover={{ scale: 1.05 }}
+                className="group px-12 py-6 text-xl rounded-2xl border-2 border-slate-600 hover:border-orange-500/50 text-white font-bold bg-slate-900/60 backdrop-blur-xl relative overflow-hidden"
+                whileHover={{ 
+                  scale: 1.05,
+                  borderColor: "rgba(249, 115, 22, 0.5)"
+                }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="flex items-center gap-3">
-                  <ChefHat className="w-6 h-6" />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-amber-500/10"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                />
+                <span className="relative z-10 flex items-center">
                   Become a Chef
+                  <ChefHat className="ml-3 w-6 h-6" />
+                </span>
+              </motion.button>
+            </motion.div>
+
+            {/* Video Play Button */}
+            <motion.div
+              className="mb-20"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.1, duration: 0.8 }}
+            >
+              <motion.button
+                onClick={() => setIsVideoModalOpen(true)}
+                className="group relative w-20 h-20 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20 hover:border-orange-500/50"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-full"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 0.8, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity
+                  }}
+                />
+                <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+              </motion.button>
+              <p className="text-slate-400 mt-4 text-sm">Watch Our Story</p>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 12, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <div className="w-6 h-10 border-2 border-slate-600 rounded-full flex justify-center pt-2">
+            <motion.div
+              className="w-1.5 h-2 bg-gradient-to-b from-orange-500 to-amber-500 rounded-full"
+              animate={{ y: [0, 16, 0], opacity: [1, 0.3, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            />
+          </div>
+        </motion.div>
+      </motion.section>
+      {/* Features Showcase with 3D Effects */}
+      <section className="relative py-32 px-6">
+        <div className="container max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
+          >
+            <motion.span 
+              className="inline-block px-6 py-3 bg-orange-500/10 text-orange-400 rounded-full text-sm font-semibold mb-6 border border-orange-500/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              Why Choose PlatePal?
+            </motion.span>
+            <h2 className="text-6xl md:text-7xl font-bold text-white mb-6">
+              Built for Excellence
+            </h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+              Experience the perfect blend of technology, taste, and convenience
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: ChefHat,
+                title: "Expert Chefs",
+                description: "Handpicked professional chefs who bring years of culinary expertise to every dish",
+                color: "from-orange-500 to-amber-600",
+                delay: 0.1
+              },
+              {
+                icon: Zap,
+                title: "Lightning Fast",
+                description: "Advanced logistics ensure your food arrives hot and fresh within minutes",
+                color: "from-blue-500 to-cyan-600",
+                delay: 0.2
+              },
+              {
+                icon: Shield,
+                title: "Quality Assured",
+                description: "Rigorous quality checks and hygiene standards for your peace of mind",
+                color: "from-green-500 to-emerald-600",
+                delay: 0.3
+              }
+            ].map((feature, index) => (
+              <FeatureCard key={index} {...feature} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Menu Categories with 3D Cards */}
+      <section className="relative py-32 px-6 bg-gradient-to-b from-transparent to-slate-900/50">
+        <div className="container max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <motion.span 
+              className="inline-block px-6 py-3 bg-amber-500/10 text-amber-400 rounded-full text-sm font-semibold mb-6 border border-amber-500/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              Explore Cuisines
+            </motion.span>
+            <h2 className="text-6xl md:text-7xl font-bold text-white mb-6">
+              Taste the World
+            </h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+              From authentic regional flavors to international cuisines, discover your next favorite meal
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "North Indian",
+                image: "/api/placeholder/400/300",
+                dishes: ["Butter Chicken", "Biryani", "Naan", "Dal Makhani"],
+                color: "from-red-500 to-orange-600"
+              },
+              {
+                title: "South Indian",
+                image: "/api/placeholder/400/300", 
+                dishes: ["Dosa", "Idli", "Sambar", "Rasam"],
+                color: "from-green-500 to-teal-600"
+              },
+              {
+                title: "Street Food",
+                image: "/api/placeholder/400/300",
+                dishes: ["Pani Puri", "Vada Pav", "Chaat", "Momos"],
+                color: "from-purple-500 to-pink-600"
+              }
+            ].map((category, index) => (
+              <MenuCard key={index} {...category} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials with Floating Cards */}
+      <section className="relative py-32 px-6">
+        <div className="container max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <motion.span 
+              className="inline-block px-6 py-3 bg-purple-500/10 text-purple-400 rounded-full text-sm font-semibold mb-6 border border-purple-500/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              Success Stories
+            </motion.span>
+            <h2 className="text-6xl md:text-7xl font-bold text-white mb-6">
+              Loved by Thousands
+            </h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+              Join our community of satisfied students and successful chefs
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Rahul Sharma",
+                role: "Student, IIT Delhi",
+                content: "PlatePal saved my life during exam season! Fresh home-cooked meals delivered right to my hostel room.",
+                rating: 5,
+                avatar: "R"
+              },
+              {
+                name: "Priya Patel", 
+                role: "Chef Partner",
+                content: "As a chef, PlatePal gave me the platform to showcase my authentic recipes. Now I have regular customers!",
+                rating: 5,
+                avatar: "P"
+              },
+              {
+                name: "Ananya Reddy",
+                role: "Student, NIT Mumbai", 
+                content: "The variety is amazing! From North Indian to Continental. PlatePal has it all at student-friendly prices.",
+                rating: 5,
+                avatar: "A"
+              }
+            ].map((testimonial, index) => (
+              <TestimonialCard key={index} {...testimonial} index={index} />
+            ))}
+          </div>
+
+          {/* Trust Statistics */}
+          <motion.div
+            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            {[
+              { icon: Users, value: "10K+", label: "Happy Students" },
+              { icon: ChefHat, value: "500+", label: "Expert Chefs" },
+              { icon: TrendingUp, value: "50K+", label: "Orders Delivered" },
+              { icon: Award, value: "4.9", label: "Average Rating" }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                className="text-center group"
+                initial={{ opacity: 0, scale: 0 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <motion.div
+                  className="w-16 h-16 bg-gradient-to-br from-orange-500/20 to-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-orange-500/20"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <stat.icon className="w-8 h-8 text-orange-400" />
+                </motion.div>
+                <motion.p
+                  className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-amber-500 text-transparent bg-clip-text mb-2"
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 + 0.3, type: "spring", stiffness: 200 }}
+                >
+                  {stat.value}
+                </motion.p>
+                <p className="text-slate-400">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="relative py-32 px-6 bg-gradient-to-br from-orange-500/10 via-transparent to-amber-500/10">
+        <div className="container max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-6xl md:text-7xl font-bold text-white mb-8">
+              Ready to Start?
+            </h2>
+            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
+              Join thousands of students and chefs who have made PlatePal their go-to food platform
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <motion.button
+                onClick={onOrderNow}
+                className="group bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-12 py-6 text-xl rounded-2xl font-bold shadow-2xl"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 25px 50px rgba(249, 115, 22, 0.4)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="flex items-center">
+                  Start Ordering
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </motion.button>
+              
+              <motion.button
+                onClick={onBecomeChef}
+                className="px-12 py-6 text-xl rounded-2xl border-2 border-slate-600 hover:border-orange-500/50 text-white font-bold bg-slate-900/60 backdrop-blur-xl"
+                whileHover={{ 
+                  scale: 1.05,
+                  borderColor: "rgba(249, 115, 22, 0.5)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="flex items-center">
+                  Join as Chef
+                  <ChefHat className="ml-3 w-6 h-6" />
                 </span>
               </motion.button>
             </div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Footer */}
-      <footer className="relative bg-black py-20 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+      <footer className="relative py-20 px-6 border-t border-slate-800/50 bg-slate-900/50">
+        <div className="container max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
             {/* Brand */}
-            <div>
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                  <img src="/best.png" alt="PlatePal" className="w-8 h-8 object-contain" />
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center">
+                  <img src="/best.png" alt="PlatePal" className="w-8 h-8" />
                 </div>
-                <span className="text-3xl font-black text-white">PlatePal</span>
+                <span className="text-2xl font-bold text-white">PlatePal</span>
               </div>
-              <p className="text-slate-400 leading-relaxed mb-6">
-                Revolutionizing campus dining with fresh, authentic meals from passionate local chefs.
+              <p className="text-slate-400 mb-6 max-w-md">
+                Connecting hungry students with talented chefs. Experience the future of campus dining.
               </p>
-              <div className="flex gap-4">
-                {['facebook', 'twitter', 'instagram', 'linkedin'].map((social) => (
-                  <motion.div
-                    key={social}
-                    className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center cursor-pointer hover:bg-orange-500 transition-colors"
-                    whileHover={{ scale: 1.1 }}
+              <div className="flex space-x-4">
+                {[Instagram, Twitter, Facebook].map((Icon, index) => (
+                  <motion.a
+                    key={index}
+                    href="#"
+                    className="w-10 h-10 bg-slate-800 hover:bg-orange-500 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300"
+                    whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <div className="w-5 h-5 bg-white rounded-sm" />
-                  </motion.div>
+                    <Icon className="w-5 h-5" />
+                  </motion.a>
                 ))}
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-xl font-bold text-white mb-6">Quick Links</h3>
-              <ul className="space-y-3">
-                {['Order Food', 'Become Chef', 'Track Order', 'Help Center'].map((link) => (
+              <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                {['About Us', 'How it Works', 'Pricing', 'Support'].map((link) => (
                   <li key={link}>
-                    <button className="text-slate-400 hover:text-orange-400 transition-colors">
+                    <a href="#" className="text-slate-400 hover:text-orange-400 transition-colors">
                       {link}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Cities */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-6">Available In</h3>
-              <ul className="space-y-3">
-                {['Delhi NCR', 'Mumbai', 'Bangalore', 'Pune', 'Hyderabad', 'Chennai'].map((city) => (
-                  <li key={city} className="text-slate-400">
-                    {city}
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -752,66 +658,274 @@ export const ParallaxLandingPage: React.FC<ParallaxLandingPageProps> = ({
 
             {/* Contact */}
             <div>
-              <h3 className="text-xl font-bold text-white mb-6">Contact Us</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-slate-400">
-                  <Phone className="w-5 h-5 text-orange-400" />
-                  <span>+91 98765 43210</span>
+              <h4 className="text-white font-semibold mb-4">Contact</h4>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3 text-slate-400">
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-sm">Delhi, India</span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-400">
-                  <Mail className="w-5 h-5 text-orange-400" />
-                  <span>hello@platepal.com</span>
+                <div className="flex items-center space-x-3 text-slate-400">
+                  <Phone className="w-4 h-4" />
+                  <span className="text-sm">+91 98765 43210</span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-400">
-                  <MapPin className="w-5 h-5 text-orange-400" />
-                  <span>Delhi, India</span>
+                <div className="flex items-center space-x-3 text-slate-400">
+                  <Mail className="w-4 h-4" />
+                  <span className="text-sm">hello@platepal.com</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500">
+          <div className="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-slate-500 text-sm">
               © 2025 PlatePal. All rights reserved.
             </p>
-            <div className="flex gap-6 text-slate-500 text-sm">
-              <button className="hover:text-orange-400 transition-colors">Privacy Policy</button>
-              <button className="hover:text-orange-400 transition-colors">Terms of Service</button>
-              <button className="hover:text-orange-400 transition-colors">Cookie Policy</button>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((link) => (
+                <a key={link} href="#" className="text-slate-500 hover:text-slate-400 text-sm transition-colors">
+                  {link}
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </footer>
 
       {/* Video Modal */}
-      {isVideoPlaying && (
+      {isVideoModalOpen && (
         <motion.div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={() => setIsVideoPlaying(false)}
+          onClick={() => setIsVideoModalOpen(false)}
         >
           <motion.div
-            className="relative bg-black rounded-2xl overflow-hidden max-w-4xl w-full aspect-video"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.8 }}
+            className="bg-slate-900 rounded-3xl p-8 max-w-4xl w-full"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.5, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setIsVideoPlaying(false)}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-            >
-              ×
-            </button>
-            <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+            <div className="aspect-video bg-slate-800 rounded-2xl flex items-center justify-center">
               <p className="text-white text-xl">Video Player Placeholder</p>
             </div>
+            <button
+              onClick={() => setIsVideoModalOpen(false)}
+              className="mt-6 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-colors"
+            >
+              Close
+            </button>
           </motion.div>
         </motion.div>
       )}
     </div>
+  );
+};
+
+// Feature Card Component
+const FeatureCard = ({ icon: Icon, title, description, color, delay }: {
+  icon: any;
+  title: string;
+  description: string;
+  color: string;
+  delay: number;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50, rotateX: -15 }}
+      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+      transition={{ delay, duration: 0.8, ease: smoothEase }}
+      whileHover={{ 
+        y: -12, 
+        rotateX: 5,
+        transition: { duration: 0.3 }
+      }}
+      className="group perspective-1000"
+    >
+      <div className="relative p-8 rounded-3xl border border-slate-800 hover:border-orange-500/30 transition-all duration-500 bg-slate-900/60 backdrop-blur-xl h-full">
+        {/* Animated Background */}
+        <motion.div 
+          className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 rounded-3xl transition-opacity duration-500`}
+        />
+        
+        {/* Icon */}
+        <motion.div 
+          className="mb-6"
+          whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="relative">
+            <motion.div 
+              className={`absolute inset-0 bg-gradient-to-br ${color} opacity-30 rounded-2xl blur-xl`}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity
+              }}
+            />
+            <div className={`relative w-16 h-16 bg-gradient-to-br ${color} opacity-20 rounded-2xl flex items-center justify-center border border-orange-500/20`}>
+              <Icon className="w-8 h-8 text-orange-400" />
+            </div>
+          </div>
+        </motion.div>
+
+        <h3 className="text-2xl font-bold text-white mb-4">{title}</h3>
+        <p className="text-slate-400 leading-relaxed">{description}</p>
+      </div>
+    </motion.div>
+  );
+};
+
+// Menu Card Component
+const MenuCard = ({ title, image, dishes, color, index }: {
+  title: string;
+  image: string;
+  dishes: string[];
+  color: string;
+  index: number;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50, rotateY: -15 }}
+      animate={isInView ? { opacity: 1, y: 0, rotateY: 0 } : {}}
+      transition={{ delay: index * 0.1, duration: 0.8 }}
+      whileHover={{ 
+        y: -12, 
+        rotateY: 5,
+        transition: { duration: 0.3 }
+      }}
+      className="group perspective-1000"
+    >
+      <div className="relative rounded-3xl overflow-hidden border border-slate-800 hover:border-orange-500/30 transition-all duration-500 bg-slate-900/60 backdrop-blur-xl">
+        {/* Image */}
+        <div className="relative h-48 overflow-hidden">
+          <motion.div
+            className={`absolute inset-0 bg-gradient-to-br ${color} opacity-80`}
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.5 }}
+          />
+          <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+            <span className="text-white text-lg font-semibold">{title} Cuisine</span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <h3 className="text-2xl font-bold text-white mb-4">{title}</h3>
+          <div className="space-y-2 mb-6">
+            {dishes.map((dish, dishIndex) => (
+              <motion.div
+                key={dish}
+                className="flex items-center text-slate-400"
+                initial={{ opacity: 0, x: -20 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ delay: index * 0.1 + dishIndex * 0.05 }}
+              >
+                <Heart className="w-4 h-4 text-orange-400 mr-2" />
+                <span>{dish}</span>
+              </motion.div>
+            ))}
+          </div>
+          <motion.button
+            className="w-full py-3 bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500/30 hover:to-amber-500/30 text-orange-400 rounded-xl font-semibold border border-orange-500/20 hover:border-orange-500/30 transition-all duration-300"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Explore Menu
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Testimonial Card Component
+const TestimonialCard = ({ name, role, content, rating, avatar, index }: {
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+  avatar: string;
+  index: number;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
+      whileHover={{ 
+        y: -8, 
+        scale: 1.02,
+        transition: { duration: 0.3 }
+      }}
+      className="group"
+    >
+      <div className="relative p-6 rounded-3xl border border-slate-800 hover:border-purple-500/30 transition-all duration-500 bg-slate-900/60 backdrop-blur-xl h-full flex flex-col">
+        {/* Floating particles */}
+        <motion.div
+          className="absolute top-4 right-4 w-2 h-2 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100"
+          animate={{
+            y: [-10, 10, -10],
+            opacity: [0.5, 1, 0.5]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            delay: index * 0.2
+          }}
+        />
+
+        {/* Rating */}
+        <div className="flex items-center mb-4">
+          {[...Array(rating)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ delay: index * 0.1 + i * 0.05 }}
+            >
+              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Content */}
+        <p className="text-slate-300 mb-6 italic flex-grow leading-relaxed">
+          "{content}"
+        </p>
+
+        {/* Author */}
+        <div className="flex items-center pt-4 border-t border-slate-800">
+          <motion.div
+            className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold mr-4"
+            whileHover={{ scale: 1.1, rotate: 360 }}
+            transition={{ duration: 0.5 }}
+          >
+            {avatar}
+          </motion.div>
+          <div>
+            <p className="font-semibold text-white">{name}</p>
+            <p className="text-sm text-slate-500">{role}</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 };

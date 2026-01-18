@@ -1,17 +1,19 @@
-import React from 'react';
 import { ParallaxLandingPage } from '../auth/ParallaxLandingPage';
 
-export const ParallaxLandingDemo: React.FC = () => {
+export const ParallaxLandingDemo = () => {
   const handleOrderNow = () => {
-    alert('🍽️ Order Now clicked! This would navigate to the order page.');
+    console.log('Order Now clicked - would redirect to menu/registration');
+    alert('Order Now clicked! This would redirect to the menu or registration page.');
   };
 
   const handleBecomeChef = () => {
-    alert('👨‍🍳 Become a Chef clicked! This would navigate to chef registration.');
+    console.log('Become Chef clicked - would redirect to chef onboarding');
+    alert('Become Chef clicked! This would redirect to the chef onboarding page.');
   };
 
   const handleSignIn = () => {
-    alert('🔐 Sign In clicked! This would navigate to the login page.');
+    console.log('Sign In clicked - would redirect to login');
+    alert('Sign In clicked! This would redirect to the login page.');
   };
 
   return (
@@ -24,3 +26,5 @@ export const ParallaxLandingDemo: React.FC = () => {
     </div>
   );
 };
+
+export default ParallaxLandingDemo;
