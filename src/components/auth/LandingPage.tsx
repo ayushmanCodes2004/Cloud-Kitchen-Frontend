@@ -355,12 +355,12 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
         {/* Hero Background with Gradient Overlay */}
         <div className="absolute inset-0">
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-30"
+            className="absolute inset-0 bg-cover bg-center opacity-80"
             style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&q=80')",
+              backgroundImage: "url('/4k.png')",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-600/40 via-amber-600/30 to-rose-600/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/40 via-orange-600/40 to-red-600/40" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
         </div>
 
