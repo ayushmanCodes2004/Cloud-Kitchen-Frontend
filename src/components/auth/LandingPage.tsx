@@ -357,7 +357,7 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
           <div
             className="absolute inset-0 bg-cover bg-center opacity-80"
             style={{
-              backgroundImage: "url('/4k.png')",
+              backgroundImage: "url('/8k.png')",
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-red-500/40 via-orange-600/40 to-red-600/40" />
