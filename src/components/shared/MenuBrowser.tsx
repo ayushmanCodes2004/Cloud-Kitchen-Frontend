@@ -211,11 +211,11 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full md:w-48">
+          <SelectTrigger className="w-full sm:w-40 md:w-48 h-10 md:h-11">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -229,7 +229,7 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
         </Select>
 
         <Select value={ratingFilter} onValueChange={setRatingFilter}>
-          <SelectTrigger className="w-full md:w-48">
+          <SelectTrigger className="w-full sm:w-40 md:w-48 h-10 md:h-11">
             <SelectValue placeholder="Rating" />
           </SelectTrigger>
           <SelectContent>
@@ -242,7 +242,7 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
         </Select>
 
         <Select value={priceFilter} onValueChange={setPriceFilter}>
-          <SelectTrigger className="w-full md:w-48">
+          <SelectTrigger className="w-full sm:w-40 md:w-48 h-10 md:h-11">
             <SelectValue placeholder="Price" />
           </SelectTrigger>
           <SelectContent>
@@ -258,7 +258,7 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
           <Button
             variant={availableOnly ? "default" : "outline"}
             onClick={() => setAvailableOnly(!availableOnly)}
-            className="w-full md:w-auto"
+            className="w-full sm:w-auto h-10 md:h-11"
           >
             {availableOnly ? 'Available Only' : 'Show All'}
           </Button>
@@ -268,28 +268,28 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
       {/* Menu Items Grid */}
       {filteredItems.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-gray-500">
+          <CardContent className="py-8 md:py-12 text-center text-gray-500 text-sm md:text-base">
             No menu items found. Try adjusting your filters.
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {filteredItems.map((item) => (
             <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full" onClick={() => setSelectedItem(item)}>
-              <div className="w-full h-56 bg-gray-200 relative flex-shrink-0">
+              <div className="w-full h-48 md:h-56 bg-gray-200 relative flex-shrink-0">
                 {item.imageUrl ? (
                   <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-12 h-12 text-gray-400" />
+                    <Package className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
                   </div>
                 )}
                 {item.vegetarian ? (
-                  <Badge className="absolute top-2 left-2 bg-green-500">
+                  <Badge className="absolute top-2 left-2 bg-green-500 text-xs">
                     🌱 Veg
                   </Badge>
                 ) : (
-                  <Badge className="absolute top-2 left-2 bg-red-500">
+                  <Badge className="absolute top-2 left-2 bg-red-500 text-xs">
                     🥩 Non-Veg
                   </Badge>
                 )}
@@ -297,14 +297,14 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                   <button
                     onClick={(e) => toggleFavourite(item.id, e)}
                     disabled={togglingFavourite === item.id}
-                    className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition disabled:opacity-50"
+                    className="absolute top-2 right-2 p-1.5 md:p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition disabled:opacity-50"
                     title={favouriteIds.has(item.id) ? 'Remove from favourites' : 'Add to favourites'}
                   >
                     {togglingFavourite === item.id ? (
-                      <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
+                      <Loader2 className="w-4 h-4 md:w-5 md:h-5 text-orange-500 animate-spin" />
                     ) : (
                       <Heart 
-                        className={`w-5 h-5 transition ${
+                        className={`w-4 h-4 md:w-5 md:h-5 transition ${
                           favouriteIds.has(item.id) 
                             ? 'text-red-500 fill-red-500' 
                             : 'text-gray-400 hover:text-red-500'
@@ -315,21 +315,21 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                 )}
                 {!item.available && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="secondary" className="text-lg">Unavailable</Badge>
+                    <Badge variant="secondary" className="text-base md:text-lg">Unavailable</Badge>
                   </div>
                 )}
               </div>
               
-              <CardContent className="p-4 flex flex-col h-full">
+              <CardContent className="p-3 md:p-4 flex flex-col h-full">
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-base line-clamp-1">{item.name}</h3>
+                    <h3 className="font-bold text-sm md:text-base line-clamp-1">{item.name}</h3>
                     <Badge variant="outline" className="ml-2 shrink-0 text-xs">
                       {item.category.replace('_', ' ')}
                     </Badge>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
+                  <p className="text-xs md:text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
                   
                   <div className="space-y-1">
                     <div className="flex items-center gap-1 text-xs text-gray-600">
@@ -391,7 +391,7 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                 </div>
 
                 <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
-                  <span className="text-xl font-bold text-orange-600">₹{item.price}</span>
+                  <span className="text-lg md:text-xl font-bold text-orange-600">₹{item.price}</span>
                   {showOrderButton && item.available && onOrderClick && (
                     <Button 
                       onClick={(e) => {
@@ -399,10 +399,10 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                         onOrderClick(item);
                       }}
                       size="sm"
-                      className="bg-orange-500 hover:bg-orange-600 text-xs h-7 px-2"
+                      className="bg-orange-500 hover:bg-orange-600 text-xs h-7 md:h-8 px-2 md:px-3"
                     >
                       <ShoppingCart className="w-3 h-3 mr-0.5" />
-                      Order
+                      <span className="hidden sm:inline">Order</span>
                     </Button>
                   )}
                 </div>
@@ -420,8 +420,8 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
               <DialogHeader>
                 <div className="flex items-start justify-between w-full">
                   <div className="flex-1">
-                    <DialogTitle className="text-2xl mb-2">{selectedItem.name}</DialogTitle>
-                    <DialogDescription className="flex items-center gap-2">
+                    <DialogTitle className="text-xl md:text-2xl mb-2">{selectedItem.name}</DialogTitle>
+                    <DialogDescription className="flex items-center gap-2 flex-wrap">
                       <Badge className={selectedItem.vegetarian ? 'bg-green-500' : 'bg-red-500'}>
                         {selectedItem.vegetarian ? '🌱 Veg' : '🥩 Non-Veg'}
                       </Badge>
@@ -431,41 +431,41 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                 </div>
               </DialogHeader>
 
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {/* Image */}
                 {selectedItem.imageUrl && (
-                  <div className="w-full h-64 rounded-lg overflow-hidden">
+                  <div className="w-full h-48 md:h-64 rounded-lg overflow-hidden">
                     <img src={selectedItem.imageUrl} alt={selectedItem.name} className="w-full h-full object-cover" />
                   </div>
                 )}
 
                 {/* Full Description */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Description</h3>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedItem.description}</p>
+                  <h3 className="font-semibold text-base md:text-lg mb-2">Description</h3>
+                  <p className="text-sm md:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedItem.description}</p>
                 </div>
 
                 {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Price</p>
-                    <p className="text-2xl font-bold text-orange-600">₹{selectedItem.price}</p>
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                  <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                    <p className="text-xs md:text-sm text-gray-600 mb-1">Price</p>
+                    <p className="text-xl md:text-2xl font-bold text-orange-600">₹{selectedItem.price}</p>
                   </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Preparation Time</p>
-                    <p className="text-2xl font-bold text-blue-600">{selectedItem.preparationTime} min</p>
+                  <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                    <p className="text-xs md:text-sm text-gray-600 mb-1">Preparation Time</p>
+                    <p className="text-xl md:text-2xl font-bold text-blue-600">{selectedItem.preparationTime} min</p>
                   </div>
                 </div>
 
                 {/* Chef Info */}
-                <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="p-3 md:p-4 bg-orange-50 rounded-lg border border-orange-200">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Chef</p>
-                      <p className="font-semibold text-lg">{selectedItem.chefName}</p>
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">Chef</p>
+                      <p className="font-semibold text-base md:text-lg">{selectedItem.chefName}</p>
                     </div>
                     {selectedItem.chefVerified && (
-                      <BadgeCheck className="w-6 h-6 text-green-600" />
+                      <BadgeCheck className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
                     )}
                   </div>
                   
@@ -473,20 +473,20 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                   {selectedItem.chefAverageRating !== undefined && selectedItem.chefAverageRating > 0 && (
                     <div className="flex items-center gap-2">
                       <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                      <span className="font-semibold">{selectedItem.chefAverageRating.toFixed(1)}</span>
-                      <span className="text-gray-600">({selectedItem.chefTotalRatings} ratings)</span>
+                      <span className="font-semibold text-sm md:text-base">{selectedItem.chefAverageRating.toFixed(1)}</span>
+                      <span className="text-gray-600 text-xs md:text-sm">({selectedItem.chefTotalRatings} ratings)</span>
                     </div>
                   )}
                 </div>
 
                 {/* Food Rating */}
                 {selectedItem.menuItemAverageRating !== undefined && selectedItem.menuItemAverageRating > 0 && (
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm text-gray-600 mb-2">Food Rating</p>
+                  <div className="p-3 md:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-xs md:text-sm text-gray-600 mb-2">Food Rating</p>
                     <div className="flex items-center gap-2 mb-3">
                       <Star className="w-4 h-4 fill-orange-500 text-orange-500" />
-                      <span className="font-semibold">{selectedItem.menuItemAverageRating.toFixed(1)}</span>
-                      <span className="text-gray-600">({selectedItem.menuItemTotalRatings} ratings)</span>
+                      <span className="font-semibold text-sm md:text-base">{selectedItem.menuItemAverageRating.toFixed(1)}</span>
+                      <span className="text-gray-600 text-xs md:text-sm">({selectedItem.menuItemTotalRatings} ratings)</span>
                     </div>
                     {userRole === 'student' && (
                       <button
@@ -498,7 +498,7 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                             menuItemName: selectedItem.name
                           });
                         }}
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                        className="flex items-center gap-1 text-xs md:text-sm text-blue-600 hover:text-blue-700 hover:underline"
                       >
                         <MessageSquare className="w-4 h-4" />
                         View All Reviews
@@ -508,13 +508,13 @@ export const MenuBrowser = ({ onOrderClick, showOrderButton = false, userRole, e
                 )}
 
                 {/* Availability Status */}
-                <div className="p-4 rounded-lg border-2" style={{
+                <div className="p-3 md:p-4 rounded-lg border-2" style={{
                   borderColor: selectedItem.available ? '#10b981' : '#ef4444',
                   backgroundColor: selectedItem.available ? '#ecfdf5' : '#fef2f2'
                 }}>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5" style={{ color: selectedItem.available ? '#10b981' : '#ef4444' }} />
-                    <span className="font-semibold" style={{ color: selectedItem.available ? '#10b981' : '#ef4444' }}>
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5" style={{ color: selectedItem.available ? '#10b981' : '#ef4444' }} />
+                    <span className="font-semibold text-sm md:text-base" style={{ color: selectedItem.available ? '#10b981' : '#ef4444' }}>
                       {selectedItem.available ? 'Available' : 'Currently Unavailable'}
                     </span>
                   </div>
