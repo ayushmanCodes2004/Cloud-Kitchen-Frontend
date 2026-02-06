@@ -200,4 +200,14 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar-thumb:hover {
     background: rgba(249, 115, 22, 0.5);  /* Slightly darker on hover */
   }
+
+  /* No scrollbar utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

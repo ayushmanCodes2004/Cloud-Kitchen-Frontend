@@ -21,6 +21,8 @@
    category: string;
    chefName: string;
    chefAverageRating: number;
+   description?: string;
+   imageUrl?: string;
    [key: string]: any;
  }
 

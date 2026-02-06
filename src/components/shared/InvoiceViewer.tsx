@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { invoiceApi, Invoice } from '@/services/invoiceApi';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download, Printer, Mail, X } from 'lucide-react';
+import { Download, Printer } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface InvoiceViewerProps {
@@ -128,7 +128,7 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
           </div>
         </DialogContent>
       </Dialog>
@@ -156,11 +156,11 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
           </div>
         </DialogHeader>
 
-        <div className="space-y-6 p-6 bg-white">
+        <div className="space-y-6 p-6 bg-white dark:bg-slate-900">
           {/* Header */}
           <div className="text-center border-b pb-6">
-            <h1 className="text-3xl font-bold text-orange-600">🍽️ PlatePal</h1>
-            <p className="text-gray-600 mt-2">Cloud Kitchen Platform</p>
+            <h1 className="text-3xl font-bold text-primary">🍽️ PlatePal</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-2">Cloud Kitchen Platform</p>
           </div>
 
           {/* Invoice Details */}
@@ -172,7 +172,7 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
                 <p><span className="font-medium">Order #:</span> {invoice.orderNumber}</p>
                 <p><span className="font-medium">Date:</span> {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
                 <p><span className="font-medium">Status:</span> 
-                  <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  <span className="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded text-xs">
                     {invoice.status}
                   </span>
                 </p>
@@ -183,9 +183,9 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
               <h3 className="font-semibold text-lg mb-3">Bill To</h3>
               <div className="space-y-1 text-sm">
                 <p className="font-medium">{invoice.customerName}</p>
-                <p className="text-gray-600">{invoice.customerEmail}</p>
-                <p className="text-gray-600">{invoice.customerPhone}</p>
-                <p className="text-gray-600 mt-2">{invoice.deliveryAddress}</p>
+                <p className="text-slate-600 dark:text-slate-400">{invoice.customerEmail}</p>
+                <p className="text-slate-600 dark:text-slate-400">{invoice.customerPhone}</p>
+                <p className="text-slate-600 dark:text-slate-400 mt-2">{invoice.deliveryAddress}</p>
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
             <h3 className="font-semibold text-lg mb-3">Order Items</h3>
             <table className="w-full">
               <thead>
-                <tr className="bg-orange-50 border-b-2 border-orange-200">
+                <tr className="bg-primary/10 border-b-2 border-primary/20">
                   <th className="text-left p-3 text-sm font-semibold">Item</th>
                   <th className="text-left p-3 text-sm font-semibold">Chef</th>
                   <th className="text-center p-3 text-sm font-semibold">Qty</th>
@@ -205,9 +205,9 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
               </thead>
               <tbody>
                 {invoice.items.map((item, index) => (
-                  <tr key={index} className="border-b">
+                  <tr key={index} className="border-b border-slate-200 dark:border-slate-800">
                     <td className="p-3 text-sm">{item.itemName}</td>
-                    <td className="p-3 text-sm text-gray-600">{item.chefName}</td>
+                    <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{item.chefName}</td>
                     <td className="p-3 text-sm text-center">{item.quantity}</td>
                     <td className="p-3 text-sm text-right">₹{item.unitPrice.toFixed(2)}</td>
                     <td className="p-3 text-sm text-right font-medium">₹{item.totalPrice.toFixed(2)}</td>
@@ -234,13 +234,13 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
               </div>
               <div className="flex justify-between text-lg font-bold border-t-2 pt-2">
                 <span>Total:</span>
-                <span className="text-orange-600">₹{invoice.totalAmount.toFixed(2)}</span>
+                <span className="text-primary">₹{invoice.totalAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
           {/* Payment Info */}
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-medium">Payment Method:</span>
@@ -249,7 +249,7 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
               <div>
                 <span className="font-medium">Payment Status:</span>
                 <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                  invoice.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  invoice.paymentStatus === 'PAID' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
                 }`}>
                   {invoice.paymentStatus}
                 </span>
@@ -258,13 +258,13 @@ export const InvoiceViewer = ({ orderId, isOpen, onClose }: InvoiceViewerProps) 
           </div>
 
           {invoice.specialInstructions && (
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
               <p className="text-sm"><span className="font-medium">Special Instructions:</span> {invoice.specialInstructions}</p>
             </div>
           )}
 
           {/* Footer */}
-          <div className="text-center text-sm text-gray-600 border-t pt-4">
+          <div className="text-center text-sm text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-4">
             <p>Thank you for your order!</p>
             <p className="mt-1">For any queries, contact us at support@platepal.com</p>
           </div>

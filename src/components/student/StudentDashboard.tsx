@@ -11,7 +11,12 @@ import {
   X,
   Heart,
   Crown,
-  Sparkles
+  Sparkles,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { orderApi } from '@/services/orderApi';
@@ -22,7 +27,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { MenuBrowser } from '@/components/shared/MenuBrowser';
 import { Cart } from './Cart';
 import { Checkout } from './Checkout';
-import { OrderList } from './OrderList';
 import { AiRecommendationBanner } from './AiRecommendationBanner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,8 +34,11 @@ import { Button } from '@/components/ui/button';
 import { TestimonialForm } from '@/components/shared/TestimonialForm';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Favourites } from './Favourites';
 import { useNavigate } from 'react-router-dom';
+import { ModernMenuGrid } from './ModernMenuGrid';
+import { ModernFooter } from './ModernFooter';
+import { ModernFavourites } from './ModernFavourites';
+import { ModernOrders } from './ModernOrders';
 
 export interface CartItem extends MenuItemResponse {
   quantity: number;
@@ -48,6 +55,7 @@ export const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState('menu');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -190,247 +198,253 @@ export const StudentDashboard = () => {
     );
   }
 
+  const totalCartPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-white border-r border-gray-200 shadow-sm fixed left-0 top-0 h-screen overflow-y-auto flex flex-col">
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-8 p-6">
-          <img src="/best.png" alt="PlatePal" className="w-8 h-8 object-contain" />
-          <span className="text-xl font-bold text-gray-900">PlatePal</span>
-        </div>
+    <div className="min-h-screen bg-[#f8f6f6] dark:bg-[#221510] transition-colors duration-300">
+      {/* Modern Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#221510]/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center h-16 gap-8">
+              {/* Logo */}
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">PlatePal</span>
+              </div>
 
-        {/* Navigation Menu */}
-        <nav className="space-y-2 flex-1 p-4 flex flex-col">
-          <div className="space-y-2">
-            <NavItemIcon 
-              icon={UtensilsCrossed}
-              label="Menu" 
-              active={activeTab === 'menu'}
-              onClick={() => setActiveTab('menu')}
-            />
-            <NavItemIcon 
-              icon={Heart}
-              label="Favourites" 
-              active={activeTab === 'favourites'}
-              onClick={() => setActiveTab('favourites')}
-            />
-            <NavItemIcon 
-              icon={PackageSearch}
-              label="My Orders" 
-              active={activeTab === 'orders'}
-              onClick={() => setActiveTab('orders')}
-            />
-            <NavItemIcon 
-              icon={Crown}
-              label="Gold Plan" 
-              active={false}
-              onClick={() => navigate('/student/subscription')}
-            />
-            <NavItemIcon 
-              icon={Sparkles}
-              label="AI Meal Builder" 
-              active={false}
-              onClick={() => navigate('/student/ai-meal-builder')}
-            />
-            <NavItemIcon 
-              icon={MessageCircle}
-              label="Testimonial" 
-              active={activeTab === 'testimonial'}
-              onClick={() => setActiveTab('testimonial')}
-            />
-          </div>
-        </nav>
+              {/* Desktop Navigation */}
+              <nav className="hidden xl:flex items-center gap-1">
+                <NavLink label="Menu" active={activeTab === 'menu'} onClick={() => setActiveTab('menu')} />
+                <NavLink label="Favourites" active={activeTab === 'favourites'} onClick={() => setActiveTab('favourites')} />
+                <NavLink label="My Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
+                <NavLink label="AI Meal Builder" active={false} onClick={() => navigate('/student/ai-meal-builder')} />
+              </nav>
 
-        {/* Logout Button - Bottom of Sidebar */}
-        <div className="p-4">
-          <NavItemIcon 
-            icon={LogOut}
-            label="Logout" 
-            active={false}
-            onClick={logout}
-          />
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 ml-64">
-        {/* Top Header */}
-        <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="px-8 py-4 flex items-center justify-between">
-            {/* Search Bar - Only show in menu tab */}
-            <div className="flex-1 max-w-2xl">
-              {activeTab === 'menu' && (
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              {/* Search Bar */}
+              <div className="hidden md:flex flex-1 max-w-sm">
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="text-slate-400 w-4 h-4" />
+                  </div>
                   <input
+                    className="block w-full pl-10 pr-3 py-2 border-none bg-slate-100 dark:bg-slate-800 rounded-xl focus:ring-2 focus:ring-primary/50 text-sm"
+                    placeholder="Search dishes..."
                     type="text"
-                    placeholder="Search menu items..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-base bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-4 ml-8">
-              {/* Cart */}
-              <button
-                onClick={() => setShowCart(true)}
-                className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {cart.reduce((sum, item) => sum + item.quantity, 0)}
-                  </span>
-                )}
-              </button>
-
-              {/* User Profile */}
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs font-semibold text-gray-700">Student</p>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                  <User className="w-5 h-5 text-orange-600" />
+              {/* Right Actions */}
+              <div className="flex items-center gap-3">
+                <button className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+                  <MapPin className="w-4 h-4" />
+                  <span className="hidden lg:inline">Downtown, NY</span>
+                </button>
+                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                
+                {/* Account Dropdown */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowAccountMenu(!showAccountMenu)}
+                    className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    title="Account"
+                  >
+                    <User className="w-5 h-5" />
+                  </button>
+                  
+                  {showAccountMenu && (
+                    <>
+                      {/* Backdrop */}
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowAccountMenu(false)}
+                      ></div>
+                      
+                      {/* Dropdown Menu */}
+                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50">
+                        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            {user?.name || 'User'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            {user?.email || ''}
+                          </p>
+                        </div>
+                        
+                        <div className="py-1">
+                          <button
+                            onClick={() => {
+                              setShowAccountMenu(false);
+                              navigate('/student/subscription');
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                          >
+                            <Crown className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <span>Gold Plan</span>
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              setShowAccountMenu(false);
+                              setActiveTab('testimonial');
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>Testimonials</span>
+                          </button>
+                          
+                          <div className="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+                          
+                          <button
+                            onClick={() => {
+                              setShowAccountMenu(false);
+                              logout();
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Logout</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Mobile Navigation */}
+            <nav className="xl:hidden flex items-center gap-4 overflow-x-auto no-scrollbar pb-3 border-t border-slate-100 dark:border-slate-800 pt-3">
+              <NavLink label="Menu" active={activeTab === 'menu'} onClick={() => setActiveTab('menu')} mobile />
+              <NavLink label="Favourites" active={activeTab === 'favourites'} onClick={() => setActiveTab('favourites')} mobile />
+              <NavLink label="My Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} mobile />
+              <NavLink label="AI Meal Builder" active={false} onClick={() => navigate('/student/ai-meal-builder')} mobile />
+            </nav>
           </div>
         </div>
+      </header>
 
-        {/* Page Content */}
-        <div className="p-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="hidden">
-              <TabsList className="bg-transparent border-0 h-auto">
-                <TabsTrigger value="menu" className="sr-only">Menu</TabsTrigger>
-                <TabsTrigger value="favourites" className="sr-only">Favourites</TabsTrigger>
-                <TabsTrigger value="orders" className="sr-only">My Orders</TabsTrigger>
-                <TabsTrigger value="testimonial" className="sr-only">Testimonial</TabsTrigger>
-              </TabsList>
-            </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="hidden">
+            <TabsList>
+              <TabsTrigger value="menu">Menu</TabsTrigger>
+              <TabsTrigger value="favourites">Favourites</TabsTrigger>
+              <TabsTrigger value="orders">Orders</TabsTrigger>
+              <TabsTrigger value="testimonial">Testimonial</TabsTrigger>
+            </TabsList>
+          </div>
 
-            <TabsContent value="menu" className="mt-0">
-              <AiRecommendationBanner onAddToCart={addToCart} />
-              <MenuBrowser
-                onOrderClick={addToCart}
-                showOrderButton={true}
-                userRole="student"
-                externalSearchQuery={searchQuery}
-              />
-            </TabsContent>
+          <TabsContent value="menu" className="mt-0">
+            <ModernMenuGrid onAddToCart={addToCart} searchQuery={searchQuery} />
+          </TabsContent>
 
-            <TabsContent value="favourites" className="mt-0">
-              <Favourites 
-                onAddToCart={addToCart}
-                onAddMealToCart={(meal) => {
-                  // Convert saved meal items to cart items and add them
-                  meal.items.forEach(item => {
-                    const cartItem: CartItem = {
-                      id: item.menuItemId,
-                      name: item.menuItemName,
-                      price: item.menuItemPrice,
-                      vegetarian: false,
-                      chefId: item.chefId || 0,
-                      chefName: item.chefName || 'Unknown',
-                      category: '',
-                      description: '',
-                      available: true,
-                      imageUrl: item.menuItemImage || undefined,
-                      preparationTime: 15,
-                      quantity: item.quantity
-                    };
-                    
-                    // Add to cart
-                    const existing = cart.find(i => i.id === cartItem.id);
-                    if (existing) {
-                      setCart(cart.map(i => 
-                        i.id === cartItem.id ? { ...i, quantity: i.quantity + cartItem.quantity } : i
-                      ));
-                    } else {
-                      setCart(prev => [...prev, cartItem]);
-                    }
-                  });
-                }}
-              />
-            </TabsContent>
+          <TabsContent value="favourites" className="mt-0">
+            <ModernFavourites onAddToCart={addToCart} />
+          </TabsContent>
 
-            <TabsContent value="orders" className="mt-0">
-              <Tabs defaultValue="active" className="w-full">
-                <TabsList className="bg-transparent border-0 h-auto mb-4">
-                  <TabsTrigger
-                    value="active"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-5 py-2.5 rounded-md text-sm md:text-base"
-                  >
-                    Active Orders
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="all"
-                    className="data-[state=active]:bg-orange-500 data-[state=active]:text-white font-medium px-5 py-2.5 rounded-md text-sm md:text-base"
-                  >
-                    Order History
-                  </TabsTrigger>
-                </TabsList>
+          <TabsContent value="orders" className="mt-0">
+            <ModernOrders 
+              orders={orders} 
+              onReorder={handleReorder}
+              onOrderCancelled={loadOrders}
+            />
+          </TabsContent>
 
-                <TabsContent value="active" className="mt-0">
-                  <OrderList
-                    orders={orders.filter(order => order.status !== 'DELIVERED' && order.status !== 'CANCELLED')}
-                    onReorder={handleReorder}
-                  />
-                </TabsContent>
-
-                <TabsContent value="all" className="mt-0">
-                  <OrderList
-                    orders={orders}
-                    onReorder={handleReorder}
-                  />
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            <TabsContent value="testimonial" className="p-6 mt-0">
-              <div className="max-w-2xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold">Share Your Experience</h2>
-                  <button 
-                    onClick={() => setActiveTab('menu')}
-                    className="p-2 hover:bg-gray-100 rounded-full"
-                    title="Back to menu"
-                  >
-                    <X className="w-5 h-5 text-gray-500" />
-                  </button>
-                </div>
-                <TestimonialForm />
+          <TabsContent value="testimonial" className="mt-0">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Share Your Experience</h2>
+                <button 
+                  onClick={() => setActiveTab('menu')}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
               </div>
-            </TabsContent>
-          </Tabs>
+              <TestimonialForm />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+
+      {/* Footer */}
+      <ModernFooter />
+
+      {/* Floating Cart Button */}
+      {cart.length > 0 && (
+        <div className="fixed bottom-8 right-8 z-[60]">
+          <button
+            onClick={() => setShowCart(true)}
+            className="group relative flex items-center gap-3 bg-primary hover:bg-primary/90 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-primary/40 transition-all hover:scale-105 active:scale-95"
+          >
+            <div className="relative">
+              <ShoppingCart className="w-5 h-5" />
+              <span className="absolute -top-2 -right-2 bg-white text-primary text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-primary">
+                {totalCartItems}
+              </span>
+            </div>
+            <div className="flex flex-col items-start leading-none">
+              <span className="text-xs font-medium text-white/80">Checkout now</span>
+              <span className="text-lg font-bold">View Cart • ₹{totalCartPrice.toFixed(2)}</span>
+            </div>
+            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
+      )}
 
-        {showCart && (
-          <Cart
-            cart={cart}
-            setCart={setCart}
-            onClose={() => setShowCart(false)}
-            onPlaceOrder={proceedToCheckout}
-          />
-        )}
+      {/* Modals */}
+      {showCart && (
+        <Cart
+          cart={cart}
+          setCart={setCart}
+          onClose={() => setShowCart(false)}
+          onPlaceOrder={proceedToCheckout}
+        />
+      )}
 
-        {showCheckout && (
-          <Checkout
-            cart={cart}
-            onClose={() => setShowCheckout(false)}
-            onConfirmOrder={placeOrder}
-          />
-        )}
-      </div>
+      {showCheckout && (
+        <Checkout
+          cart={cart}
+          onClose={() => setShowCheckout(false)}
+          onConfirmOrder={placeOrder}
+        />
+      )}
     </div>
   );
 };
+
+interface NavLinkProps {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  icon?: React.ReactNode;
+  mobile?: boolean;
+}
+
+const NavLink = ({ label, active, onClick, icon, mobile = false }: NavLinkProps) => (
+  <button
+    onClick={onClick}
+    className={`px-3 py-2 text-sm font-medium transition-all duration-200 hover:text-primary whitespace-nowrap ${
+      active 
+        ? 'text-primary relative after:content-[""] after:absolute after:bottom-[-20px] after:left-0 after:w-full after:h-0.5 after:bg-primary' 
+        : ''
+    } ${mobile ? '!py-1' : ''}`}
+  >
+    <span className="flex items-center gap-1">
+      {icon}
+      {label}
+    </span>
+  </button>
+);
 
 interface NavItemIconProps {
   icon: React.ComponentType<{ className?: string }>;
