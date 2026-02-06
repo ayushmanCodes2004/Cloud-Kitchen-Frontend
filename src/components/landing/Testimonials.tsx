@@ -1,5 +1,5 @@
 import { motion, useMotionValue, animate } from "framer-motion";
-import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight, User, ChefHat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TestimonialResponse } from "@/services/testimonialApi";
 
@@ -181,15 +181,14 @@ const Testimonials = ({ testimonials: apiTestimonials = [], loading = false }: T
               style={{ x }}
             >
               {testimonials.map((testimonial, index) => {
-                // Generate a placeholder image based on user role
-                const placeholderImage = testimonial.userRole === 'CHEF' 
-                  ? "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&h=150&fit=crop&crop=face"
-                  : "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face";
+                // Determine icon and styling based on user role
+                const Icon = testimonial.userRole === 'CHEF' ? ChefHat : User;
+                const isChef = testimonial.userRole === 'CHEF';
                 
                 return (
                   <motion.div
                     key={testimonial.id}
-                    className="flex-shrink-0 w-[380px] bg-white rounded-2xl p-8 shadow-warm relative group hover:shadow-xl transition-shadow duration-300"
+                    className="flex-shrink-0 w-[380px] bg-white rounded-2xl p-8 shadow-warm relative group hover:shadow-xl transition-shadow duration-300 flex flex-col"
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -200,28 +199,28 @@ const Testimonials = ({ testimonials: apiTestimonials = [], loading = false }: T
 
                     {/* Rating */}
                     <div className="flex gap-1 mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-spice text-spice" />
+                      {[...Array(Math.min(5, Math.max(0, testimonial.rating || 5)))].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
                       ))}
                     </div>
 
-                    {/* Testimonial text */}
-                    <p className="text-foreground/80 text-lg leading-relaxed mb-6 italic min-h-[100px]">
-                      "{testimonial.content}"
-                    </p>
+                    {/* Testimonial text - flexible height with minimum */}
+                    <div className="flex-1 mb-6">
+                      <p className="text-foreground/80 text-lg leading-relaxed italic line-clamp-4">
+                        "{testimonial.content}"
+                      </p>
+                    </div>
 
-                    {/* Author */}
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={placeholderImage}
-                        alt={testimonial.userName}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-spice/20"
-                      />
-                      <div>
-                        <h4 className="font-semibold text-foreground">
+                    {/* Author - always at bottom */}
+                    <div className="flex items-center gap-4 mt-auto">
+                      <div className="flex-shrink-0">
+                        <Icon className="w-8 h-8 text-primary" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-foreground truncate">
                           {testimonial.userName}
                         </h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate">
                           {testimonial.institution || (testimonial.userRole === 'CHEF' ? 'Chef' : 'Customer')}
                         </p>
                       </div>

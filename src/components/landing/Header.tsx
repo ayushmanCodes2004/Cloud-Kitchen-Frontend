@@ -11,6 +11,14 @@ interface HeaderProps {
 const Header = ({ onSignIn, onOrderNow }: HeaderProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsOpen(false);
+  };
+
   return (
     <motion.header
       initial={{ y: -100, opacity: 0 }}
@@ -35,34 +43,34 @@ const Header = ({ onSignIn, onOrderNow }: HeaderProps) => {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
-          <motion.a
-            href="#menu"
+          <motion.button
+            onClick={() => scrollToSection('menu')}
             className="text-white/90 hover:text-primary transition-colors font-medium"
             whileHover={{ y: -2 }}
           >
             Menu
-          </motion.a>
-          <motion.a
-            href="#about"
+          </motion.button>
+          <motion.button
+            onClick={() => scrollToSection('about')}
             className="text-white/90 hover:text-primary transition-colors font-medium"
             whileHover={{ y: -2 }}
           >
             About
-          </motion.a>
-          <motion.a
-            href="#how-it-works"
+          </motion.button>
+          <motion.button
+            onClick={() => scrollToSection('how-it-works')}
             className="text-white/90 hover:text-primary transition-colors font-medium"
             whileHover={{ y: -2 }}
           >
             How It Works
-          </motion.a>
-          <motion.a
-            href="#contact"
+          </motion.button>
+          <motion.button
+            onClick={() => scrollToSection('contact')}
             className="text-white/90 hover:text-primary transition-colors font-medium"
             whileHover={{ y: -2 }}
           >
             Contact
-          </motion.a>
+          </motion.button>
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
@@ -96,34 +104,30 @@ const Header = ({ onSignIn, onOrderNow }: HeaderProps) => {
           className="md:hidden bg-charcoal/95 backdrop-blur-md border-t border-white/20"
         >
           <nav className="flex flex-col p-4 gap-4">
-            <a
-              href="#menu"
-              className="text-white/90 hover:text-primary transition-colors font-medium py-2"
-              onClick={() => setIsOpen(false)}
+            <button
+              onClick={() => scrollToSection('menu')}
+              className="text-white/90 hover:text-primary transition-colors font-medium py-2 text-left"
             >
               Menu
-            </a>
-            <a
-              href="#about"
-              className="text-white/90 hover:text-primary transition-colors font-medium py-2"
-              onClick={() => setIsOpen(false)}
+            </button>
+            <button
+              onClick={() => scrollToSection('about')}
+              className="text-white/90 hover:text-primary transition-colors font-medium py-2 text-left"
             >
               About
-            </a>
-            <a
-              href="#how-it-works"
-              className="text-white/90 hover:text-primary transition-colors font-medium py-2"
-              onClick={() => setIsOpen(false)}
+            </button>
+            <button
+              onClick={() => scrollToSection('how-it-works')}
+              className="text-white/90 hover:text-primary transition-colors font-medium py-2 text-left"
             >
               How It Works
-            </a>
-            <a
-              href="#contact"
-              className="text-white/90 hover:text-primary transition-colors font-medium py-2"
-              onClick={() => setIsOpen(false)}
+            </button>
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="text-white/90 hover:text-primary transition-colors font-medium py-2 text-left"
             >
               Contact
-            </a>
+            </button>
             <Button 
               variant="ghost" 
               className="text-white hover:text-primary hover:bg-white/10 justify-start"

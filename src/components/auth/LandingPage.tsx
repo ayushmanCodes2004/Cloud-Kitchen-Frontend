@@ -178,28 +178,30 @@ export const LandingPage = ({ onOrderNow, onBecomeChef, onSignIn }: LandingPageP
       </section>
 
       {/* Parallax Section - About */}
-      <TextParallaxContent
-        imgUrl="/dish-curry.jpg"
-        subheading="Our Story"
-        heading="Passion on Every Plate"
-      >
-        <div id="about" className="bg-background py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-xl text-muted-foreground leading-relaxed"
-              >
-                Born from a love of authentic Indian cuisine, PlatePal is more than a cloud kitchen—
-                it's a culinary journey. Our chefs bring decades of experience, crafting each dish 
-                with fresh ingredients and time-honored recipes passed down through generations.
-              </motion.p>
+      <div id="about">
+        <TextParallaxContent
+          imgUrl="/dish-curry.jpg"
+          subheading="Our Story"
+          heading="Passion on Every Plate"
+        >
+          <div className="bg-background py-16">
+            <div className="container mx-auto px-4">
+              <div className="max-w-3xl mx-auto text-center">
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-xl text-muted-foreground leading-relaxed"
+                >
+                  Born from a love of authentic Indian cuisine, PlatePal is more than a cloud kitchen—
+                  it's a culinary journey. Our chefs bring decades of experience, crafting each dish 
+                  with fresh ingredients and time-honored recipes passed down through generations.
+                </motion.p>
+              </div>
             </div>
           </div>
-        </div>
-      </TextParallaxContent>
+        </TextParallaxContent>
+      </div>
 
       {/* How It Works */}
       <HowItWorks />
