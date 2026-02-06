@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { LandingPage } from '@/components/auth/LandingPage';
-import { Login } from '@/components/auth/Login';
-import { Register } from '@/components/auth/Register';
+import { LoginNew } from '@/components/auth/LoginNew';
+import { RegisterNew } from '@/components/auth/RegisterNew';
 
 type ViewState = 'landing' | 'login' | 'register-student' | 'register-chef';
 
@@ -32,11 +32,11 @@ const Index = () => {
     }
 
     if (view === 'login') {
-      return <Login onSwitchToRegister={() => setView('landing')} />;
+      return <LoginNew onSwitchToRegister={() => setView('landing')} />;
     }
 
     return (
-      <Register 
+      <RegisterNew 
         onSwitchToLogin={() => setView('login')} 
         chefOnly={view === 'register-chef'}
         studentOnly={view === 'register-student'}

@@ -41,12 +41,24 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* Custom colors for platepal-scrollmagic theme */
+    --charcoal: 20 14% 12%;       /* Dark charcoal #1f1f1f */
+    --cream: 25 100% 98%;
+    --cream-light: 25 100% 99%;
+    --spice: 18 100% 46%;
+    --terracotta: 10 85% 62%;
+    --amber: 38 92% 50%;
+    
     --gradient-warm: linear-gradient(135deg, hsl(18 100% 46%) 0%, hsl(10 85% 62%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(25 100% 98%) 0%, hsl(25 100% 96%) 100%);
+    --gradient-hero: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);
     
     --shadow-soft: 0 2px 8px -2px hsl(20 14% 12% / 0.08);
     --shadow-medium: 0 4px 16px -4px hsl(20 14% 12% / 0.12);
     --shadow-strong: 0 8px 24px -6px hsl(20 14% 12% / 0.16);
+    --shadow-card: 0 4px 12px -2px hsl(20 14% 12% / 0.1);
+    --shadow-elevated: 0 8px 24px -4px hsl(20 14% 12% / 0.15);
+    --shadow-warm: 0 4px 16px -2px hsl(18 100% 46% / 0.15);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -96,6 +108,73 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Custom color utilities */
+  .bg-charcoal {
+    background-color: hsl(var(--charcoal));
+  }
+  
+  .text-charcoal {
+    color: hsl(var(--charcoal));
+  }
+  
+  .bg-cream {
+    background-color: hsl(var(--cream));
+  }
+  
+  .text-cream {
+    color: hsl(var(--cream));
+  }
+  
+  .bg-cream-light {
+    background-color: hsl(var(--cream-light));
+  }
+  
+  .text-spice {
+    color: hsl(var(--spice));
+  }
+  
+  .bg-spice {
+    background-color: hsl(var(--spice));
+  }
+  
+  .text-terracotta {
+    color: hsl(var(--terracotta));
+  }
+  
+  .bg-terracotta {
+    background-color: hsl(var(--terracotta));
+  }
+  
+  .text-amber {
+    color: hsl(var(--amber));
+  }
+  
+  .bg-amber {
+    background-color: hsl(var(--amber));
+  }
+  
+  /* Gradient utilities */
+  .bg-gradient-warm {
+    background: var(--gradient-warm);
+  }
+  
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  /* Shadow utilities */
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  
+  .shadow-warm {
+    box-shadow: var(--shadow-warm);
+  }
+
   /* Minimalist scrollbar styling */
   .scrollbar-hide {
     scroll-behavior: smooth;
