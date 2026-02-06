@@ -25,7 +25,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-cream/70 mb-6">
-              Premium cloud kitchen delivering happiness, one plate at a time.
+              Premium cloud kitchen delivering happiness. Your kitchen, just a tap away.
             </p>
             <div className="flex gap-4">
               {[Instagram, Facebook, Twitter].map((Icon, i) => (
