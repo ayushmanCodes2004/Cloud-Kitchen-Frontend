@@ -40,6 +40,7 @@ export interface ChefRatingStats {
 export interface MenuItemRatingStats {
   menuItemId: number;
   menuItemName: string;
+  menuItemImageUrl?: string;
   averageRating: number;
   totalRatings: number;
   ratings: RatingResponse[];

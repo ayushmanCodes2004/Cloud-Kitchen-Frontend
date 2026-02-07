@@ -1,30 +1,82 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import './FloatingChatWidget.css';
 
 interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'chef' | 'support';
-  timestamp: string;
-  senderName?: string;
+  id: number;
+  senderId: number;
+  senderName: string;
+  message: string;
+  sentAt: string;
+  messageType: string;
 }
 
 interface FloatingChatWidgetProps {
-  orderId?: number | null;
-  orderStatus?: string;
+  orderId: number | null;
+  orderStatus: string;
+  onOpenRequest?: number; // Timestamp to trigger reopen
 }
 
-export const FloatingChatWidget = ({ orderId, orderStatus }: FloatingChatWidgetProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const FloatingChatWidget: React.FC<FloatingChatWidgetProps> = ({
+  orderId,
+  orderStatus,
+  onOpenRequest
+}) => {
+  const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [newMessage, setNewMessage] = useState('');
+  const [ws, setWs] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-  const { user, token } = useAuth();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const MAX_RECONNECT_ATTEMPTS = 5;
 
-  // Auto-scroll to bottom when new messages arrive
+  // Get user info from localStorage
+  const getUserId = (): number => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.id || 0;
+      }
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error);
+    }
+    return 0;
+  };
+
+  const getUserName = (): string => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.name || 'User';
+      }
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error);
+    }
+    return 'User';
+  };
+
+  const userId = getUserId();
+  const userName = getUserName();
+
+  // Track if chat should be open based on orderId and onOpenRequest
+  const shouldBeOpen = orderId !== null && (orderStatus === 'CONFIRMED' || orderStatus === 'PREPARING' || orderStatus === 'READY');
+
+  // Open widget when onOpenRequest changes (user clicks "Chat with Chef")
+  useEffect(() => {
+    if (onOpenRequest && shouldBeOpen) {
+      setIsWidgetOpen(true);
+      setUnreadCount(0);
+    }
+  }, [onOpenRequest, shouldBeOpen]);
+
+  // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -33,76 +85,166 @@ export const FloatingChatWidget = ({ orderId, orderStatus }: FloatingChatWidgetP
     scrollToBottom();
   }, [messages]);
 
-  // WebSocket connection
-  useEffect(() => {
-    if (!isOpen || !orderId || !token) return;
+  // Connect to WebSocket
+  const connectWebSocket = () => {
+    if (isConnecting || isConnected || !orderId) {
+      console.log('⚠️ Already connecting or connected, or no orderId');
+      return;
+    }
 
-    const wsUrl = `ws://localhost:8080/ws/chat/${orderId}?token=${token}`;
-    const ws = new WebSocket(wsUrl);
+    setIsConnecting(true);
+    setError(null);
 
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-      setIsConnected(true);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        const newMessage: Message = {
-          id: Date.now().toString(),
-          text: data.message || data.content,
-          sender: data.sender === user?.email ? 'user' : 'chef',
-          timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-          senderName: data.senderName
-        };
-        setMessages(prev => [...prev, newMessage]);
-      } catch (error) {
-        console.error('Error parsing message:', error);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required');
+        setIsConnecting(false);
+        return;
       }
-    };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setIsConnected(false);
-    };
+      // Use environment variable for WebSocket URL
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      const baseUrl = apiUrl.replace('/api', '').replace('http://', '').replace('https://', '');
+      const protocol = apiUrl.startsWith('https://') ? 'wss://' : 'ws://';
+      const wsUrl = `${protocol}${baseUrl}/ws/chat?orderId=${orderId}&userId=${userId}&token=${token}`;
+      
+      console.log('🔌 Connecting to WebSocket:', wsUrl);
 
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-      setIsConnected(false);
-    };
+      const websocket = new WebSocket(wsUrl);
 
-    wsRef.current = ws;
+      websocket.onopen = () => {
+        console.log('✅ WebSocket connected');
+        setIsConnected(true);
+        setIsConnecting(false);
+        setError(null);
+        reconnectAttemptsRef.current = 0;
+      };
 
-    return () => {
-      ws.close();
-    };
-  }, [isOpen, orderId, token, user]);
+      websocket.onmessage = (event) => {
+        try {
+          console.log('📨 Received raw message:', event.data);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim() || !wsRef.current || !isConnected) return;
+          if (!event.data || event.data.trim() === '') {
+            console.warn('⚠️ Received empty message data');
+            return;
+          }
 
-    const message = {
-      orderId: orderId,
-      sender: user?.email,
-      senderName: user?.name,
-      message: inputMessage,
-      timestamp: new Date().toISOString()
-    };
+          const data = JSON.parse(event.data);
+          console.log('📨 Parsed message:', data);
 
-    wsRef.current.send(JSON.stringify(message));
-    
-    // Add message to local state immediately
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: inputMessage,
-      sender: 'user',
-      timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-      senderName: user?.name
-    };
-    setMessages(prev => [...prev, newMessage]);
-    setInputMessage('');
+          // Handle system messages
+          if (data.messageType === 'SYSTEM') {
+            console.log('ℹ️ System message:', data.message);
+            return;
+          }
+
+          // Handle error messages
+          if (data.messageType === 'ERROR') {
+            console.error('❌ Error message:', data.error);
+            setError(data.error);
+            return;
+          }
+
+          // Handle chat messages
+          if (data.message && data.senderName) {
+            setMessages(prev => {
+              // Avoid duplicates
+              if (prev.some(msg => msg.id === data.id)) {
+                return prev;
+              }
+              return [...prev, data];
+            });
+
+            // Increment unread count if widget is closed and message is from other user
+            if (!isWidgetOpen && data.senderId !== userId) {
+              setUnreadCount(prev => prev + 1);
+            }
+          } else {
+            console.warn('⚠️ Message missing required fields:', data);
+          }
+        } catch (error) {
+          console.error('❌ Error parsing message:', error);
+        }
+      };
+
+      websocket.onerror = (error) => {
+        console.error('❌ WebSocket error:', error);
+        setError('Connection error');
+        setIsConnecting(false);
+      };
+
+      websocket.onclose = (event) => {
+        console.log('❌ WebSocket closed:', event.code, event.reason);
+        setIsConnected(false);
+        setIsConnecting(false);
+
+        // Attempt to reconnect
+        if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS && shouldBeOpen && isWidgetOpen) {
+          reconnectAttemptsRef.current++;
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 10000);
+          console.log(`🔄 Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`);
+          
+          reconnectTimeoutRef.current = setTimeout(() => {
+            connectWebSocket();
+          }, delay);
+        } else if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+          setError('Connection lost. Please refresh the page.');
+        }
+      };
+
+      setWs(websocket);
+    } catch (error) {
+      console.error('❌ Error creating WebSocket:', error);
+      setError('Failed to connect');
+      setIsConnecting(false);
+    }
   };
 
+  // Connect when widget opens and orderId is available
+  useEffect(() => {
+    if (isWidgetOpen && orderId && shouldBeOpen) {
+      connectWebSocket();
+    }
+
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [isWidgetOpen, orderId, shouldBeOpen]);
+
+  // Send message
+  const handleSendMessage = () => {
+    if (!newMessage.trim() || !ws || !isConnected) {
+      console.warn('⚠️ Cannot send message:', { 
+        hasMessage: !!newMessage.trim(), 
+        hasWs: !!ws, 
+        isConnected 
+      });
+      return;
+    }
+
+    try {
+      const messageData = {
+        orderId,
+        userId,
+        message: newMessage.trim()
+      };
+
+      console.log('📤 Sending message:', messageData);
+      ws.send(JSON.stringify(messageData));
+      setNewMessage('');
+    } catch (error) {
+      console.error('❌ Error sending message:', error);
+      setError('Failed to send message');
+    }
+  };
+
+  // Handle Enter key
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -110,136 +252,128 @@ export const FloatingChatWidget = ({ orderId, orderStatus }: FloatingChatWidgetP
     }
   };
 
-  // Don't show widget if no active order
-  if (!orderId || (orderStatus !== 'CONFIRMED' && orderStatus !== 'PREPARING' && orderStatus !== 'READY')) {
-    return null;
-  }
+  // Toggle widget open/close
+  const toggleWidget = () => {
+    setIsWidgetOpen(!isWidgetOpen);
+    if (!isWidgetOpen) {
+      setUnreadCount(0); // Reset unread count when opening
+    }
+  };
+
+  if (!shouldBeOpen) return null;
 
   return (
     <>
+      {/* Floating Toggle Button */}
+      <button
+        onClick={toggleWidget}
+        className="chat-toggle-button"
+        aria-label="Toggle chat"
+      >
+        {isWidgetOpen ? (
+          <X size={24} />
+        ) : (
+          <>
+            <MessageCircle size={24} />
+            {unreadCount > 0 && (
+              <span className="unread-badge">{unreadCount}</span>
+            )}
+          </>
+        )}
+      </button>
+
       {/* Chat Widget */}
-      {isOpen && (
-        <div className="fixed bottom-24 right-8 z-[100] w-full max-w-[380px]">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[500px]">
-            {/* Header */}
-            <div className="bg-primary p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
-                    👨‍🍳
-                  </div>
-                  <div className={`absolute bottom-0 right-0 w-3 h-3 ${isConnected ? 'bg-green-500' : 'bg-gray-400'} border-2 border-primary rounded-full`}></div>
-                </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm">Chef Chat</h4>
-                  <p className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">
-                    {isConnected ? 'Online • Ready to help' : 'Connecting...'}
-                  </p>
-                </div>
+      {isWidgetOpen && (
+        <div className="floating-chat-widget">
+          <div className="chat-header">
+            <div className="chat-header-info">
+              <div className="chef-avatar">👨‍🍳</div>
+              <div>
+                <h3>Chef Chat</h3>
+                <p className="chat-status">
+                  {isConnecting && 'Connecting...'}
+                  {isConnected && (
+                    <>
+                      <span className="status-dot status-online"></span>
+                      Online • Ready to help
+                    </>
+                  )}
+                  {!isConnecting && !isConnected && (
+                    <>
+                      <span className="status-dot status-offline"></span>
+                      Offline
+                    </>
+                  )}
+                </p>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="text-white/80 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
+            </div>
+            <button onClick={toggleWidget} className="close-button">
+              <X size={20} />
+            </button>
+          </div>
+
+          {error && (
+            <div className="chat-error">
+              <span>⚠️ {error}</span>
+              <button onClick={connectWebSocket} className="retry-button">
+                Retry
               </button>
             </div>
+          )}
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950/50">
-              {messages.length === 0 && (
-                <div className="flex items-start gap-2 max-w-[85%]">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs shrink-0">
-                    👨‍🍳
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
-                      Hello! I'm your chef. How can I help you with your order today? 👋
-                    </p>
-                    <span className="text-[10px] text-slate-400 mt-1 block">
-                      {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              )}
-              
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex items-start gap-2 max-w-[85%] ${
-                    message.sender === 'user' ? 'ml-auto flex-row-reverse' : ''
-                  }`}
-                >
-                  {message.sender !== 'user' && (
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs shrink-0 mt-1">
-                      👨‍🍳
-                    </div>
-                  )}
-                  <div
-                    className={`p-3 rounded-2xl shadow-sm ${
-                      message.sender === 'user'
-                        ? 'bg-primary text-white rounded-tr-none shadow-primary/20'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-none border border-slate-100 dark:border-slate-800'
-                    }`}
-                  >
-                    <p className="text-sm">{message.text}</p>
-                    <span
-                      className={`text-[10px] mt-1 block ${
-                        message.sender === 'user'
-                          ? 'text-white/70 text-right'
-                          : 'text-slate-400'
-                      }`}
-                    >
-                      {message.timestamp}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-              <div className="relative flex items-center gap-2">
-                <input
-                  className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white"
-                  placeholder="Type a message..."
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  disabled={!isConnected}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!inputMessage.trim() || !isConnected}
-                  className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
+          <div className="chat-messages">
+            {messages.length === 0 ? (
+              <div className="welcome-message">
+                <div className="welcome-icon">👋</div>
+                <h4>Welcome to Chef Chat!</h4>
+                <p>Ask questions about your order and get real-time responses from your chef.</p>
               </div>
-            </div>
+            ) : (
+              messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`message-bubble ${msg.senderId === userId ? 'message-user' : 'message-chef'}`}
+                >
+                  {msg.senderId !== userId && (
+                    <div className="message-avatar">👨‍🍳</div>
+                  )}
+                  <div className="message-content-wrapper">
+                    <div className="message-content">{msg.message}</div>
+                    <div className="message-time">
+                      {new Date(msg.sentAt).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="chat-input-container">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={isConnected ? "Type your message..." : "Connecting..."}
+              disabled={!isConnected}
+              className="chat-input"
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim() || !isConnected}
+              className="send-button"
+            >
+              <Send size={20} />
+            </button>
           </div>
         </div>
       )}
-
-      {/* Toggle Button */}
-      <div className="fixed bottom-8 right-8 z-[110]">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all relative"
-        >
-          {isOpen ? (
-            <X className="w-6 h-6" />
-          ) : (
-            <>
-              <MessageCircle className="w-6 h-6" />
-              {/* Unread indicator */}
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
-            </>
-          )}
-        </button>
-      </div>
     </>
   );
 };
+
+export default FloatingChatWidget;

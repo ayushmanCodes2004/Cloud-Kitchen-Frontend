@@ -9,7 +9,7 @@ import { StudentDashboard } from "./components/student/StudentDashboard";
 import { ChefDashboard } from "./components/chef/ChefDashboard";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import SubscriptionPage from "./components/student/SubscriptionPage";
+import { GoldSubscriptionPage } from "./components/student/GoldSubscriptionPage";
 import AIMealBuilder from "./components/student/AIMealBuilder";
 import AdminSubscriptions from "./components/admin/AdminSubscriptions";
 
@@ -61,7 +61,7 @@ const AppRoutes = () => {
         path="/student/subscription" 
         element={
           <ProtectedRoute allowedRole="STUDENT">
-            <SubscriptionPage />
+            <GoldSubscriptionPage />
           </ProtectedRoute>
         } 
       />

@@ -1,16 +1,14 @@
-import { UtensilsCrossed } from 'lucide-react';
-
 export const ModernFooter = () => {
   return (
     <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center text-white">
-                <UtensilsCrossed className="w-4 h-4" />
-              </div>
-              <span className="text-lg font-bold tracking-tight">PlatePal</span>
+            <div className="flex items-center gap-3 mb-4">
+              <img src="/best.png" alt="PlatePal" className="w-6 h-6" />
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+                Plate<span className="text-[#ff6b35]">Pal</span>
+              </span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
               Elevating your home dining experience with chef-curated selections delivered to your door.
@@ -52,7 +50,7 @@ export const ModernFooter = () => {
         </div>
         
         <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
-          <p>© 2024 PlatePal Cloud Kitchen. All rights reserved.</p>
+          <p>© 2024 Plate<span className="text-[#ff6b35]">Pal</span> Cloud Kitchen. All rights reserved.</p>
           <div className="flex gap-6">
             <a className="hover:text-primary" href="#">Privacy Policy</a>
             <a className="hover:text-primary" href="#">Terms of Service</a>

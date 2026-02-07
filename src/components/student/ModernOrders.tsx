@@ -17,8 +17,8 @@ import { orderApi } from '@/services/orderApi';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { RatingModal } from '@/components/ui/RatingModal';
+import FloatingChatWidget from '@/components/shared/FloatingChatWidget';
 import { InvoiceViewer } from '@/components/shared/InvoiceViewer';
-import { FloatingChatWidget } from '@/components/shared/FloatingChatWidget';
 import { ratingApi } from '@/services/ratingApi';
 
 interface ModernOrdersProps {
@@ -35,6 +35,7 @@ export const ModernOrders = ({ orders, onReorder, onOrderCancelled }: ModernOrde
   const [invoiceOrderId, setInvoiceOrderId] = useState<number | null>(null);
   const [activeChatOrderId, setActiveChatOrderId] = useState<number | null>(null);
   const [activeChatOrderStatus, setActiveChatOrderStatus] = useState<string>('');
+  const [chatOpenTimestamp, setChatOpenTimestamp] = useState<number>(0);
   const [ratedChefOrders, setRatedChefOrders] = useState<Set<number>>(new Set());
   const [ratedMenuItems, setRatedMenuItems] = useState<Set<string>>(new Set());
   const [loadingRatings, setLoadingRatings] = useState(true);
@@ -295,6 +296,7 @@ export const ModernOrders = ({ orders, onReorder, onOrderCancelled }: ModernOrde
   const handleOpenChat = (orderId: number, orderStatus: string) => {
     setActiveChatOrderId(orderId);
     setActiveChatOrderStatus(orderStatus);
+    setChatOpenTimestamp(Date.now()); // Update timestamp to trigger reopen
   };
 
   const handleViewInvoice = (orderId: number) => {
@@ -613,6 +615,7 @@ export const ModernOrders = ({ orders, onReorder, onOrderCancelled }: ModernOrde
       <FloatingChatWidget 
         orderId={activeChatOrderId}
         orderStatus={activeChatOrderStatus}
+        onOpenRequest={chatOpenTimestamp}
       />
       
       {/* Invoice Viewer */}

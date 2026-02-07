@@ -39,6 +39,7 @@ import { ModernMenuGrid } from './ModernMenuGrid';
 import { ModernFooter } from './ModernFooter';
 import { ModernFavourites } from './ModernFavourites';
 import { ModernOrders } from './ModernOrders';
+import { ReviewsPage } from './ReviewsPage';
 
 export interface CartItem extends MenuItemResponse {
   quantity: number;
@@ -209,11 +210,11 @@ export const StudentDashboard = () => {
           <div className="flex flex-col">
             <div className="flex justify-between items-center h-16 gap-8">
               {/* Logo */}
-              <div className="flex items-center gap-2 shrink-0">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
-                  <UtensilsCrossed className="w-5 h-5" />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">PlatePal</span>
+              <div className="flex items-center gap-3 shrink-0">
+                <img src="/best.png" alt="PlatePal" className="w-8 h-8" />
+                <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  Plate<span className="text-[#ff6b35]">Pal</span>
+                </span>
               </div>
 
               {/* Desktop Navigation */}
@@ -246,6 +247,17 @@ export const StudentDashboard = () => {
                   <MapPin className="w-4 h-4" />
                   <span className="hidden lg:inline">Downtown, NY</span>
                 </button>
+                
+                {/* Reviews Button */}
+                <button 
+                  onClick={() => setActiveTab('reviews')}
+                  className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                  title="View Reviews"
+                >
+                  <Star className="w-4 h-4" />
+                  <span className="hidden lg:inline">Reviews</span>
+                </button>
+                
                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
                 
                 {/* Account Dropdown */}
@@ -339,6 +351,7 @@ export const StudentDashboard = () => {
               <TabsTrigger value="menu">Menu</TabsTrigger>
               <TabsTrigger value="favourites">Favourites</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
               <TabsTrigger value="testimonial">Testimonial</TabsTrigger>
             </TabsList>
           </div>
@@ -357,6 +370,10 @@ export const StudentDashboard = () => {
               onReorder={handleReorder}
               onOrderCancelled={loadOrders}
             />
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-0">
+            <ReviewsPage onClose={() => setActiveTab('menu')} />
           </TabsContent>
 
           <TabsContent value="testimonial" className="mt-0">
