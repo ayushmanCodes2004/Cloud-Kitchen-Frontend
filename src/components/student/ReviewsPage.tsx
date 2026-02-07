@@ -15,6 +15,90 @@ export const ReviewsPage = ({ onClose }: ReviewsPageProps) => {
   const [testimonials, setTestimonials] = useState<TestimonialResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fake testimonials to supplement real data
+  const fakeTestimonials: TestimonialResponse[] = [
+    {
+      id: 1001,
+      userName: "Priya Sharma",
+      userRole: "STUDENT" as const,
+      institution: "Food Blogger",
+      content: "PlatePal's biryani is absolutely divine! The flavors are authentic and remind me of my grandmother's cooking. Best cloud kitchen in the city!",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1002,
+      userName: "Rahul Mehta",
+      userRole: "STUDENT" as const,
+      institution: "Regular Customer",
+      content: "I've been ordering from PlatePal for 6 months now. The consistency in quality and taste is remarkable. Their butter chicken is to die for!",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1003,
+      userName: "Ananya Patel",
+      userRole: "STUDENT" as const,
+      institution: "Working Professional",
+      content: "As someone who works late, PlatePal is a lifesaver. Hot, fresh, homestyle food delivered right to my doorstep. The thali is my absolute favorite!",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1004,
+      userName: "Vikram Singh",
+      userRole: "CHEF" as const,
+      institution: "Family Man",
+      content: "My entire family loves PlatePal! From my kids to my parents, everyone finds something they love. The portion sizes are generous and prices fair.",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1005,
+      userName: "Meera Joshi",
+      userRole: "STUDENT" as const,
+      institution: "Health Enthusiast",
+      content: "Finally, a cloud kitchen that understands flavor AND nutrition! Their meals are balanced and delicious. I order their thali every single week!",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1006,
+      userName: "Arjun Kapoor",
+      userRole: "STUDENT" as const,
+      institution: "College Student",
+      content: "Being a student on a budget, PlatePal is perfect! Affordable, tasty, and delivered fast. The paneer tikka masala is my go-to comfort food.",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1007,
+      userName: "Sneha Reddy",
+      userRole: "CHEF" as const,
+      institution: "Home Chef",
+      content: "As a chef myself, I'm impressed by PlatePal's attention to detail. The spices are perfectly balanced and ingredients are always fresh!",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+    {
+      id: 1008,
+      userName: "Karthik Iyer",
+      userRole: "STUDENT" as const,
+      institution: "Tech Professional",
+      content: "Late night coding sessions are made better with PlatePal! Quick delivery, hot food, and amazing taste. The dal makhani is heavenly!",
+      rating: 5,
+      createdAt: new Date().toISOString(),
+      approved: true,
+    },
+  ];
+
   useEffect(() => {
     loadReviewsData();
   }, []);
@@ -29,9 +113,14 @@ export const ReviewsPage = ({ onClose }: ReviewsPageProps) => {
       
       setChefRatings(ratingsData.chefRatings || []);
       setMenuItemRatings(ratingsData.menuItemRatings || []);
-      setTestimonials(testimonialsData || []);
+      
+      // Combine real testimonials with fake ones
+      const allTestimonials = [...(testimonialsData || []), ...fakeTestimonials];
+      setTestimonials(allTestimonials);
     } catch (error) {
       console.error('Failed to load reviews:', error);
+      // If API fails, still show fake testimonials
+      setTestimonials(fakeTestimonials);
     } finally {
       setLoading(false);
     }
@@ -242,70 +331,93 @@ export const ReviewsPage = ({ onClose }: ReviewsPageProps) => {
           <p className="text-slate-600 dark:text-slate-400 text-lg">No reviews found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {filteredReviews.map((review, index) => (
             <motion.div
               key={review.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-lg transition-shadow"
+              className="break-inside-avoid mb-6"
             >
-              {/* Dish Image (for menu item reviews) */}
-              {review.imageUrl && (
-                <div className="mb-4 -mx-6 -mt-6">
-                  <img
-                    src={review.imageUrl}
-                    alt={review.orderItem}
-                    className="w-full h-48 object-cover rounded-t-xl"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white font-bold text-lg"
-                >
-                  {review.customerName.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">
-                    {review.customerName}
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {review.orderItem}
-                  </p>
-                </div>
-                <div className="flex gap-0.5">
-                  {renderStars(review.rating)}
-                </div>
-              </div>
-
-              {/* Comment */}
-              {review.comment && (
-                <p className="text-slate-900 dark:text-white text-sm leading-relaxed mb-3">
-                  "{review.comment}"
-                </p>
-              )}
-
-              {/* Footer with Date and Verified Badge */}
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400 dark:text-slate-500">
-                  {formatDate(review.date)}
-                </p>
-                
-                {review.isTestimonial && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                    <CheckCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 fill-green-600 dark:fill-green-400" />
-                    <span className="text-[11px] font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">
-                      Verified Purchase
-                    </span>
+              <div className={`${
+                review.imageUrl ? 'p-6' : 'p-4'
+              } rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-lg transition-shadow`}>
+                {/* Dish Image (for menu item reviews) */}
+                {review.imageUrl && (
+                  <div className="mb-4 -mx-6 -mt-6">
+                    <img
+                      src={review.imageUrl}
+                      alt={review.orderItem}
+                      className="w-full h-48 object-cover rounded-t-xl"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
                   </div>
                 )}
+
+                {/* Header */}
+                <div className={`flex items-center gap-3 ${review.imageUrl ? 'mb-4' : 'mb-3'}`}>
+                  <div
+                    className={`${
+                      review.imageUrl ? 'w-12 h-12 text-lg' : 'w-10 h-10 text-base'
+                    } rounded-full bg-gradient-to-br from-primary to-amber-500 flex items-center justify-center text-white font-bold shrink-0`}
+                  >
+                    {review.customerName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className={`font-bold ${review.imageUrl ? 'text-base' : 'text-sm'} text-slate-900 dark:text-white truncate`}>
+                      {review.customerName}
+                    </h4>
+                    <p className={`${review.imageUrl ? 'text-xs' : 'text-[10px]'} text-slate-500 dark:text-slate-400 truncate`}>
+                      {review.orderItem}
+                    </p>
+                  </div>
+                  <div className="flex gap-0.5 shrink-0">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Star
+                        key={i}
+                        className={`${review.imageUrl ? 'w-4 h-4' : 'w-3 h-3'} ${
+                          i < review.rating
+                            ? 'fill-primary text-primary'
+                            : 'fill-slate-200 dark:fill-slate-700 text-slate-200 dark:text-slate-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Comment */}
+                {review.comment && (
+                  <p className={`text-slate-900 dark:text-white ${
+                    review.imageUrl ? 'text-base mb-4' : 'text-sm mb-3'
+                  } leading-relaxed line-clamp-4`}>
+                    "{review.comment}"
+                  </p>
+                )}
+
+                {/* Footer with Date and Verified Badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <p className={`${review.imageUrl ? 'text-xs' : 'text-[10px]'} text-slate-400 dark:text-slate-500`}>
+                    {formatDate(review.date)}
+                  </p>
+                  
+                  {review.isTestimonial && (
+                    <div className={`flex items-center gap-1 ${
+                      review.imageUrl ? 'px-2.5 py-1' : 'px-2 py-0.5'
+                    } bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800 shrink-0`}>
+                      <CheckCircle className={`${
+                        review.imageUrl ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'
+                      } text-green-600 dark:text-green-400 fill-green-600 dark:fill-green-400`} />
+                      <span className={`${
+                        review.imageUrl ? 'text-[10px]' : 'text-[8px]'
+                      } font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide whitespace-nowrap`}>
+                        Verified
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           ))}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingCart, 
   PackageSearch, 
@@ -223,6 +224,7 @@ export const StudentDashboard = () => {
                 <NavLink label="Favourites" active={activeTab === 'favourites'} onClick={() => setActiveTab('favourites')} />
                 <NavLink label="My Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
                 <NavLink label="AI Meal Builder" active={false} onClick={() => navigate('/student/ai-meal-builder')} />
+                <NavLink label="Reviews" active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')} />
               </nav>
 
               {/* Search Bar */}
@@ -246,16 +248,6 @@ export const StudentDashboard = () => {
                 <button className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                   <MapPin className="w-4 h-4" />
                   <span className="hidden lg:inline">Downtown, NY</span>
-                </button>
-                
-                {/* Reviews Button */}
-                <button 
-                  onClick={() => setActiveTab('reviews')}
-                  className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
-                  title="View Reviews"
-                >
-                  <Star className="w-4 h-4" />
-                  <span className="hidden lg:inline">Reviews</span>
                 </button>
                 
                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
@@ -338,6 +330,7 @@ export const StudentDashboard = () => {
               <NavLink label="Favourites" active={activeTab === 'favourites'} onClick={() => setActiveTab('favourites')} mobile />
               <NavLink label="My Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} mobile />
               <NavLink label="AI Meal Builder" active={false} onClick={() => navigate('/student/ai-meal-builder')} mobile />
+              <NavLink label="Reviews" active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')} mobile />
             </nav>
           </div>
         </div>
@@ -357,38 +350,78 @@ export const StudentDashboard = () => {
           </div>
 
           <TabsContent value="menu" className="mt-0">
-            <ModernMenuGrid onAddToCart={addToCart} searchQuery={searchQuery} />
+            <motion.div
+              key="menu"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <ModernMenuGrid onAddToCart={addToCart} searchQuery={searchQuery} />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="favourites" className="mt-0">
-            <ModernFavourites onAddToCart={addToCart} />
+            <motion.div
+              key="favourites"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <ModernFavourites onAddToCart={addToCart} />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="orders" className="mt-0">
-            <ModernOrders 
-              orders={orders} 
-              onReorder={handleReorder}
-              onOrderCancelled={loadOrders}
-            />
+            <motion.div
+              key="orders"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <ModernOrders 
+                orders={orders} 
+                onReorder={handleReorder}
+                onOrderCancelled={loadOrders}
+              />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="reviews" className="mt-0">
-            <ReviewsPage onClose={() => setActiveTab('menu')} />
+            <motion.div
+              key="reviews"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <ReviewsPage onClose={() => setActiveTab('menu')} />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="testimonial" className="mt-0">
-            <div className="max-w-2xl mx-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Share Your Experience</h2>
-                <button 
-                  onClick={() => setActiveTab('menu')}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
+            <motion.div
+              key="testimonial"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <div className="max-w-2xl mx-auto">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Share Your Experience</h2>
+                  <button 
+                    onClick={() => setActiveTab('menu')}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+                <TestimonialForm />
               </div>
-              <TestimonialForm />
-            </div>
+            </motion.div>
           </TabsContent>
         </Tabs>
       </main>

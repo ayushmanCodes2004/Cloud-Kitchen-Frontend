@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Heart, Star, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Star, Plus, Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { favouriteApi, Favourite } from '@/services/favouriteApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { MenuItemResponse } from '@/services/chefApi';
 import { ratingApi, MenuItemRatingStats } from '@/services/ratingApi';
+import { useNavigate } from 'react-router-dom';
 
 interface ModernFavouritesProps {
   onAddToCart: (item: MenuItemResponse) => void;
@@ -18,6 +19,7 @@ export const ModernFavourites = ({ onAddToCart }: ModernFavouritesProps) => {
   const [menuItemRatings, setMenuItemRatings] = useState<Map<number, { rating: number; count: number }>>(new Map());
   const { token } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const itemsPerPage = 9;
 
   useEffect(() => {
@@ -153,102 +155,151 @@ export const ModernFavourites = ({ onAddToCart }: ModernFavouritesProps) => {
 
       {/* Favourites Grid */}
       {currentItems.length > 0 && (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {currentItems.map((favourite) => (
-            <div
-              key={favourite.id}
-              className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all group flex flex-col h-full"
-            >
-              <div className="relative aspect-video overflow-hidden">
-                <img
-                  alt={favourite.menuItem.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  src={favourite.menuItem.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800'}
-                />
-                <button
-                  onClick={() => removeFavourite(favourite.menuItem.id)}
-                  className="absolute top-3 right-3 w-10 h-10 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-full flex items-center justify-center text-primary transition-all hover:scale-110"
-                >
-                  <Heart className="w-5 h-5 fill-current" />
-                </button>
-                {favourite.menuItem.vegetarian && (
-                  <div className="absolute top-3 left-3 bg-green-500/90 backdrop-blur-sm px-2 py-1 rounded-md flex items-center gap-1">
-                    <span className="text-[10px] font-bold uppercase text-white">Veg</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-                    {favourite.menuItem.name}
-                  </h3>
-                  {menuItemRatings.has(favourite.menuItem.id) && menuItemRatings.get(favourite.menuItem.id)!.count > 0 ? (
-                    <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-xs font-bold">
-                      <Star className="w-3 h-3 fill-current" />
-                      {menuItemRatings.get(favourite.menuItem.id)!.rating.toFixed(1)}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded text-xs font-bold">
-                      <Star className="w-3 h-3" />
-                      New
+        <>
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {currentItems.map((favourite) => (
+              <div
+                key={favourite.id}
+                className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all group flex flex-col h-full"
+              >
+                <div className="relative aspect-video overflow-hidden">
+                  <img
+                    alt={favourite.menuItem.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    src={favourite.menuItem.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800'}
+                  />
+                  <button
+                    onClick={() => removeFavourite(favourite.menuItem.id)}
+                    className="absolute top-3 right-3 w-10 h-10 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-full flex items-center justify-center text-primary transition-all hover:scale-110"
+                  >
+                    <Heart className="w-5 h-5 fill-current" />
+                  </button>
+                  {favourite.menuItem.vegetarian && (
+                    <div className="absolute top-3 left-3 bg-green-500/90 backdrop-blur-sm px-2 py-1 rounded-md flex items-center gap-1">
+                      <span className="text-[10px] font-bold uppercase text-white">Veg</span>
                     </div>
                   )}
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">
-                  {favourite.menuItem.description || 'Delicious dish prepared with fresh ingredients'}
-                </p>
-                <div className="mt-auto flex items-center justify-between">
-                  <span className="text-2xl font-bold">₹{favourite.menuItem.price.toFixed(2)}</span>
-                  <button
-                    onClick={() => onAddToCart(favourite.menuItem)}
-                    className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add to Cart
-                  </button>
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+                      {favourite.menuItem.name}
+                    </h3>
+                    {menuItemRatings.has(favourite.menuItem.id) && menuItemRatings.get(favourite.menuItem.id)!.count > 0 ? (
+                      <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-xs font-bold">
+                        <Star className="w-3 h-3 fill-current" />
+                        {menuItemRatings.get(favourite.menuItem.id)!.rating.toFixed(1)}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded text-xs font-bold">
+                        <Star className="w-3 h-3" />
+                        New
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">
+                    {favourite.menuItem.description || 'Delicious dish prepared with fresh ingredients'}
+                  </p>
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="text-2xl font-bold">₹{favourite.menuItem.price.toFixed(2)}</span>
+                    <button
+                      onClick={() => onAddToCart(favourite.menuItem)}
+                      className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </section>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-12">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              <div className="flex gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-10 h-10 rounded-lg font-semibold transition-colors ${
+                      currentPage === page
+                        ? 'bg-primary text-white'
+                        : 'border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
-          ))}
-        </section>
+          )}
+        </>
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-12">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          
-          <div className="flex gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-lg font-semibold transition-colors ${
-                  currentPage === page
-                    ? 'bg-primary text-white'
-                    : 'border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+      {/* AI Recommendation Box */}
+      <div className="mt-16 mb-8 bg-gradient-to-br from-orange-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 rounded-3xl overflow-hidden border border-orange-100 dark:border-slate-700">
+        <div className="flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+          {/* Image */}
+          <div className="w-full md:w-2/5 flex-shrink-0">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80"
+                alt="AI Meal Selection"
+                className="w-full h-64 md:h-72 object-cover"
+              />
+            </div>
           </div>
 
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+          {/* Content */}
+          <div className="flex-1 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              AI Selection For You
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+              Can't decide on a favourite?
+            </h2>
+            
+            <p className="text-slate-600 dark:text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
+              Our AI Meal Builder analyzes your taste preferences and past favourites to suggest the perfect dish for your mood today.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+              <button
+                onClick={() => navigate('/student/ai-meal-builder')}
+                className="bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-xl font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/30"
+              >
+                Try AI Builder
+              </button>
+              <button
+                onClick={() => navigate('/student/dashboard')}
+                className="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white px-8 py-3.5 rounded-xl font-bold text-base transition-all border border-slate-200 dark:border-slate-700"
+              >
+                View Menu
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

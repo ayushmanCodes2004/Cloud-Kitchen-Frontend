@@ -394,9 +394,10 @@ export const ModernMenuGrid = ({ onAddToCart, searchQuery = '' }: ModernMenuGrid
                 <span className="text-2xl font-bold">₹{item.price.toFixed(2)}</span>
                 <button
                   onClick={() => onAddToCart(item)}
-                  className="w-10 h-10 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl flex items-center justify-center transition-all"
+                  className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4" />
+                  Add to Cart
                 </button>
               </div>
             </div>
