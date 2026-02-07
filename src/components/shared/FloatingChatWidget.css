@@ -17,15 +17,19 @@
   z-index: 110;
   transition: all 0.3s ease;
   position: relative;
+  opacity: 0; /* 100% transparent - invisible */
+  pointer-events: none; /* Disable all click/hover interactions */
 }
 
 .chat-toggle-button:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+  opacity: 0; /* Keep transparent on hover */
 }
 
 .chat-toggle-button:active {
   transform: scale(0.95);
+  opacity: 0; /* Keep transparent when clicked */
 }
 
 .unread-badge {
@@ -290,6 +294,7 @@
   display: flex;
   flex-direction: column;
   max-width: 75%;
+  min-width: 60px;
 }
 
 .message-content {
@@ -297,7 +302,9 @@
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.4;
-  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .message-chef .message-content {
@@ -377,45 +384,8 @@
   cursor: not-allowed;
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .floating-chat-widget {
-    background: #1f2937;
-  }
-
-  .chat-messages {
-    background: #111827;
-  }
-
-  .message-chef .message-content {
-    background: #374151;
-    color: #f3f4f6;
-    border-color: #4b5563;
-  }
-
-  .welcome-message h4 {
-    color: #f3f4f6;
-  }
-
-  .welcome-message p {
-    color: #9ca3af;
-  }
-
-  .chat-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f3f4f6;
-  }
-
-  .chat-input:disabled {
-    background: #1f2937;
-  }
-
-  .chat-input-container {
-    background: #1f2937;
-    border-top-color: #374151;
-  }
-}
+/* Dark Mode Support - Disabled to keep light theme always */
+/* Chat widget will always use light theme regardless of system preference */
 
 /* Mobile Responsive */
 @media (max-width: 768px) {

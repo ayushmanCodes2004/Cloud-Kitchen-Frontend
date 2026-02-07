@@ -271,26 +271,46 @@ export const StudentDashboard = () => {
                       ></div>
                       
                       {/* Dropdown Menu */}
-                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50">
-                        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {user?.name || 'User'}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                            {user?.email || ''}
-                          </p>
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-3 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-50"
+                      >
+                        {/* User Info Header */}
+                        <div className="px-4 py-4 bg-gradient-to-br from-primary/10 to-orange-600/10 border-b border-slate-200 dark:border-slate-800">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white font-bold text-lg">
+                              {user?.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                {user?.name || 'User'}
+                              </p>
+                              <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                                {user?.email || ''}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                         
-                        <div className="py-1">
+                        {/* Menu Items */}
+                        <div className="py-2">
                           <button
                             onClick={() => {
                               setShowAccountMenu(false);
                               navigate('/student/subscription');
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 dark:hover:from-amber-900/20 dark:hover:to-orange-900/20 transition-all group"
                           >
-                            <Crown className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <span>Gold Plan</span>
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:dark:to-orange-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <Crown className="w-5 h-5 text-amber-600 dark:text-amber-400 fill-amber-600 dark:fill-amber-400" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="font-semibold text-slate-900 dark:text-white">Gold Plan</div>
+                              <div className="text-xs text-slate-500 dark:text-slate-400">Upgrade your account</div>
+                            </div>
                           </button>
                           
                           <button
@@ -298,26 +318,36 @@ export const StudentDashboard = () => {
                               setShowAccountMenu(false);
                               setActiveTab('testimonial');
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
                           >
-                            <MessageCircle className="w-4 h-4" />
-                            <span>Testimonials</span>
+                            <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <MessageCircle className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="font-semibold text-slate-900 dark:text-white">Testimonials</div>
+                              <div className="text-xs text-slate-500 dark:text-slate-400">Share your experience</div>
+                            </div>
                           </button>
                           
-                          <div className="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+                          <div className="my-2 mx-4 border-t border-slate-200 dark:border-slate-800"></div>
                           
                           <button
                             onClick={() => {
                               setShowAccountMenu(false);
                               logout();
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all group"
                           >
-                            <LogOut className="w-4 h-4" />
-                            <span>Logout</span>
+                            <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="font-semibold">Logout</div>
+                              <div className="text-xs text-red-500 dark:text-red-400">Sign out of your account</div>
+                            </div>
                           </button>
                         </div>
-                      </div>
+                      </motion.div>
                     </>
                   )}
                 </div>

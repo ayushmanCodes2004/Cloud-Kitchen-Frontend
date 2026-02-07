@@ -323,8 +323,8 @@ export const ModernMenuGrid = ({ onAddToCart, searchQuery = '' }: ModernMenuGrid
       </section>
 
       {/* Category Filter */}
-      <div className="sticky top-16 xl:top-24 z-40 py-4 bg-[#f8f6f6] dark:bg-[#221510] -mx-8 px-8">
-        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+      <div className="sticky top-16 z-40 bg-[#f8f6f6] dark:bg-[#221510] -mx-8 px-8 py-4">
+        <div className="flex gap-3 overflow-x-auto no-scrollbar">
           {categories.map((category) => (
             <button
               key={category}
