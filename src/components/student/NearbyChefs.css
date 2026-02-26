@@ -1,0 +1,11 @@
+/* Custom styling for chef markers */
+.custom-chef-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Ensure map controls are above the map */
+.pigeon-map-container {
+  position: relative;
+  z-index: 0;
+}

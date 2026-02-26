@@ -40,6 +40,7 @@ import { ModernMenuGrid } from './ModernMenuGrid';
 import { ModernFooter } from './ModernFooter';
 import { ModernFavourites } from './ModernFavourites';
 import { ModernOrders } from './ModernOrders';
+import { NearbyChefs } from './NearbyChefs';
 import { ReviewsPage } from './ReviewsPage';
 
 export interface CartItem extends MenuItemResponse {
@@ -58,6 +59,62 @@ export const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [cityName, setCityName] = useState<string>(''); // Current city name
+  const [loadingCity, setLoadingCity] = useState(false); // Loading state for city name
+
+  // Reverse geocode to get city name from coordinates
+  const getCityName = async (lat: number, lng: number) => {
+    setLoadingCity(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+        {
+          headers: {
+            'Accept-Language': 'en',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch city name');
+      }
+
+      const data = await response.json();
+      
+      // Extract city name from response (try multiple fields)
+      const city = data.address?.city || 
+                   data.address?.town || 
+                   data.address?.village || 
+                   data.address?.state_district ||
+                   data.address?.state ||
+                   'Location';
+      
+      setCityName(city);
+    } catch (error) {
+      console.error('Error fetching city name:', error);
+      setCityName('Location');
+    } finally {
+      setLoadingCity(false);
+    }
+  };
+
+  // Get user's current location and city name on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          getCityName(latitude, longitude);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setCityName('Location');
+        }
+      );
+    } else {
+      setCityName('Location');
+    }
+  }, []);
 
   useEffect(() => {
     loadOrders();
@@ -245,9 +302,15 @@ export const StudentDashboard = () => {
 
               {/* Right Actions */}
               <div className="flex items-center gap-3">
-                <button className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+                <button 
+                  onClick={() => setActiveTab('nearby')}
+                  className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                  title="View Nearby Chefs"
+                >
                   <MapPin className="w-4 h-4" />
-                  <span className="hidden lg:inline">Downtown, NY</span>
+                  <span className="hidden lg:inline">
+                    {loadingCity ? 'Loading...' : (cityName || 'Location')}
+                  </span>
                 </button>
                 
                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
@@ -374,6 +437,7 @@ export const StudentDashboard = () => {
               <TabsTrigger value="menu">Menu</TabsTrigger>
               <TabsTrigger value="favourites">Favourites</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
+              <TabsTrigger value="nearby">Nearby Chefs</TabsTrigger>
               <TabsTrigger value="reviews">Reviews</TabsTrigger>
               <TabsTrigger value="testimonial">Testimonial</TabsTrigger>
             </TabsList>
@@ -416,6 +480,18 @@ export const StudentDashboard = () => {
                 onReorder={handleReorder}
                 onOrderCancelled={loadOrders}
               />
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="nearby" className="mt-0">
+            <motion.div
+              key="nearby"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <NearbyChefs />
             </motion.div>
           </TabsContent>
 
